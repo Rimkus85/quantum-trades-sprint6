@@ -1,0 +1,488 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Quantum Trades - Sistema de Alertas</title>
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(135deg, #1a1a2e 0%, #16213e 50%, #0f3460 100%);
+            color: #ffffff;
+            min-height: 100vh;
+        }
+
+        /* Sistema de Alertas Unificado */
+        .alert-container {
+            position: fixed;
+            top: 20px;
+            right: 20px;
+            z-index: 9999;
+            max-width: 400px;
+        }
+
+        .alert {
+            background: rgba(26, 26, 46, 0.95);
+            border-left: 4px solid;
+            border-radius: 8px;
+            padding: 1rem;
+            margin-bottom: 1rem;
+            box-shadow: 0 4px 20px rgba(0, 0, 0, 0.4);
+            backdrop-filter: blur(10px);
+            transform: translateX(100%);
+            transition: all 0.3s ease;
+            display: flex;
+            align-items: center;
+            gap: 1rem;
+        }
+
+        .alert.show {
+            transform: translateX(0);
+        }
+
+        .alert.success {
+            border-color: #4CAF50;
+        }
+
+        .alert.warning {
+            border-color: #ff9800;
+        }
+
+        .alert.error {
+            border-color: #f44336;
+        }
+
+        .alert.info {
+            border-color: #2196f3;
+        }
+
+        .alert-icon {
+            font-size: 1.2rem;
+            min-width: 20px;
+        }
+
+        .alert.success .alert-icon {
+            color: #4CAF50;
+        }
+
+        .alert.warning .alert-icon {
+            color: #ff9800;
+        }
+
+        .alert.error .alert-icon {
+            color: #f44336;
+        }
+
+        .alert.info .alert-icon {
+            color: #2196f3;
+        }
+
+        .alert-content {
+            flex: 1;
+        }
+
+        .alert-title {
+            font-weight: bold;
+            margin-bottom: 0.25rem;
+            color: #ffd700;
+        }
+
+        .alert-message {
+            font-size: 0.9rem;
+            color: #ffffff;
+            opacity: 0.9;
+        }
+
+        .alert-close {
+            background: none;
+            border: none;
+            color: #ffffff;
+            cursor: pointer;
+            font-size: 1.1rem;
+            opacity: 0.7;
+            transition: opacity 0.3s ease;
+        }
+
+        .alert-close:hover {
+            opacity: 1;
+        }
+
+        /* Modal de Alertas */
+        .alerts-modal {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0, 0, 0, 0.8);
+            display: none;
+            justify-content: center;
+            align-items: center;
+            z-index: 10000;
+        }
+
+        .alerts-modal.show {
+            display: flex;
+        }
+
+        .alerts-modal-content {
+            background: linear-gradient(135deg, #1a1a2e 0%, #16213e 100%);
+            border-radius: 16px;
+            padding: 2rem;
+            max-width: 600px;
+            width: 90%;
+            max-height: 80vh;
+            overflow-y: auto;
+            box-shadow: 0 8px 32px rgba(0, 0, 0, 0.3);
+        }
+
+        .alerts-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 2rem;
+            border-bottom: 1px solid rgba(255, 215, 0, 0.2);
+            padding-bottom: 1rem;
+        }
+
+        .alerts-title {
+            font-size: 1.5rem;
+            color: #ffd700;
+            font-weight: bold;
+        }
+
+        .alert-item {
+            background: rgba(26, 26, 46, 0.5);
+            border-radius: 8px;
+            padding: 1rem;
+            margin-bottom: 1rem;
+            border-left: 4px solid;
+        }
+
+        .alert-item.price {
+            border-color: #4CAF50;
+        }
+
+        .alert-item.volume {
+            border-color: #2196f3;
+        }
+
+        .alert-item.technical {
+            border-color: #ff9800;
+        }
+
+        .alert-meta {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 0.5rem;
+        }
+
+        .alert-time {
+            font-size: 0.8rem;
+            color: #888;
+        }
+
+        .alert-status {
+            padding: 0.25rem 0.5rem;
+            border-radius: 4px;
+            font-size: 0.8rem;
+            font-weight: bold;
+        }
+
+        .alert-status.active {
+            background: #4CAF50;
+            color: white;
+        }
+
+        .alert-status.triggered {
+            background: #ff9800;
+            color: white;
+        }
+
+        /* Botões de Ação */
+        .alert-actions {
+            display: flex;
+            gap: 0.5rem;
+            margin-top: 1rem;
+        }
+
+        .btn-alert {
+            padding: 0.5rem 1rem;
+            border: none;
+            border-radius: 6px;
+            cursor: pointer;
+            font-size: 0.9rem;
+            transition: all 0.3s ease;
+        }
+
+        .btn-primary {
+            background: linear-gradient(135deg, #ffd700, #ffed4e);
+            color: #1a1a2e;
+            font-weight: bold;
+        }
+
+        .btn-secondary {
+            background: rgba(255, 255, 255, 0.1);
+            color: #ffffff;
+            border: 1px solid rgba(255, 255, 255, 0.2);
+        }
+
+        .btn-danger {
+            background: linear-gradient(135deg, #f44336, #d32f2f);
+            color: white;
+        }
+
+        /* Responsividade */
+        @media (max-width: 768px) {
+            .alert-container {
+                right: 10px;
+                left: 10px;
+                max-width: none;
+            }
+
+            .alerts-modal-content {
+                margin: 1rem;
+                width: calc(100% - 2rem);
+            }
+        }
+    </style>
+</head>
+<body>
+    <!-- Container de Alertas Toast -->
+    <div id="alertContainer" class="alert-container"></div>
+
+    <!-- Modal de Alertas -->
+    <div id="alertsModal" class="alerts-modal">
+        <div class="alerts-modal-content">
+            <div class="alerts-header">
+                <h2 class="alerts-title">
+                    <i class="fas fa-bell"></i>
+                    Sistema de Alertas
+                </h2>
+                <button class="alert-close" onclick="closeAlertsModal()">
+                    <i class="fas fa-times"></i>
+                </button>
+            </div>
+
+            <div id="alertsList">
+                <!-- Alertas serão carregados aqui -->
+            </div>
+
+            <div class="alert-actions">
+                <button class="btn-alert btn-primary" onclick="createNewAlert()">
+                    <i class="fas fa-plus"></i>
+                    Novo Alerta
+                </button>
+                <button class="btn-alert btn-secondary" onclick="markAllAsRead()">
+                    <i class="fas fa-check-double"></i>
+                    Marcar Todos como Lidos
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // Sistema de Alertas Unificado
+        class AlertSystem {
+            constructor() {
+                this.alerts = [];
+                this.container = document.getElementById('alertContainer');
+                this.loadAlerts();
+            }
+
+            // Mostrar toast
+            showToast(type, title, message, duration = 5000) {
+                const alert = document.createElement('div');
+                alert.className = `alert ${type}`;
+                
+                const icon = this.getIcon(type);
+                
+                alert.innerHTML = `
+                    <div class="alert-icon">
+                        <i class="${icon}"></i>
+                    </div>
+                    <div class="alert-content">
+                        <div class="alert-title">${title}</div>
+                        <div class="alert-message">${message}</div>
+                    </div>
+                    <button class="alert-close" onclick="this.parentElement.remove()">
+                        <i class="fas fa-times"></i>
+                    </button>
+                `;
+
+                this.container.appendChild(alert);
+                
+                // Animação de entrada
+                setTimeout(() => alert.classList.add('show'), 100);
+                
+                // Auto-remover
+                if (duration > 0) {
+                    setTimeout(() => {
+                        alert.classList.remove('show');
+                        setTimeout(() => alert.remove(), 300);
+                    }, duration);
+                }
+
+                return alert;
+            }
+
+            getIcon(type) {
+                const icons = {
+                    success: 'fas fa-check-circle',
+                    warning: 'fas fa-exclamation-triangle',
+                    error: 'fas fa-times-circle',
+                    info: 'fas fa-info-circle'
+                };
+                return icons[type] || icons.info;
+            }
+
+            // Adicionar alerta persistente
+            addAlert(type, title, message, asset = null) {
+                const alert = {
+                    id: Date.now(),
+                    type,
+                    title,
+                    message,
+                    asset,
+                    timestamp: new Date(),
+                    status: 'active',
+                    read: false
+                };
+
+                this.alerts.unshift(alert);
+                this.saveAlerts();
+                this.showToast(type, title, message);
+                
+                return alert;
+            }
+
+            // Carregar alertas do localStorage
+            loadAlerts() {
+                const saved = localStorage.getItem('quantumTradesAlerts');
+                if (saved) {
+                    this.alerts = JSON.parse(saved);
+                }
+            }
+
+            // Salvar alertas no localStorage
+            saveAlerts() {
+                localStorage.setItem('quantumTradesAlerts', JSON.stringify(this.alerts));
+            }
+
+            // Renderizar lista de alertas
+            renderAlertsList() {
+                const container = document.getElementById('alertsList');
+                if (!container) return;
+
+                if (this.alerts.length === 0) {
+                    container.innerHTML = `
+                        <div style="text-align: center; padding: 2rem; color: #888;">
+                            <i class="fas fa-bell-slash" style="font-size: 3rem; margin-bottom: 1rem;"></i>
+                            <p>Nenhum alerta configurado</p>
+                        </div>
+                    `;
+                    return;
+                }
+
+                container.innerHTML = this.alerts.map(alert => `
+                    <div class="alert-item ${alert.type}">
+                        <div class="alert-meta">
+                            <span class="alert-time">${this.formatTime(alert.timestamp)}</span>
+                            <span class="alert-status ${alert.status}">${alert.status}</span>
+                        </div>
+                        <div class="alert-title">${alert.title}</div>
+                        <div class="alert-message">${alert.message}</div>
+                        ${alert.asset ? `<div style="margin-top: 0.5rem; color: #ffd700;">Ativo: ${alert.asset}</div>` : ''}
+                        <div class="alert-actions">
+                            <button class="btn-alert btn-secondary" onclick="alertSystem.toggleAlert(${alert.id})">
+                                ${alert.status === 'active' ? 'Pausar' : 'Ativar'}
+                            </button>
+                            <button class="btn-alert btn-danger" onclick="alertSystem.removeAlert(${alert.id})">
+                                Remover
+                            </button>
+                        </div>
+                    </div>
+                `).join('');
+            }
+
+            formatTime(timestamp) {
+                return new Date(timestamp).toLocaleString('pt-BR');
+            }
+
+            toggleAlert(id) {
+                const alert = this.alerts.find(a => a.id === id);
+                if (alert) {
+                    alert.status = alert.status === 'active' ? 'paused' : 'active';
+                    this.saveAlerts();
+                    this.renderAlertsList();
+                }
+            }
+
+            removeAlert(id) {
+                this.alerts = this.alerts.filter(a => a.id !== id);
+                this.saveAlerts();
+                this.renderAlertsList();
+            }
+
+            markAllAsRead() {
+                this.alerts.forEach(alert => alert.read = true);
+                this.saveAlerts();
+                this.renderAlertsList();
+            }
+        }
+
+        // Inicializar sistema
+        const alertSystem = new AlertSystem();
+
+        // Funções globais
+        function showAlertsModal() {
+            document.getElementById('alertsModal').classList.add('show');
+            alertSystem.renderAlertsList();
+        }
+
+        function closeAlertsModal() {
+            document.getElementById('alertsModal').classList.remove('show');
+        }
+
+        function createNewAlert() {
+            const title = prompt('Título do alerta:');
+            if (!title) return;
+            
+            const message = prompt('Mensagem do alerta:');
+            if (!message) return;
+            
+            const asset = prompt('Ativo (opcional):');
+            
+            alertSystem.addAlert('info', title, message, asset);
+            alertSystem.renderAlertsList();
+        }
+
+        function markAllAsRead() {
+            alertSystem.markAllAsRead();
+        }
+
+        // Exemplos de uso
+        setTimeout(() => {
+            alertSystem.showToast('success', 'Sistema Iniciado', 'Quantum Trades carregado com sucesso!');
+        }, 1000);
+
+        // Simular alertas de exemplo
+        setTimeout(() => {
+            alertSystem.addAlert('warning', 'Alerta de Preço', 'PETR4 atingiu R$ 28,50', 'PETR4');
+        }, 3000);
+
+        setTimeout(() => {
+            alertSystem.addAlert('info', 'Análise Técnica', 'VALE3 formou padrão de reversão', 'VALE3');
+        }, 5000);
+    </script>
+</body>
+</html>
+

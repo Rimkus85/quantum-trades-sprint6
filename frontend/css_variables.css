@@ -1,0 +1,89 @@
+/* 🎨 QUANTUM TRADES - VARIÁVEIS CSS PADRONIZADAS */
+
+:root {
+    /* === CORES PRINCIPAIS === */
+    --primary-blue: #1a1a2e;
+    --secondary-blue: #16213e;
+    --accent-blue: #0f3460;
+    --quantum-gold: #ffd700;
+    --quantum-gold-light: #ffed4e;
+    
+    /* === GRADIENTES PADRONIZADOS === */
+    --gradient-main: linear-gradient(135deg, #1a1a2e 0%, #16213e 50%, #0f3460 100%);
+    --gradient-menu: linear-gradient(180deg, #1a1a2e 0%, #16213e 100%);
+    --gradient-gold: linear-gradient(135deg, #ffd700, #ffed4e);
+    --gradient-success: linear-gradient(135deg, #4CAF50, #45a049);
+    --gradient-danger: linear-gradient(135deg, #f44336, #d32f2f);
+    
+    /* === CORES DE ESTADO === */
+    --success-color: #4CAF50;
+    --danger-color: #f44336;
+    --warning-color: #ff9800;
+    --info-color: #2196f3;
+    
+    /* === CORES DE TEXTO === */
+    --text-primary: #ffffff;
+    --text-secondary: #b0b0b0;
+    --text-muted: #888888;
+    
+    /* === TRANSPARÊNCIAS === */
+    --overlay-dark: rgba(0, 0, 0, 0.5);
+    --overlay-light: rgba(255, 255, 255, 0.1);
+    --gold-overlay: rgba(255, 215, 0, 0.1);
+    --gold-border: rgba(255, 215, 0, 0.2);
+    
+    /* === SOMBRAS === */
+    --shadow-card: 0 8px 32px rgba(0, 0, 0, 0.3);
+    --shadow-button: 0 4px 15px rgba(255, 215, 0, 0.3);
+    --shadow-menu: 0 4px 20px rgba(0, 0, 0, 0.4);
+    
+    /* === BORDAS === */
+    --border-radius: 12px;
+    --border-radius-small: 8px;
+    --border-radius-large: 16px;
+    
+    /* === ESPAÇAMENTOS === */
+    --spacing-xs: 0.25rem;
+    --spacing-sm: 0.5rem;
+    --spacing-md: 1rem;
+    --spacing-lg: 1.5rem;
+    --spacing-xl: 2rem;
+    --spacing-xxl: 3rem;
+    
+    /* === FONTES === */
+    --font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+    --font-size-xs: 0.75rem;
+    --font-size-sm: 0.875rem;
+    --font-size-base: 1rem;
+    --font-size-lg: 1.125rem;
+    --font-size-xl: 1.25rem;
+    --font-size-2xl: 1.5rem;
+    --font-size-3xl: 2rem;
+    
+    /* === TRANSIÇÕES === */
+    --transition-fast: 0.15s ease;
+    --transition-normal: 0.3s ease;
+    --transition-slow: 0.5s ease;
+}
+
+/* === CLASSES UTILITÁRIAS === */
+.bg-primary { background: var(--gradient-main); }
+.bg-menu { background: var(--gradient-menu); }
+.bg-gold { background: var(--gradient-gold); }
+.bg-success { background: var(--gradient-success); }
+.bg-danger { background: var(--gradient-danger); }
+
+.text-primary { color: var(--text-primary); }
+.text-secondary { color: var(--text-secondary); }
+.text-gold { color: var(--quantum-gold); }
+.text-success { color: var(--success-color); }
+.text-danger { color: var(--danger-color); }
+
+.shadow-card { box-shadow: var(--shadow-card); }
+.shadow-button { box-shadow: var(--shadow-button); }
+.shadow-menu { box-shadow: var(--shadow-menu); }
+
+.transition-fast { transition: all var(--transition-fast); }
+.transition-normal { transition: all var(--transition-normal); }
+.transition-slow { transition: all var(--transition-slow); }
+

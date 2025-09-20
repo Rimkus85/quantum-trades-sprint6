@@ -1,0 +1,1045 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Quantum Trades - Dashboard Profissional</title>
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            margin: 0;
+            padding: 0;
+            padding-top: 80px;
+            font-family: 'Inter', 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(135deg, #1a1a2e 0%, #16213e 50%, #0f3460 100%);
+            color: #ffffff;
+            min-height: 100vh;
+            overflow-x: hidden;
+        }
+
+        /* Header */
+        .header {
+            background: rgba(26, 26, 46, 0.95);
+            backdrop-filter: blur(10px);
+            padding: 1rem 2rem;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            border-bottom: 1px solid rgba(255, 215, 0, 0.2);
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            z-index: 1000;
+            transition: all 0.3s ease;
+        }
+
+        .logo {
+            display: flex;
+            align-items: center;
+            gap: 0.75rem;
+            font-size: 1.2rem;
+            font-weight: 700;
+            color: #ffd700;
+        }
+
+        .logo-image {
+            width: 40px;
+            height: 40px;
+            filter: drop-shadow(0 2px 4px rgba(0,0,0,0.3));
+        }
+
+        .header-actions {
+            display: flex;
+            gap: 1rem;
+            align-items: center;
+        }
+
+        .connection-status {
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+            padding: 0.5rem 1rem;
+            background: rgba(255, 215, 0, 0.1);
+            border: 1px solid rgba(255, 215, 0, 0.3);
+            border-radius: 8px;
+            font-size: 0.875rem;
+        }
+
+        .status-dot {
+            width: 8px;
+            height: 8px;
+            border-radius: 50%;
+            background: #00ff88;
+            animation: pulse 2s infinite;
+        }
+
+        @keyframes pulse {
+            0%, 100% { opacity: 1; }
+            50% { opacity: 0.5; }
+        }
+
+        .btn {
+            padding: 0.5rem 1rem;
+            border: none;
+            border-radius: 8px;
+            cursor: pointer;
+            font-weight: 500;
+            transition: all 0.3s ease;
+            text-decoration: none;
+            display: inline-flex;
+            align-items: center;
+            gap: 0.5rem;
+            font-family: 'Inter', sans-serif;
+        }
+
+        .btn-primary {
+            background: linear-gradient(135deg, #ffd700, #ffed4e);
+            color: #1a1a2e;
+        }
+
+        .btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 8px 25px rgba(255, 215, 0, 0.4);
+        }
+
+        /* Main Content */
+        .main-content {
+            padding: 2rem;
+            max-width: 1400px;
+            margin: 0 auto;
+        }
+
+        /* Dashboard Grid */
+        .dashboard-grid {
+            display: grid;
+            grid-template-columns: 1fr 1fr 1fr 1fr;
+            gap: 1.5rem;
+            margin-bottom: 2rem;
+        }
+
+        .dashboard-card {
+            background: rgba(26, 26, 46, 0.8);
+            backdrop-filter: blur(10px);
+            border: 1px solid rgba(255, 215, 0, 0.2);
+            border-radius: 16px;
+            padding: 1.5rem;
+            transition: all 0.3s ease;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .dashboard-card::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            height: 3px;
+            background: linear-gradient(90deg, #ffd700, #ffed4e);
+            opacity: 0;
+            transition: opacity 0.3s ease;
+        }
+
+        .dashboard-card:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 20px 40px rgba(0, 0, 0, 0.3);
+            border-color: rgba(255, 215, 0, 0.4);
+        }
+
+        .dashboard-card:hover::before {
+            opacity: 1;
+        }
+
+        .card-header {
+            display: flex;
+            justify-content: between;
+            align-items: center;
+            margin-bottom: 1rem;
+        }
+
+        .card-title {
+            font-size: 0.875rem;
+            font-weight: 500;
+            color: #b0b0b0;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+        }
+
+        .card-icon {
+            color: #ffd700;
+            font-size: 1.5rem;
+        }
+
+        .card-value {
+            font-size: 2rem;
+            font-weight: 700;
+            color: #ffffff;
+            margin-bottom: 0.5rem;
+        }
+
+        .card-change {
+            font-size: 0.875rem;
+            font-weight: 500;
+            display: flex;
+            align-items: center;
+            gap: 0.25rem;
+        }
+
+        .change-positive {
+            color: #00ff88;
+        }
+
+        .change-negative {
+            color: #ff4757;
+        }
+
+        /* Chart Section */
+        .chart-section {
+            background: rgba(26, 26, 46, 0.8);
+            backdrop-filter: blur(10px);
+            border: 1px solid rgba(255, 215, 0, 0.2);
+            border-radius: 16px;
+            padding: 2rem;
+            margin-bottom: 2rem;
+        }
+
+        .chart-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 2rem;
+        }
+
+        .chart-title {
+            font-size: 1.5rem;
+            font-weight: 700;
+            color: #ffffff;
+        }
+
+        .chart-controls {
+            display: flex;
+            gap: 1rem;
+            align-items: center;
+        }
+
+        .symbol-selector {
+            padding: 0.5rem 1rem;
+            background: rgba(255, 215, 0, 0.1);
+            border: 1px solid rgba(255, 215, 0, 0.3);
+            border-radius: 8px;
+            color: #ffffff;
+            font-family: 'Inter', sans-serif;
+        }
+
+        .timeframe-buttons {
+            display: flex;
+            gap: 0.5rem;
+        }
+
+        .timeframe-btn {
+            padding: 0.5rem 1rem;
+            background: rgba(255, 255, 255, 0.1);
+            border: 1px solid rgba(255, 255, 255, 0.2);
+            border-radius: 6px;
+            color: #ffffff;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            font-family: 'Inter', sans-serif;
+        }
+
+        .timeframe-btn.active,
+        .timeframe-btn:hover {
+            background: rgba(255, 215, 0, 0.2);
+            border-color: rgba(255, 215, 0, 0.4);
+            color: #ffd700;
+        }
+
+        .chart-container {
+            height: 500px;
+            background: rgba(16, 16, 30, 0.5);
+            border-radius: 12px;
+            position: relative;
+            overflow: hidden;
+        }
+
+        #tradingview_chart {
+            width: 100%;
+            height: 100%;
+        }
+
+        /* Watchlist Section */
+        .content-grid {
+            display: grid;
+            grid-template-columns: 2fr 1fr;
+            gap: 2rem;
+        }
+
+        .watchlist-section {
+            background: rgba(26, 26, 46, 0.8);
+            backdrop-filter: blur(10px);
+            border: 1px solid rgba(255, 215, 0, 0.2);
+            border-radius: 16px;
+            padding: 2rem;
+        }
+
+        .section-title {
+            font-size: 1.25rem;
+            font-weight: 700;
+            color: #ffffff;
+            margin-bottom: 1.5rem;
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+        }
+
+        .watchlist-item {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 1rem;
+            background: rgba(255, 255, 255, 0.05);
+            border-radius: 12px;
+            margin-bottom: 1rem;
+            transition: all 0.3s ease;
+            cursor: pointer;
+        }
+
+        .watchlist-item:hover {
+            background: rgba(255, 215, 0, 0.1);
+            transform: translateX(5px);
+        }
+
+        .stock-info {
+            display: flex;
+            flex-direction: column;
+        }
+
+        .stock-symbol {
+            font-weight: 700;
+            color: #ffffff;
+            font-size: 1rem;
+        }
+
+        .stock-name {
+            font-size: 0.875rem;
+            color: #b0b0b0;
+        }
+
+        .stock-price {
+            text-align: right;
+        }
+
+        .price-value {
+            font-weight: 700;
+            color: #ffffff;
+            font-size: 1rem;
+        }
+
+        .price-change {
+            font-size: 0.875rem;
+            font-weight: 500;
+        }
+
+        /* News Section */
+        .news-section {
+            background: rgba(26, 26, 46, 0.8);
+            backdrop-filter: blur(10px);
+            border: 1px solid rgba(255, 215, 0, 0.2);
+            border-radius: 16px;
+            padding: 2rem;
+        }
+
+        .news-item {
+            padding: 1rem;
+            background: rgba(255, 255, 255, 0.05);
+            border-radius: 12px;
+            margin-bottom: 1rem;
+            transition: all 0.3s ease;
+            cursor: pointer;
+        }
+
+        .news-item:hover {
+            background: rgba(255, 215, 0, 0.1);
+        }
+
+        .news-title {
+            font-weight: 600;
+            color: #ffffff;
+            margin-bottom: 0.5rem;
+            line-height: 1.4;
+        }
+
+        .news-meta {
+            font-size: 0.875rem;
+            color: #b0b0b0;
+            display: flex;
+            gap: 1rem;
+        }
+
+        /* Market Status */
+        .market-status {
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+            padding: 1rem;
+            background: rgba(255, 215, 0, 0.1);
+            border: 1px solid rgba(255, 215, 0, 0.3);
+            border-radius: 12px;
+            margin-bottom: 2rem;
+        }
+
+        .market-status-text {
+            font-weight: 600;
+            color: #ffd700;
+        }
+
+        /* Loading States */
+        .loading {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            height: 200px;
+            color: #b0b0b0;
+        }
+
+        .spinner {
+            width: 40px;
+            height: 40px;
+            border: 3px solid rgba(255, 215, 0, 0.3);
+            border-top: 3px solid #ffd700;
+            border-radius: 50%;
+            animation: spin 1s linear infinite;
+        }
+
+        @keyframes spin {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
+
+        /* Responsive Design */
+        @media (max-width: 1200px) {
+            .dashboard-grid {
+                grid-template-columns: 1fr 1fr;
+            }
+            
+            .content-grid {
+                grid-template-columns: 1fr;
+            }
+        }
+
+        @media (max-width: 768px) {
+            .header {
+                padding: 1rem;
+            }
+            
+            .main-content {
+                padding: 1rem;
+            }
+            
+            .dashboard-grid {
+                grid-template-columns: 1fr;
+            }
+            
+            .chart-header {
+                flex-direction: column;
+                gap: 1rem;
+                align-items: stretch;
+            }
+            
+            .chart-controls {
+                flex-direction: column;
+                gap: 1rem;
+            }
+            
+            .timeframe-buttons {
+                flex-wrap: wrap;
+            }
+        }
+
+        /* WebSocket Status */
+        .ws-status {
+            position: fixed;
+            bottom: 20px;
+            right: 20px;
+            padding: 0.5rem 1rem;
+            background: rgba(26, 26, 46, 0.9);
+            border: 1px solid rgba(255, 215, 0, 0.3);
+            border-radius: 8px;
+            font-size: 0.875rem;
+            z-index: 1000;
+        }
+
+        .ws-connected {
+            color: #00ff88;
+        }
+
+        .ws-disconnected {
+            color: #ff4757;
+        }
+
+        .ws-connecting {
+            color: #ffd700;
+        }
+    </style>
+</head>
+<body>
+    <!-- Header -->
+    <header class="header">
+        <div class="logo">
+            <img src="/static/assets/quantum-logo.png" alt="Quantum Trades" class="logo-image">
+            <span>Quantum Trades</span>
+        </div>
+        
+        <div class="header-actions">
+            <div class="connection-status">
+                <div class="status-dot"></div>
+                <span id="connection-text">Conectado - Dados Reais</span>
+            </div>
+            
+            <a href="#" class="btn btn-primary">
+                <i class="fas fa-user"></i>
+                Perfil
+            </a>
+        </div>
+    </header>
+
+    <!-- Main Content -->
+    <main class="main-content">
+        <!-- Market Status -->
+        <div class="market-status">
+            <i class="fas fa-clock"></i>
+            <span class="market-status-text" id="market-status">Carregando status do mercado...</span>
+        </div>
+
+        <!-- Dashboard Cards -->
+        <div class="dashboard-grid">
+            <div class="dashboard-card">
+                <div class="card-header">
+                    <span class="card-title">Saldo Total</span>
+                    <i class="fas fa-wallet card-icon"></i>
+                </div>
+                <div class="card-value" id="total-balance">R$ 0,00</div>
+                <div class="card-change change-positive" id="balance-change">
+                    <i class="fas fa-arrow-up"></i>
+                    <span>+0,00%</span>
+                </div>
+            </div>
+
+            <div class="dashboard-card">
+                <div class="card-header">
+                    <span class="card-title">P&L Hoje</span>
+                    <i class="fas fa-chart-line card-icon"></i>
+                </div>
+                <div class="card-value" id="daily-pnl">R$ 0,00</div>
+                <div class="card-change" id="pnl-change">
+                    <i class="fas fa-minus"></i>
+                    <span>0,00%</span>
+                </div>
+            </div>
+
+            <div class="dashboard-card">
+                <div class="card-header">
+                    <span class="card-title">Volume</span>
+                    <i class="fas fa-exchange-alt card-icon"></i>
+                </div>
+                <div class="card-value" id="volume">R$ 0,00</div>
+                <div class="card-change change-positive" id="volume-change">
+                    <i class="fas fa-arrow-up"></i>
+                    <span>+0,00%</span>
+                </div>
+            </div>
+
+            <div class="dashboard-card">
+                <div class="card-header">
+                    <span class="card-title">Posições</span>
+                    <i class="fas fa-briefcase card-icon"></i>
+                </div>
+                <div class="card-value" id="positions">0</div>
+                <div class="card-change" id="positions-change">
+                    <i class="fas fa-equals"></i>
+                    <span>Ativo</span>
+                </div>
+            </div>
+        </div>
+
+        <!-- Chart Section -->
+        <div class="chart-section">
+            <div class="chart-header">
+                <h2 class="chart-title">Gráfico Profissional</h2>
+                
+                <div class="chart-controls">
+                    <select class="symbol-selector" id="symbol-selector">
+                        <option value="PETR4">PETR4 - Petrobras</option>
+                        <option value="VALE3">VALE3 - Vale</option>
+                        <option value="ITUB4">ITUB4 - Itaú</option>
+                        <option value="BBDC4">BBDC4 - Bradesco</option>
+                        <option value="ABEV3">ABEV3 - Ambev</option>
+                    </select>
+                    
+                    <div class="timeframe-buttons">
+                        <button class="timeframe-btn" data-timeframe="1">1m</button>
+                        <button class="timeframe-btn" data-timeframe="5">5m</button>
+                        <button class="timeframe-btn" data-timeframe="15">15m</button>
+                        <button class="timeframe-btn active" data-timeframe="1D">1D</button>
+                        <button class="timeframe-btn" data-timeframe="1W">1W</button>
+                    </div>
+                </div>
+            </div>
+            
+            <div class="chart-container">
+                <div id="tradingview_chart"></div>
+            </div>
+        </div>
+
+        <!-- Content Grid -->
+        <div class="content-grid">
+            <!-- Watchlist -->
+            <div class="watchlist-section">
+                <h3 class="section-title">
+                    <i class="fas fa-star"></i>
+                    Watchlist
+                </h3>
+                
+                <div id="watchlist-container">
+                    <div class="loading">
+                        <div class="spinner"></div>
+                        <span style="margin-left: 1rem;">Carregando dados...</span>
+                    </div>
+                </div>
+            </div>
+
+            <!-- News -->
+            <div class="news-section">
+                <h3 class="section-title">
+                    <i class="fas fa-newspaper"></i>
+                    Notícias do Mercado
+                </h3>
+                
+                <div class="news-item">
+                    <div class="news-title">Petrobras anuncia novo plano de investimentos</div>
+                    <div class="news-meta">
+                        <span><i class="fas fa-clock"></i> 2h atrás</span>
+                        <span><i class="fas fa-tag"></i> PETR4</span>
+                    </div>
+                </div>
+
+                <div class="news-item">
+                    <div class="news-title">Vale reporta produção recorde no trimestre</div>
+                    <div class="news-meta">
+                        <span><i class="fas fa-clock"></i> 4h atrás</span>
+                        <span><i class="fas fa-tag"></i> VALE3</span>
+                    </div>
+                </div>
+
+                <div class="news-item">
+                    <div class="news-title">Bancos lideram alta do Ibovespa</div>
+                    <div class="news-meta">
+                        <span><i class="fas fa-clock"></i> 6h atrás</span>
+                        <span><i class="fas fa-tag"></i> IBOV</span>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </main>
+
+    <!-- WebSocket Status -->
+    <div class="ws-status" id="ws-status">
+        <span class="ws-connecting">Conectando...</span>
+    </div>
+
+    <!-- TradingView Charting Library -->
+    <script src="https://unpkg.com/lightweight-charts/dist/lightweight-charts.standalone.production.js"></script>
+    
+    <script>
+        // Configurações globais
+        const API_BASE = '/api';
+        let websocket = null;
+        let chart = null;
+        let candlestickSeries = null;
+        let currentSymbol = 'PETR4';
+        let currentTimeframe = '1D';
+
+        // Inicialização
+        document.addEventListener('DOMContentLoaded', function() {
+            initializeApp();
+        });
+
+        async function initializeApp() {
+            try {
+                // Inicializar componentes
+                await loadMarketStatus();
+                await loadDashboardData();
+                await loadWatchlist();
+                initializeChart();
+                initializeWebSocket();
+                
+                // Event listeners
+                setupEventListeners();
+                
+                console.log('Aplicação inicializada com sucesso');
+            } catch (error) {
+                console.error('Erro ao inicializar aplicação:', error);
+            }
+        }
+
+        // Market Status
+        async function loadMarketStatus() {
+            try {
+                const response = await fetch(`${API_BASE}/market/sprint6/real/market-status`);
+                const data = await response.json();
+                
+                if (data.success) {
+                    const status = data.data;
+                    const statusText = status.is_open ? 
+                        `Mercado Aberto - ${status.current_time}` : 
+                        `Mercado Fechado - ${status.current_time}`;
+                    
+                    document.getElementById('market-status').textContent = statusText;
+                }
+            } catch (error) {
+                console.error('Erro ao carregar status do mercado:', error);
+                document.getElementById('market-status').textContent = 'Status indisponível';
+            }
+        }
+
+        // Dashboard Data
+        async function loadDashboardData() {
+            try {
+                // Simular dados do portfólio (integrar com API real futuramente)
+                updateDashboardCard('total-balance', 'R$ 125.847,32', '+2.34%', true);
+                updateDashboardCard('daily-pnl', 'R$ +2.847,12', '+2.31%', true);
+                updateDashboardCard('volume', 'R$ 45.230,00', '+15.2%', true);
+                updateDashboardCard('positions', '8', 'Ativo', null);
+            } catch (error) {
+                console.error('Erro ao carregar dados do dashboard:', error);
+            }
+        }
+
+        function updateDashboardCard(cardId, value, change, isPositive) {
+            const valueElement = document.getElementById(cardId);
+            const changeElement = document.getElementById(cardId.replace(/[^-]*/, '') + 'change');
+            
+            if (valueElement) valueElement.textContent = value;
+            
+            if (changeElement && change) {
+                changeElement.innerHTML = `
+                    <i class="fas fa-${isPositive ? 'arrow-up' : isPositive === false ? 'arrow-down' : 'equals'}"></i>
+                    <span>${change}</span>
+                `;
+                changeElement.className = `card-change ${isPositive ? 'change-positive' : isPositive === false ? 'change-negative' : ''}`;
+            }
+        }
+
+        // Watchlist
+        async function loadWatchlist() {
+            try {
+                const response = await fetch(`${API_BASE}/market/sprint6/real/watchlist`);
+                const data = await response.json();
+                
+                if (data.success && data.data) {
+                    renderWatchlist(data.data);
+                } else {
+                    throw new Error('Dados da watchlist não encontrados');
+                }
+            } catch (error) {
+                console.error('Erro ao carregar watchlist:', error);
+                renderWatchlistError();
+            }
+        }
+
+        function renderWatchlist(watchlistData) {
+            const container = document.getElementById('watchlist-container');
+            
+            if (!watchlistData || watchlistData.length === 0) {
+                container.innerHTML = '<div class="loading">Nenhum dado disponível</div>';
+                return;
+            }
+            
+            const html = watchlistData.map(stock => `
+                <div class="watchlist-item" onclick="selectSymbol('${stock.symbol}')">
+                    <div class="stock-info">
+                        <div class="stock-symbol">${stock.symbol}</div>
+                        <div class="stock-name">${stock.name}</div>
+                    </div>
+                    <div class="stock-price">
+                        <div class="price-value">R$ ${stock.price.toFixed(2)}</div>
+                        <div class="price-change ${stock.changePercent >= 0 ? 'change-positive' : 'change-negative'}">
+                            ${stock.changePercent >= 0 ? '+' : ''}${stock.changePercent.toFixed(2)}%
+                        </div>
+                    </div>
+                </div>
+            `).join('');
+            
+            container.innerHTML = html;
+        }
+
+        function renderWatchlistError() {
+            const container = document.getElementById('watchlist-container');
+            container.innerHTML = `
+                <div class="loading">
+                    <i class="fas fa-exclamation-triangle" style="color: #ff4757; margin-right: 0.5rem;"></i>
+                    Erro ao carregar dados
+                </div>
+            `;
+        }
+
+        // Chart
+        function initializeChart() {
+            try {
+                const chartContainer = document.getElementById('tradingview_chart');
+                
+                chart = LightweightCharts.createChart(chartContainer, {
+                    width: chartContainer.clientWidth,
+                    height: 500,
+                    layout: {
+                        background: { color: '#1a1a2e' },
+                        textColor: '#ffffff',
+                    },
+                    grid: {
+                        vertLines: { color: '#16213e' },
+                        horzLines: { color: '#16213e' },
+                    },
+                    crosshair: {
+                        mode: LightweightCharts.CrosshairMode.Normal,
+                    },
+                    rightPriceScale: {
+                        borderColor: '#16213e',
+                    },
+                    timeScale: {
+                        borderColor: '#16213e',
+                        timeVisible: true,
+                        secondsVisible: false,
+                    },
+                });
+
+                candlestickSeries = chart.addCandlestickSeries({
+                    upColor: '#00ff88',
+                    downColor: '#ff4757',
+                    borderDownColor: '#ff4757',
+                    borderUpColor: '#00ff88',
+                    wickDownColor: '#ff4757',
+                    wickUpColor: '#00ff88',
+                });
+
+                // Carregar dados iniciais
+                loadChartData(currentSymbol, currentTimeframe);
+                
+                // Responsividade
+                window.addEventListener('resize', () => {
+                    chart.applyOptions({ width: chartContainer.clientWidth });
+                });
+                
+            } catch (error) {
+                console.error('Erro ao inicializar gráfico:', error);
+            }
+        }
+
+        async function loadChartData(symbol, timeframe) {
+            try {
+                const response = await fetch(`${API_BASE}/market/sprint6/real/historical/${symbol}?period=1y&interval=${timeframe === '1D' ? '1d' : timeframe.toLowerCase()}`);
+                const data = await response.json();
+                
+                if (data.success && data.data.quotes) {
+                    const chartData = data.data.quotes.map(quote => ({
+                        time: Math.floor(quote.timestamp / 1000),
+                        open: quote.open,
+                        high: quote.high,
+                        low: quote.low,
+                        close: quote.close
+                    })).filter(item => item.open && item.high && item.low && item.close);
+                    
+                    if (chartData.length > 0) {
+                        candlestickSeries.setData(chartData);
+                    }
+                }
+            } catch (error) {
+                console.error('Erro ao carregar dados do gráfico:', error);
+            }
+        }
+
+        // WebSocket
+        function initializeWebSocket() {
+            try {
+                // Obter configuração do WebSocket
+                fetch(`${API_BASE}/websocket/ws/config`)
+                    .then(response => response.json())
+                    .then(data => {
+                        if (data.success) {
+                            connectWebSocket(data.data.websocket_url);
+                        }
+                    })
+                    .catch(error => {
+                        console.error('Erro ao obter configuração WebSocket:', error);
+                        updateWebSocketStatus('disconnected');
+                    });
+            } catch (error) {
+                console.error('Erro ao inicializar WebSocket:', error);
+                updateWebSocketStatus('disconnected');
+            }
+        }
+
+        function connectWebSocket(url) {
+            try {
+                updateWebSocketStatus('connecting');
+                
+                websocket = new WebSocket(url);
+                
+                websocket.onopen = function() {
+                    console.log('WebSocket conectado');
+                    updateWebSocketStatus('connected');
+                    
+                    // Subscrever aos símbolos da watchlist
+                    subscribeToSymbols(['PETR4', 'VALE3', 'ITUB4', 'BBDC4', 'ABEV3']);
+                };
+                
+                websocket.onmessage = function(event) {
+                    try {
+                        const message = JSON.parse(event.data);
+                        handleWebSocketMessage(message);
+                    } catch (error) {
+                        console.error('Erro ao processar mensagem WebSocket:', error);
+                    }
+                };
+                
+                websocket.onclose = function() {
+                    console.log('WebSocket desconectado');
+                    updateWebSocketStatus('disconnected');
+                    
+                    // Tentar reconectar após 5 segundos
+                    setTimeout(() => {
+                        if (!websocket || websocket.readyState === WebSocket.CLOSED) {
+                            connectWebSocket(url);
+                        }
+                    }, 5000);
+                };
+                
+                websocket.onerror = function(error) {
+                    console.error('Erro WebSocket:', error);
+                    updateWebSocketStatus('disconnected');
+                };
+                
+            } catch (error) {
+                console.error('Erro ao conectar WebSocket:', error);
+                updateWebSocketStatus('disconnected');
+            }
+        }
+
+        function subscribeToSymbols(symbols) {
+            if (websocket && websocket.readyState === WebSocket.OPEN) {
+                websocket.send(JSON.stringify({
+                    type: 'subscribe',
+                    symbols: symbols
+                }));
+            }
+        }
+
+        function handleWebSocketMessage(message) {
+            switch (message.type) {
+                case 'welcome':
+                    console.log('WebSocket: Bem-vindo!', message.message);
+                    break;
+                    
+                case 'price_update':
+                    updatePriceInWatchlist(message.symbol, message.data);
+                    break;
+                    
+                case 'subscribed':
+                    console.log('WebSocket: Subscrito aos símbolos:', message.symbols);
+                    break;
+                    
+                case 'error':
+                    console.error('WebSocket Error:', message.message);
+                    break;
+            }
+        }
+
+        function updatePriceInWatchlist(symbol, data) {
+            // Atualizar preço na watchlist em tempo real
+            const watchlistItems = document.querySelectorAll('.watchlist-item');
+            watchlistItems.forEach(item => {
+                const symbolElement = item.querySelector('.stock-symbol');
+                if (symbolElement && symbolElement.textContent === symbol) {
+                    const priceElement = item.querySelector('.price-value');
+                    const changeElement = item.querySelector('.price-change');
+                    
+                    if (priceElement) {
+                        priceElement.textContent = `R$ ${data.price.toFixed(2)}`;
+                    }
+                    
+                    if (changeElement) {
+                        const changePercent = data.changePercent || 0;
+                        changeElement.textContent = `${changePercent >= 0 ? '+' : ''}${changePercent.toFixed(2)}%`;
+                        changeElement.className = `price-change ${changePercent >= 0 ? 'change-positive' : 'change-negative'}`;
+                    }
+                }
+            });
+        }
+
+        function updateWebSocketStatus(status) {
+            const statusElement = document.getElementById('ws-status');
+            const statusSpan = statusElement.querySelector('span');
+            
+            statusSpan.className = `ws-${status}`;
+            
+            switch (status) {
+                case 'connected':
+                    statusSpan.textContent = 'Conectado - Tempo Real';
+                    break;
+                case 'connecting':
+                    statusSpan.textContent = 'Conectando...';
+                    break;
+                case 'disconnected':
+                    statusSpan.textContent = 'Desconectado';
+                    break;
+            }
+        }
+
+        // Event Listeners
+        function setupEventListeners() {
+            // Symbol selector
+            document.getElementById('symbol-selector').addEventListener('change', function() {
+                selectSymbol(this.value);
+            });
+            
+            // Timeframe buttons
+            document.querySelectorAll('.timeframe-btn').forEach(btn => {
+                btn.addEventListener('click', function() {
+                    selectTimeframe(this.dataset.timeframe);
+                });
+            });
+        }
+
+        function selectSymbol(symbol) {
+            currentSymbol = symbol;
+            document.getElementById('symbol-selector').value = symbol;
+            loadChartData(symbol, currentTimeframe);
+        }
+
+        function selectTimeframe(timeframe) {
+            currentTimeframe = timeframe;
+            
+            // Atualizar botões ativos
+            document.querySelectorAll('.timeframe-btn').forEach(btn => {
+                btn.classList.remove('active');
+            });
+            document.querySelector(`[data-timeframe="${timeframe}"]`).classList.add('active');
+            
+            loadChartData(currentSymbol, timeframe);
+        }
+
+        // Atualização periódica
+        setInterval(() => {
+            loadMarketStatus();
+            loadWatchlist();
+        }, 30000); // Atualizar a cada 30 segundos
+    </script>
+</body>
+</html>
