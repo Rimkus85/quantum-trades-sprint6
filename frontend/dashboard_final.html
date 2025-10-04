@@ -844,6 +844,14 @@
                     <i class="fas fa-sync-alt"></i>
                     Atualizar
                 </button>
+                <button class="btn btn-info" onclick="openImportModal()" title="Importar Dados Históricos">
+                    <i class="fas fa-database"></i>
+                    Importar
+                </button>
+                <button class="btn btn-secondary" onclick="openApiConfig()" title="Configurar API">
+                    <i class="fas fa-cog"></i>
+                    API
+                </button>
                 <button class="btn btn-secondary" onclick="openAlertsModal()">
                     <i class="fas fa-bell"></i>
                     Alertas
@@ -1208,6 +1216,146 @@
         </div>
     </div>
 
+    <!-- Sprint 6: Modal de Configuração de API -->
+    <div id="apiConfigModal" class="modal" style="display: none;">
+        <div class="modal-content" style="max-width: 600px;">
+            <div class="modal-header">
+                <h2>⚙️ Configuração da API</h2>
+                <span class="close" onclick="closeModal('apiConfigModal')">&times;</span>
+            </div>
+            <div class="modal-body">
+                <p>Configure seu token da brapi.dev para acessar dados reais de mercado.</p>
+                
+                <div class="form-group" style="margin-bottom: 1.5rem;">
+                    <label style="display: block; margin-bottom: 0.5rem; font-weight: 500;">
+                        Token da API:
+                    </label>
+                    <input type="text" 
+                           id="brapiToken" 
+                           placeholder="Cole seu token aqui" 
+                           class="search-input" 
+                           style="width: 100%; margin-bottom: 0.5rem; padding: 0.75rem; border: 1px solid rgba(255,215,0,0.3); border-radius: 8px; background: rgba(255,255,255,0.05); color: #fff;">
+                    <small style="color: #ffffff; opacity: 0.7;">
+                        Deixe em branco para usar dados de teste limitados (PETR4, VALE3, MGLU3, ITUB4)
+                    </small>
+                </div>
+                
+                <div class="form-group" style="margin-bottom: 1.5rem;">
+                    <label style="display: flex; align-items: center; cursor: pointer;">
+                        <input type="checkbox" 
+                               id="useRealDataCheckbox" 
+                               checked 
+                               style="margin-right: 0.5rem; width: 18px; height: 18px;">
+                        <span>Usar dados reais (desmarque para usar apenas mock)</span>
+                    </label>
+                </div>
+                
+                <div style="background: rgba(23, 162, 184, 0.2); border: 1px solid rgba(23, 162, 184, 0.5); border-radius: 8px; padding: 1rem; margin-bottom: 1rem;">
+                    <strong style="display: block; margin-bottom: 0.5rem;">📝 Como obter seu token:</strong>
+                    <ol style="margin: 0; padding-left: 1.5rem;">
+                        <li>Acesse <a href="https://brapi.dev/dashboard" target="_blank" style="color: #ffd700;">brapi.dev/dashboard</a></li>
+                        <li>Faça login ou crie uma conta gratuita</li>
+                        <li>Copie seu token da seção "Chaves de API"</li>
+                    </ol>
+                </div>
+                
+                <div style="background: rgba(255, 193, 7, 0.2); border: 1px solid rgba(255, 193, 7, 0.5); border-radius: 8px; padding: 1rem;">
+                    <strong style="display: block; margin-bottom: 0.5rem;">ℹ️ Plano Gratuito:</strong>
+                    <ul style="margin: 0; padding-left: 1.5rem;">
+                        <li>15.000 requisições por mês</li>
+                        <li>Acesso a +4.000 ações da B3</li>
+                        <li>Dados atualizados a cada 30 minutos</li>
+                        <li>Histórico de até 20 anos</li>
+                    </ul>
+                </div>
+            </div>
+            <div class="modal-footer" style="display: flex; gap: 1rem; justify-content: flex-end; margin-top: 1.5rem;">
+                <button class="btn btn-secondary" onclick="closeModal('apiConfigModal')">
+                    Cancelar
+                </button>
+                <button class="btn btn-primary" onclick="saveApiConfig()">
+                    💾 Salvar Configuração
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Sprint 6: Modal de Importação de Dados -->
+    <div id="importModal" class="modal" style="display: none;">
+        <div class="modal-content" style="max-width: 700px;">
+            <div class="modal-header">
+                <h2>📥 Importar Dados Históricos</h2>
+                <span class="close" onclick="closeModal('importModal')">&times;</span>
+            </div>
+            <div class="modal-body">
+                <p>Importe dados históricos de até 20 anos para análises avançadas.</p>
+                
+                <div class="import-stats" id="importStats" style="display: grid; grid-template-columns: repeat(3, 1fr); gap: 1rem; margin-bottom: 1.5rem; padding: 1rem; background: rgba(255,255,255,0.05); border-radius: 8px;">
+                    <div style="text-align: center;">
+                        <div style="font-size: 0.875rem; opacity: 0.7;">Ações no banco</div>
+                        <div style="font-size: 1.5rem; font-weight: bold; color: #ffd700;" id="stockCount">0</div>
+                    </div>
+                    <div style="text-align: center;">
+                        <div style="font-size: 0.875rem; opacity: 0.7;">Registros totais</div>
+                        <div style="font-size: 1.5rem; font-weight: bold; color: #ffd700;" id="recordCount">0</div>
+                    </div>
+                    <div style="text-align: center;">
+                        <div style="font-size: 0.875rem; opacity: 0.7;">Tamanho</div>
+                        <div style="font-size: 1.5rem; font-weight: bold; color: #ffd700;" id="dbSize">0 KB</div>
+                    </div>
+                </div>
+
+                <div class="import-options" style="margin-bottom: 1.5rem;">
+                    <label style="display: block; margin-bottom: 0.5rem; cursor: pointer;">
+                        <input type="radio" name="importType" value="priority" checked style="margin-right: 0.5rem;">
+                        Importar ações prioritárias (20 ações mais negociadas)
+                    </label>
+                    <label style="display: block; cursor: pointer;">
+                        <input type="radio" name="importType" value="custom" style="margin-right: 0.5rem;">
+                        Importar ações específicas
+                    </label>
+                    <textarea id="customSymbols" 
+                              placeholder="Digite os símbolos separados por vírgula (ex: PETR4,VALE3,ITUB4)"
+                              style="display: none; width: 100%; margin-top: 1rem; padding: 0.75rem; border: 1px solid rgba(255,215,0,0.3); border-radius: 8px; background: rgba(255,255,255,0.05); color: #fff; min-height: 80px;"></textarea>
+                </div>
+
+                <div class="import-progress" id="importProgress" style="display: none; margin-bottom: 1.5rem;">
+                    <div style="background: rgba(255,255,255,0.1); border-radius: 8px; overflow: hidden; height: 30px; margin-bottom: 0.5rem;">
+                        <div id="progressFill" style="background: linear-gradient(90deg, #ffd700, #ffed4e); height: 100%; width: 0%; transition: width 0.3s;"></div>
+                    </div>
+                    <div id="progressText" style="text-align: center; font-weight: bold;">0%</div>
+                    <div id="progressDetails" style="margin-top: 0.5rem; font-size: 0.875rem; opacity: 0.8;"></div>
+                </div>
+
+                <div style="background: rgba(255, 193, 7, 0.2); border: 1px solid rgba(255, 193, 7, 0.5); border-radius: 8px; padding: 1rem;">
+                    <strong style="display: block; margin-bottom: 0.5rem;">⚠️ Atenção:</strong>
+                    <ul style="margin: 0; padding-left: 1.5rem;">
+                        <li>A importação pode levar alguns minutos</li>
+                        <li>Consome requisições da API (20-40 requisições)</li>
+                        <li>Só precisa ser feita uma vez</li>
+                        <li>Dados ficam salvos no navegador</li>
+                    </ul>
+                </div>
+            </div>
+            <div class="modal-footer" style="display: flex; gap: 1rem; justify-content: flex-end; margin-top: 1.5rem;">
+                <button class="btn btn-secondary" onclick="closeModal('importModal')">
+                    Cancelar
+                </button>
+                <button class="btn btn-primary" onclick="startImport()" id="btnStartImport">
+                    📥 Iniciar Importação
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Sprint 6: Novos Serviços de Dados -->
+    <script src="../backend/quantum-trades-backend/src/static/src/config.js"></script>
+    <script src="../backend/quantum-trades-backend/src/static/src/services/mockDataService.js"></script>
+    <script src="../backend/quantum-trades-backend/src/static/src/services/realDataService.js"></script>
+    <script src="../backend/quantum-trades-backend/src/static/src/services/databaseService.js"></script>
+    <script src="../backend/quantum-trades-backend/src/static/src/services/syncService.js"></script>
+    <script src="../backend/quantum-trades-backend/src/static/src/services/dataService.js"></script>
+
     <script>
         // Global variables
         let alerts = [
@@ -1440,39 +1588,27 @@
             }
 
             try {
-                showToast('Buscando dados...', 'info');
+                showToast('🔍 Buscando dados reais...', 'info');
                 
-                // Simular busca com dados mock
-                const mockStocks = {
-                    'PETR4': { symbol: 'PETR4', name: 'Petrobras PN', price: 28.45, change: 2.3, volume: 15420000 },
-                    'VALE3': { symbol: 'VALE3', name: 'Vale ON', price: 65.80, change: -1.2, volume: 8930000 },
-                    'ITUB4': { symbol: 'ITUB4', name: 'Itaú Unibanco PN', price: 32.15, change: 0.8, volume: 12340000 },
-                    'BBDC4': { symbol: 'BBDC4', name: 'Bradesco PN', price: 18.90, change: -0.5, volume: 9870000 },
-                    'ABEV3': { symbol: 'ABEV3', name: 'Ambev ON', price: 14.25, change: 1.1, volume: 7650000 },
-                    'MGLU3': { symbol: 'MGLU3', name: 'Magazine Luiza ON', price: 8.45, change: -2.8, volume: 18900000 },
-                    'WEGE3': { symbol: 'WEGE3', name: 'WEG ON', price: 42.30, change: 1.5, volume: 4560000 }
-                };
+                // Usar serviço de dados reais (Sprint 6)
+                const stock = await quantumDataService.getStockPrice(symbol);
                 
-                setTimeout(() => {
-                    const stock = mockStocks[symbol];
-                    if (stock) {
-                        showToast(`${symbol} encontrada!`, 'success');
-                        displaySearchResult(stock);
-                    } else {
-                        showToast('Ação não encontrada', 'warning');
-                        displaySearchResult({ 
-                            symbol: symbol, 
-                            name: 'Ação não encontrada', 
-                            price: 0, 
-                            change: 0, 
-                            volume: 0 
-                        });
-                    }
-                }, 800);
+                // Mostrar fonte dos dados
+                const source = stock._source === 'real' ? '🌐 Dados reais' : '📊 Dados de exemplo';
+                showToast(`${symbol} encontrada! ${source}`, 'success');
+                
+                displaySearchResult(stock);
                 
             } catch (error) {
                 console.error('Erro ao buscar ação:', error);
-                showToast('Erro ao buscar dados', 'error');
+                showToast(`Ação ${symbol} não encontrada`, 'warning');
+                displaySearchResult({ 
+                    symbol: symbol, 
+                    name: 'Ação não encontrada', 
+                    price: 0, 
+                    change: 0, 
+                    volume: 0 
+                });
             }
         }
 
@@ -1808,6 +1944,138 @@
                 closeMenu();
             }
         });
+
+        // ==================== SPRINT 6: FUNÇÕES DE CONFIGURAÇÃO E IMPORTAÇÃO ====================
+
+        // Abrir modal de configuração da API
+        function openApiConfig() {
+            const token = localStorage.getItem('quantum_brapi_token') || '';
+            document.getElementById('brapiToken').value = token;
+            document.getElementById('useRealDataCheckbox').checked = QuantumConfig.features.useRealData;
+            document.getElementById('apiConfigModal').style.display = 'flex';
+        }
+
+        // Salvar configuração da API
+        function saveApiConfig() {
+            const token = document.getElementById('brapiToken').value.trim();
+            const useRealData = document.getElementById('useRealDataCheckbox').checked;
+            
+            if (token) {
+                QuantumConfig.setApiToken(token);
+                quantumDataService.updateToken(token);
+                showToast('✅ Token configurado com sucesso!', 'success');
+            }
+            
+            QuantumConfig.features.useRealData = useRealData;
+            localStorage.setItem('quantum_use_real_data', useRealData);
+            
+            showToast('⚙️ Configuração salva!', 'success');
+            closeModal('apiConfigModal');
+            
+            // Recarregar dados se necessário
+            if (useRealData && token) {
+                showToast('🔄 Configuração aplicada!', 'info');
+            }
+        }
+
+        // Abrir modal de importação
+        async function openImportModal() {
+            document.getElementById('importModal').style.display = 'flex';
+            await loadImportStats();
+        }
+
+        // Carregar estatísticas do banco
+        async function loadImportStats() {
+            try {
+                const stats = await quantumDB.getStats();
+                document.getElementById('stockCount').textContent = stats.symbols.length;
+                document.getElementById('recordCount').textContent = stats.totalRecords.toLocaleString();
+                document.getElementById('dbSize').textContent = stats.size.toFixed(2) + ' KB';
+            } catch (error) {
+                console.error('Erro ao carregar estatísticas:', error);
+            }
+        }
+
+        // Iniciar importação
+        async function startImport() {
+            const importType = document.querySelector('input[name="importType"]:checked').value;
+            const btnImport = document.getElementById('btnStartImport');
+            const progressDiv = document.getElementById('importProgress');
+            const progressFill = document.getElementById('progressFill');
+            const progressText = document.getElementById('progressText');
+            const progressDetails = document.getElementById('progressDetails');
+            
+            btnImport.disabled = true;
+            progressDiv.style.display = 'block';
+            progressFill.style.width = '0%';
+            progressText.textContent = '0%';
+            progressDetails.innerHTML = 'Iniciando importação...';
+
+            try {
+                let symbols = null;
+                
+                if (importType === 'custom') {
+                    const customText = document.getElementById('customSymbols').value;
+                    if (!customText.trim()) {
+                        showToast('Digite os símbolos das ações', 'warning');
+                        btnImport.disabled = false;
+                        return;
+                    }
+                    symbols = customText.split(',').map(s => s.trim().toUpperCase());
+                }
+
+                // Iniciar importação
+                showToast('🚀 Iniciando importação...', 'info');
+                
+                // Monitorar progresso
+                const checkProgress = setInterval(() => {
+                    const progress = quantumSync.getProgress();
+                    progressFill.style.width = progress.percentage + '%';
+                    progressText.textContent = progress.percentage + '%';
+                    progressDetails.innerHTML = `
+                        Importando: ${progress.currentSymbol}<br>
+                        Progresso: ${progress.current} de ${progress.total}
+                    `;
+                }, 500);
+
+                const results = await quantumSync.importPriorityStocks(symbols);
+
+                clearInterval(checkProgress);
+
+                // Atualizar progresso final
+                progressFill.style.width = '100%';
+                progressText.textContent = '100%';
+                progressDetails.innerHTML = `
+                    ✅ Sucesso: ${results.success.length}<br>
+                    ⏭️ Puladas: ${results.skipped.length}<br>
+                    ❌ Erros: ${results.errors.length}
+                `;
+
+                showToast('✅ Importação concluída!', 'success');
+                await loadImportStats();
+
+            } catch (error) {
+                console.error('Erro na importação:', error);
+                showToast('❌ Erro na importação: ' + error.message, 'error');
+            } finally {
+                btnImport.disabled = false;
+            }
+        }
+
+        // Alternar tipo de importação
+        document.addEventListener('DOMContentLoaded', function() {
+            const radios = document.querySelectorAll('input[name="importType"]');
+            radios.forEach(radio => {
+                radio.addEventListener('change', (e) => {
+                    const customArea = document.getElementById('customSymbols');
+                    if (customArea) {
+                        customArea.style.display = e.target.value === 'custom' ? 'block' : 'none';
+                    }
+                });
+            });
+        });
+
+        // ==================== FIM SPRINT 6 ====================
     </script>
 </body>
 </html>
