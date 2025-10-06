@@ -1,0 +1,2101 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Quantum Trades - Dashboard</title>
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            margin: 0;
+            padding: 0;
+            padding-top: 80px;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(135deg, #1a1a2e 0%, #16213e 50%, #0f3460 100%);
+            color: #ffffff;
+            min-height: 100vh;
+        }
+
+        /* Header */
+        .header {
+            background: rgba(26, 26, 46, 0.95);
+            backdrop-filter: blur(10px);
+            padding: 1rem 2rem;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            border-bottom: 1px solid rgba(255, 215, 0, 0.2);
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            z-index: 1000;
+            transition: all 0.3s ease;
+        }
+
+        .logo {
+            display: flex;
+            align-items: center;
+            gap: 0.75rem;
+            font-size: 1.2rem;
+            font-weight: bold;
+            color: #ffd700;
+        }
+
+        .logo-image {
+            width: 40px;
+            height: 40px;
+            filter: drop-shadow(0 2px 4px rgba(0,0,0,0.3));
+        }
+
+        .header-actions {
+            display: flex;
+            gap: 1rem;
+            align-items: center;
+        }
+
+        .btn {
+            padding: 0.5rem 1rem;
+            border: none;
+            border-radius: 8px;
+            cursor: pointer;
+            font-weight: 500;
+            transition: all 0.3s ease;
+            text-decoration: none;
+            display: inline-flex;
+            align-items: center;
+            gap: 0.5rem;
+        }
+
+        .btn-primary {
+            background: linear-gradient(135deg, #ffd700, #ffed4e);
+            color: #1a1a2e;
+        }
+
+        .btn-secondary {
+            background: linear-gradient(135deg, #ffd700, #ffed4e);
+            color: #1a1a2e;
+        }
+
+        .btn-danger {
+            background: linear-gradient(135deg, #ffd700, #ffed4e);
+            color: #1a1a2e;
+        }
+
+        .btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 8px 25px rgba(255, 215, 0, 0.4);
+        }
+
+        /* Main Content */
+        .main-content {
+            padding: 2rem;
+            max-width: 1200px;
+            margin: 0 auto;
+        }
+
+        /* Dashboard Cards */
+        .dashboard-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+            gap: 1.5rem;
+            margin-bottom: 2rem;
+        }
+
+        .dashboard-card {
+            background: rgba(26, 26, 46, 0.95);
+            backdrop-filter: blur(10px);
+            border-radius: 15px;
+            padding: 1.5rem;
+            border: 1px solid rgba(26, 26, 46, 0.95);
+            transition: all 0.3s ease;
+        }
+
+        .dashboard-card:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.2);
+        }
+
+        .card-header {
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+            margin-bottom: 1rem;
+            color: #ffd700;
+        }
+
+        .card-value {
+            font-size: 2rem;
+            font-weight: bold;
+            margin-bottom: 0.5rem;
+        }
+
+        .card-label {
+            color: #ffffff;
+            font-size: 0.9rem;
+        }
+
+        .status-indicator {
+            width: 12px;
+            height: 12px;
+            border-radius: 50%;
+            margin-right: 0.5rem;
+        }
+
+        .status-online {
+            background: #4CAF50;
+            box-shadow: 0 0 10px rgba(76, 175, 80, 0.5);
+        }
+
+        /* Search Section */
+        .search-section {
+            background: rgba(26, 26, 46, 0.95);
+            backdrop-filter: blur(10px);
+            border-radius: 15px;
+            padding: 2rem;
+            margin-bottom: 2rem;
+            border: 1px solid rgba(26, 26, 46, 0.95);
+        }
+
+        .search-header {
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+            margin-bottom: 1.5rem;
+            color: #ffd700;
+            font-size: 1.2rem;
+            font-weight: bold;
+        }
+
+        .search-form {
+            display: flex;
+            gap: 1rem;
+            margin-bottom: 1.5rem;
+        }
+
+        .search-input {
+            flex: 1;
+            padding: 0.75rem 1rem;
+            border: 2px solid rgba(255, 215, 0, 0.3);
+            border-radius: 10px;
+            background: rgba(26, 26, 46, 0.95);
+            color: white;
+            font-size: 1rem;
+        }
+
+        .search-input::placeholder {
+            color: #ffffff;
+        }
+
+        .search-input:focus {
+            outline: none;
+            border-color: #ffd700;
+            box-shadow: 0 0 10px rgba(255, 215, 0, 0.3);
+        }
+
+        .search-results {
+            display: none;
+        }
+
+        /* Autocomplete Styles */
+        .autocomplete-container {
+            position: relative;
+            flex: 1;
+        }
+
+        .autocomplete-suggestions {
+            position: absolute;
+            top: 100%;
+            left: 0;
+            right: 0;
+            background: rgba(26, 26, 46, 0.95);
+            backdrop-filter: blur(10px);
+            border: 2px solid rgba(255, 215, 0, 0.3);
+            border-top: none;
+            border-radius: 0 0 10px 10px;
+            max-height: 200px;
+            overflow-y: auto;
+            z-index: 1000;
+            display: none;
+        }
+
+        .autocomplete-suggestion {
+            padding: 0.75rem 1rem;
+            cursor: pointer;
+            border-bottom: 1px solid rgba(26, 26, 46, 0.95);
+            transition: all 0.3s ease;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .autocomplete-suggestion:last-child {
+            border-bottom: none;
+        }
+
+        .autocomplete-suggestion:hover,
+        .autocomplete-suggestion.highlighted {
+            background: rgba(255, 215, 0, 0.1);
+            color: #ffd700;
+        }
+
+        .suggestion-symbol {
+            font-weight: bold;
+            color: #ffd700;
+        }
+
+        .suggestion-name {
+            color: #ffffff;
+            font-size: 0.9rem;
+        }
+
+        .suggestion-price {
+            color: #ffffff;
+            font-size: 0.9rem;
+        }
+
+        .stock-result {
+            background: rgba(255, 255, 255, 0.05);
+            border-radius: 10px;
+            padding: 1rem;
+            margin-bottom: 1rem;
+            border: 1px solid rgba(26, 26, 46, 0.95);
+        }
+
+        .stock-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 0.5rem;
+        }
+
+        .stock-symbol {
+            font-size: 1.2rem;
+            font-weight: bold;
+            color: #ffd700;
+        }
+
+        .stock-price {
+            font-size: 1.5rem;
+            font-weight: bold;
+        }
+
+        .stock-change {
+            font-size: 0.9rem;
+            margin-left: 0.5rem;
+        }
+
+        .positive {
+            color: #4CAF50;
+        }
+
+        .negative {
+            color: #f44336;
+        }
+
+        .stock-actions {
+            display: flex;
+            gap: 0.5rem;
+            margin-top: 1rem;
+        }
+
+        /* Content Sections */
+        .content-grid {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 2rem;
+            margin-bottom: 2rem;
+        }
+
+        .content-section {
+            background: rgba(26, 26, 46, 0.95);
+            backdrop-filter: blur(10px);
+            border-radius: 15px;
+            padding: 2rem;
+            border: 1px solid rgba(26, 26, 46, 0.95);
+        }
+
+        .section-header {
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+            margin-bottom: 1.5rem;
+            color: #ffd700;
+            font-size: 1.2rem;
+            font-weight: bold;
+        }
+
+        .popular-stocks {
+            display: flex;
+            flex-direction: column;
+            gap: 1rem;
+        }
+
+        .stock-item {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 1rem;
+            background: rgba(255, 255, 255, 0.05);
+            border-radius: 10px;
+            border: 1px solid rgba(26, 26, 46, 0.95);
+            transition: all 0.3s ease;
+        }
+
+        .stock-item:hover {
+            background: rgba(26, 26, 46, 0.95);
+            transform: translateX(5px);
+        }
+
+        .stock-info {
+            display: flex;
+            flex-direction: column;
+        }
+
+        .stock-name {
+            font-weight: bold;
+            color: #ffd700;
+        }
+
+        .stock-price-info {
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+        }
+
+        .technical-analysis {
+            display: flex;
+            flex-direction: column;
+            gap: 1rem;
+        }
+
+        .analysis-item {
+            padding: 1rem;
+            background: rgba(255, 255, 255, 0.05);
+            border-radius: 10px;
+            border: 1px solid rgba(26, 26, 46, 0.95);
+        }
+
+        .analysis-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 0.5rem;
+        }
+
+        .analysis-signal {
+            padding: 0.25rem 0.75rem;
+            border-radius: 20px;
+            font-size: 0.8rem;
+            font-weight: bold;
+        }
+
+        .signal-buy {
+            background: rgba(76, 175, 80, 0.2);
+            color: #4CAF50;
+            border: 1px solid #4CAF50;
+        }
+
+        .signal-sell {
+            background: rgba(244, 67, 54, 0.2);
+            color: #f44336;
+            border: 1px solid #f44336;
+        }
+
+        .signal-neutral {
+            background: rgba(255, 193, 7, 0.2);
+            color: #FFC107;
+            border: 1px solid #FFC107;
+        }
+
+        /* Alerts Section */
+        .alerts-section {
+            background: rgba(26, 26, 46, 0.95);
+            backdrop-filter: blur(10px);
+            border-radius: 15px;
+            padding: 2rem;
+            border: 1px solid rgba(26, 26, 46, 0.95);
+        }
+
+        .alert-item {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 1rem;
+            background: rgba(255, 255, 255, 0.05);
+            border-radius: 10px;
+            border: 1px solid rgba(26, 26, 46, 0.95);
+            margin-bottom: 1rem;
+        }
+
+        /* Modals */
+        .modal {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0, 0, 0, 0.8);
+            backdrop-filter: blur(5px);
+            z-index: 1000;
+            justify-content: center;
+            align-items: center;
+        }
+
+        .modal-content {
+            background: linear-gradient(135deg, #1a1a2e 0%, #16213e 100%);
+            border-radius: 15px;
+            padding: 2rem;
+            max-width: 500px;
+            width: 90%;
+            border: 1px solid rgba(255, 215, 0, 0.3);
+            position: relative;
+        }
+
+        .modal-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 1.5rem;
+            color: #ffd700;
+            font-size: 1.3rem;
+            font-weight: bold;
+        }
+
+        .close-btn {
+            background: none;
+            border: none;
+            color: #ffd700;
+            font-size: 1.5rem;
+            cursor: pointer;
+            padding: 0.25rem;
+            border-radius: 5px;
+            transition: all 0.3s ease;
+        }
+
+        .close-btn:hover {
+            background: rgba(255, 215, 0, 0.1);
+        }
+
+        .form-group {
+            margin-bottom: 1.5rem;
+        }
+
+        .form-label {
+            display: block;
+            margin-bottom: 0.5rem;
+            color: #ffd700;
+            font-weight: 500;
+        }
+
+        .form-input,
+        .form-select {
+            width: 100%;
+            padding: 0.75rem;
+            border: 2px solid rgba(255, 215, 0, 0.3);
+            border-radius: 8px;
+            background: rgba(26, 26, 46, 0.95);
+            color: white;
+            font-size: 1rem;
+        }
+
+        .form-input::placeholder {
+            color: #ffffff;
+        }
+
+        .form-input:focus,
+        .form-select:focus {
+            outline: none;
+            border-color: #ffd700;
+            box-shadow: 0 0 10px rgba(255, 215, 0, 0.3);
+        }
+
+        .analysis-results {
+            margin-top: 1.5rem;
+            padding: 1rem;
+            background: rgba(255, 255, 255, 0.05);
+            border-radius: 10px;
+            border: 1px solid rgba(26, 26, 46, 0.95);
+        }
+
+        .result-header {
+            color: #ffd700;
+            font-weight: bold;
+            margin-bottom: 1rem;
+        }
+
+        .result-grid {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 1rem;
+        }
+
+        .result-item {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        /* Toast Notifications */
+        .toast {
+            position: fixed;
+            top: 20px;
+            right: 20px;
+            background: linear-gradient(135deg, #4CAF50, #45a049);
+            color: white;
+            padding: 1rem 1.5rem;
+            border-radius: 10px;
+            box-shadow: 0 4px 15px rgba(0, 0, 0, 0.2);
+            z-index: 1001;
+            transform: translateX(400px);
+            transition: all 0.3s ease;
+        }
+
+        .toast.show {
+            transform: translateX(0);
+        }
+
+        .toast.error {
+            background: linear-gradient(135deg, #f44336, #d32f2f);
+        }
+
+        /* Responsive Design */
+        @media (max-width: 768px) {
+            .header {
+                padding: 1rem;
+            }
+
+            .header-content {
+                flex-wrap: wrap;
+                gap: 1rem;
+            }
+
+            .header-actions {
+                gap: 0.5rem;
+                flex-wrap: wrap;
+            }
+
+            .main-content {
+                padding: 1rem;
+                padding-bottom: 100px;
+            }
+
+            .content-grid {
+                grid-template-columns: 1fr;
+            }
+
+            .search-form {
+                flex-direction: column;
+                gap: 1rem;
+            }
+
+            .search-form input {
+                width: 100%;
+                margin-bottom: 1rem;
+            }
+
+            .dashboard-grid {
+                grid-template-columns: 1fr;
+                gap: 1rem;
+            }
+
+            .stock-header {
+                flex-direction: column;
+                align-items: flex-start;
+                gap: 0.5rem;
+            }
+
+            .stock-actions {
+                flex-wrap: wrap;
+                width: 100%;
+            }
+
+            .card {
+                margin-bottom: 1rem;
+            }
+
+            .logo-image {
+                width: 100px !important;
+            }
+        }
+
+        @media (max-width: 480px) {
+            .header {
+                padding: 0.5rem;
+            }
+
+            .logo {
+                font-size: 1rem;
+            }
+
+            .logo-image {
+                width: 80px !important;
+            }
+
+            .header-actions {
+                gap: 0.3rem;
+            }
+
+            .btn {
+                padding: 0.3rem 0.6rem;
+                font-size: 0.8rem;
+            }
+
+            .main-content {
+                padding: 0.5rem;
+            }
+
+            .dashboard-grid {
+                grid-template-columns: 1fr;
+                gap: 0.8rem;
+            }
+
+            .card {
+                padding: 1rem;
+            }
+
+            .search-form {
+                padding: 1rem;
+            }
+
+            .search-form input {
+                font-size: 16px; /* Evita zoom no iOS */
+            }
+        }
+
+        /* Menu Hambúrguer Lateral */
+        .hamburger-menu {
+            position: fixed;
+            top: 0;
+            left: -300px;
+            width: 300px;
+            height: 100vh;
+            background: linear-gradient(135deg, #1a1a2e 0%, #16213e 50%, #0f3460 100%);
+            backdrop-filter: blur(10px);
+            border-right: 1px solid rgba(255, 215, 0, 0.3);
+            transition: left 0.3s ease;
+            z-index: 1000;
+            overflow-y: auto;
+        }
+
+        .hamburger-menu.open {
+            left: 0;
+        }
+
+        .menu-header {
+            padding: 1.5rem;
+            border-bottom: 1px solid rgba(255, 215, 0, 0.2);
+            display: flex;
+            align-items: center;
+            gap: 0.75rem;
+        }
+
+        .menu-logo {
+            width: 40px;
+            height: 40px;
+            filter: drop-shadow(0 2px 4px rgba(0,0,0,0.3));
+        }
+
+        .menu-title {
+            color: #ffd700;
+            font-weight: bold;
+            font-size: 1.1rem;
+        }
+
+        .menu-items {
+            padding: 1rem 0;
+        }
+
+        .menu-item {
+            display: flex;
+            align-items: center;
+            gap: 0.75rem;
+            padding: 0.75rem 1.5rem;
+            color: #ffffff;
+            text-decoration: none;
+            transition: all 0.3s ease;
+            border: none;
+            background: none;
+            width: 100%;
+            text-align: left;
+            cursor: pointer;
+            font-size: 1rem;
+            font-weight: 500;
+        }
+
+        .menu-item:hover {
+            background: rgba(255, 215, 0, 0.1);
+            color: #ffd700;
+            transform: translateX(5px);
+        }
+
+        .menu-item.active {
+            background: rgba(255, 215, 0, 0.2);
+            color: #ffd700;
+            border-right: 3px solid #ffd700;
+        }
+
+        .menu-item i {
+            width: 20px;
+            text-align: center;
+        }
+
+        .menu-section {
+            margin: 1rem 0;
+        }
+
+        .menu-section-title {
+            padding: 0.5rem 1.5rem;
+            color: #ffd700;
+            font-size: 0.9rem;
+            font-weight: bold;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+            border-bottom: 1px solid rgba(255, 215, 0, 0.1);
+            margin-bottom: 0.5rem;
+        }
+
+        .hamburger-toggle {
+            background: none;
+            border: none;
+            color: #ffd700;
+            font-size: 1.2rem;
+            cursor: pointer;
+            padding: 0.5rem;
+            border-radius: 5px;
+            transition: all 0.3s ease;
+        }
+
+        .hamburger-toggle:hover {
+            background: rgba(255, 215, 0, 0.1);
+            transform: scale(1.1);
+        }
+
+        .menu-overlay {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100vw;
+            height: 100vh;
+            background: rgba(0, 0, 0, 0.5);
+            z-index: 999;
+            opacity: 0;
+            visibility: hidden;
+            transition: all 0.3s ease;
+        }
+
+        .menu-overlay.active {
+            opacity: 1;
+            visibility: visible;
+        }
+
+        /* Ajuste do header para incluir o botão hambúrguer */
+        .header-content {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            width: 100%;
+        }
+
+        .header-left {
+            display: flex;
+            align-items: center;
+            gap: 1rem;
+        }
+
+        /* Responsividade */
+        @media (max-width: 768px) {
+            .hamburger-menu {
+                width: 280px;
+                left: -280px;
+            }
+            
+            .header-actions {
+                gap: 0.5rem;
+            }
+            
+            .btn {
+                padding: 0.4rem 0.8rem;
+                font-size: 0.9rem;
+            }
+        }
+    </style>
+</head>
+<body>
+    <header class="header">
+        <div class="header-content">
+            <div class="header-left">
+                <button class="hamburger-toggle" onclick="toggleMenu()">
+                    <i class="fas fa-bars"></i>
+                </button>
+                <div class="logo">
+                    <img src="quantum_trades_logo.png" alt="Quantum Trades" class="logo-image" style="width: 120px; height: auto;">
+                </div>
+            </div>
+            <div class="header-actions">
+                <button class="btn btn-primary" onclick="updateData()">
+                    <i class="fas fa-sync-alt"></i>
+                    Atualizar
+                </button>
+                <button class="btn btn-info" onclick="openImportModal()" title="Importar Dados Históricos">
+                    <i class="fas fa-database"></i>
+                    Importar
+                </button>
+                <button class="btn btn-secondary" onclick="openApiConfig()" title="Configurar API">
+                    <i class="fas fa-cog"></i>
+                    API
+                </button>
+                <button class="btn btn-secondary" onclick="openAlertsModal()">
+                    <i class="fas fa-bell"></i>
+                    Alertas
+                    <span id="alertCount">2</span>
+                </button>
+                <button class="btn btn-danger" onclick="logout()">
+                    <i class="fas fa-sign-out-alt"></i>
+                    Sair
+                </button>
+            </div>
+        </div>
+    </header>
+
+    <!-- Menu Hambúrguer Lateral -->
+    <div class="menu-overlay" id="menuOverlay" onclick="closeMenu()"></div>
+    <nav class="hamburger-menu" id="hamburgerMenu">
+        <div class="menu-header">
+            <img src="quantum_trades_logo.png" alt="Quantum Trades" class="menu-logo">
+            <span class="menu-title">Quantum Trades</span>
+        </div>
+        
+        <div class="menu-items">
+            <div class="menu-section">
+                <div class="menu-section-title">Dashboard</div>
+                <button class="menu-item active" onclick="navigateTo('dashboard')">
+                    <i class="fas fa-chart-line"></i>
+                    <span>Painel Principal</span>
+                </button>
+                <button class="menu-item" onclick="navigateTo('portfolio')">
+                    <i class="fas fa-briefcase"></i>
+                    <span>Portfólio</span>
+                </button>
+                <button class="menu-item" onclick="navigateTo('alerts')">
+                    <i class="fas fa-bell"></i>
+                    <span>Alertas</span>
+                </button>
+            </div>
+            
+            <div class="menu-section">
+                <div class="menu-section-title">Inteligência Artificial</div>
+                <button class="menu-item" onclick="navigateToAI('dashboard')">
+                    <i class="fas fa-brain"></i>
+                    <span>Painel de IA</span>
+                </button>
+                <button class="menu-item" onclick="navigateToAI('predictions')">
+                    <i class="fas fa-crystal-ball"></i>
+                    <span>Predições</span>
+                </button>
+                <button class="menu-item" onclick="navigateToAI('sentiment')">
+                    <i class="fas fa-comments"></i>
+                    <span>Análise de Sentimento</span>
+                </button>
+                <button class="menu-item" onclick="navigateToAI('recommendations')">
+                    <i class="fas fa-target"></i>
+                    <span>Recomendações</span>
+                </button>
+                <button class="menu-item" onclick="navigateToAI('education')">
+                    <i class="fas fa-graduation-cap"></i>
+                    <span>Educação</span>
+                </button>
+            </div>
+            
+            <div class="menu-section">
+                <div class="menu-section-title">Configurações</div>
+                <button class="menu-item" onclick="navigateToAI('settings')">
+                    <i class="fas fa-cog"></i>
+                    <span>Configurações</span>
+                </button>
+                <button class="menu-item" onclick="logout()">
+                    <i class="fas fa-sign-out-alt"></i>
+                    <span>Sair</span>
+                </button>
+            </div>
+        </div>
+    </nav>
+
+    <!-- Main Content -->
+    <main class="main-content">
+        <!-- Dashboard Cards -->
+        <div class="dashboard-grid">
+            <div class="dashboard-card">
+                <div class="card-header">
+                    <div class="status-indicator status-online"></div>
+                    <i class="fas fa-chart-line"></i>
+                    Mercado
+                </div>
+                <div class="card-value">Aberto</div>
+                <div class="card-label">Status do Mercado</div>
+            </div>
+            
+            <div class="dashboard-card">
+                <div class="card-header">
+                    <i class="fas fa-bell"></i>
+                    Alertas Ativos
+                </div>
+                <div class="card-value" id="dashboardAlertCount">2</div>
+                <div class="card-label">Notificações Ativas</div>
+            </div>
+            
+            <div class="dashboard-card">
+                <div class="card-header">
+                    <i class="fas fa-wallet"></i>
+                    Valor Aplicado
+                </div>
+                <div class="card-value">R$ 25.450,00</div>
+                <div class="card-label">Capital Investido</div>
+            </div>
+            
+            <div class="dashboard-card">
+                <div class="card-header">
+                    <i class="fas fa-chart-area"></i>
+                    Lucro/Prejuízo
+                </div>
+                <div class="card-value positive">R$ 1.234,56</div>
+                <div class="card-label">Resultado Atual</div>
+            </div>
+        </div>
+
+        <!-- Search Section -->
+        <div class="search-section">
+            <div class="search-header">
+                <i class="fas fa-search"></i>
+                Buscar Ações
+            </div>
+            <div class="search-form">
+                <div class="autocomplete-container">
+                    <input type="text" class="search-input" id="searchInput" placeholder="Digite o código da ação (ex: PETR4, VALE3)" autocomplete="off">
+                    <div class="autocomplete-suggestions" id="autocompleteSuggestions"></div>
+                </div>
+                <button class="btn btn-primary" onclick="searchStock()">
+                    <i class="fas fa-search"></i>
+                    Buscar
+                </button>
+            </div>
+            <div class="search-results" id="searchResults"></div>
+        </div>
+
+        <!-- Content Grid -->
+        <div class="content-grid">
+            <!-- Popular Stocks -->
+            <div class="content-section">
+                <div class="section-header">
+                    <i class="fas fa-fire"></i>
+                    Ações Populares
+                </div>
+                <div class="popular-stocks" id="popularStocks">
+                    <div class="stock-item">
+                        <div class="stock-info">
+                            <div class="stock-name">PETR4</div>
+                            <div class="stock-price-info">
+                                <span class="stock-price">R$ 71,34</span>
+                                <span class="stock-change positive">↗ +4,91%</span>
+                            </div>
+                        </div>
+                        <button class="btn btn-secondary btn-sm" onclick="createAlert('PETR4.SA')">
+                            <i class="fas fa-bell"></i>
+                        </button>
+                    </div>
+                    
+                    <div class="stock-item">
+                        <div class="stock-info">
+                            <div class="stock-name">VALE3</div>
+                            <div class="stock-price-info">
+                                <span class="stock-price">R$ 65,89</span>
+                                <span class="stock-change negative">↘ -1,83%</span>
+                            </div>
+                        </div>
+                        <button class="btn btn-secondary btn-sm" onclick="createAlert('VALE3.SA')">
+                            <i class="fas fa-bell"></i>
+                        </button>
+                    </div>
+                    
+                    <div class="stock-item">
+                        <div class="stock-info">
+                            <div class="stock-name">ITUB4</div>
+                            <div class="stock-price-info">
+                                <span class="stock-price">R$ 32,45</span>
+                                <span class="stock-change positive">↗ +2,75%</span>
+                            </div>
+                        </div>
+                        <button class="btn btn-secondary btn-sm" onclick="createAlert('ITUB4.SA')">
+                            <i class="fas fa-bell"></i>
+                        </button>
+                    </div>
+                    
+                    <div class="stock-item">
+                        <div class="stock-info">
+                            <div class="stock-name">BBDC4</div>
+                            <div class="stock-price-info">
+                                <span class="stock-price">R$ 28,91</span>
+                                <span class="stock-change negative">↘ -1,53%</span>
+                            </div>
+                        </div>
+                        <button class="btn btn-secondary btn-sm" onclick="createAlert('BBDC4.SA')">
+                            <i class="fas fa-bell"></i>
+                        </button>
+                    </div>
+                    
+                    <div class="stock-item">
+                        <div class="stock-info">
+                            <div class="stock-name">ABEV3</div>
+                            <div class="stock-price-info">
+                                <span class="stock-price">R$ 14,67</span>
+                                <span class="stock-change positive">↗ +1,59%</span>
+                            </div>
+                        </div>
+                        <button class="btn btn-secondary btn-sm" onclick="createAlert('ABEV3.SA')">
+                            <i class="fas fa-bell"></i>
+                        </button>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Technical Analysis -->
+            <div class="content-section">
+                <div class="section-header">
+                    <i class="fas fa-chart-bar"></i>
+                    Análise Técnica
+                </div>
+                <div class="technical-analysis" id="technicalAnalysis">
+                    <div class="analysis-item">
+                        <div class="analysis-header">
+                            <span>RSI</span>
+                            <span class="analysis-signal signal-neutral">65.2</span>
+                        </div>
+                        <div>Índice de Força Relativa</div>
+                    </div>
+                    
+                    <div class="analysis-item">
+                        <div class="analysis-header">
+                            <span>MACD</span>
+                            <span class="analysis-signal signal-buy">Compra</span>
+                        </div>
+                        <div>Convergência e Divergência</div>
+                    </div>
+                    
+                    <div class="analysis-item">
+                        <div class="analysis-header">
+                            <span>Suporte</span>
+                            <span class="analysis-signal signal-neutral">R$ 71,34</span>
+                        </div>
+                        <div>Nível de Suporte Atual</div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Active Alerts -->
+        <div class="alerts-section">
+            <div class="section-header">
+                <i class="fas fa-bell"></i>
+                Alertas Ativos
+            </div>
+            <div id="activeAlerts">
+                <div class="alert-item">
+                    <div>
+                        <strong>PETR4.SA</strong> - Preço acima de R$ 75,00
+                    </div>
+                    <button class="btn btn-danger btn-sm" onclick="removeAlert(1)">
+                        <i class="fas fa-trash"></i>
+                    </button>
+                </div>
+                <div class="alert-item">
+                    <div>
+                        <strong>VALE3.SA</strong> - RSI Sobrevenda
+                    </div>
+                    <button class="btn btn-danger btn-sm" onclick="removeAlert(2)">
+                        <i class="fas fa-trash"></i>
+                    </button>
+                </div>
+            </div>
+        </div>
+    </main>
+
+    <!-- Alerts Modal -->
+    <div class="modal" id="alertsModal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <span>Gerenciar Alertas</span>
+                <button class="close-btn" onclick="closeModal('alertsModal')">&times;</button>
+            </div>
+            
+            <div class="form-group">
+                <label class="form-label">Símbolo</label>
+                <input type="text" class="form-input" id="alertSymbol" placeholder="Ex: PETR4.SA">
+            </div>
+            
+            <div class="form-group">
+                <label class="form-label">Tipo de Alerta</label>
+                <select class="form-select" id="alertType" onchange="updateAlertFields()">
+                    <option value="">Selecione o tipo</option>
+                    <option value="price_above">Preço acima de</option>
+                    <option value="price_below">Preço abaixo de</option>
+                    <option value="rsi_oversold">RSI Sobrevenda</option>
+                    <option value="rsi_overbought">RSI Sobrecompra</option>
+                    <option value="volume_spike">Pico de Volume</option>
+                </select>
+            </div>
+            
+            <div class="form-group" id="valueGroup">
+                <label class="form-label">Valor</label>
+                <input type="number" class="form-input" id="alertValue" placeholder="Ex: 75.00" step="0.01">
+            </div>
+            
+            <button class="btn btn-primary" onclick="createAlertFromModal()">
+                <i class="fas fa-plus"></i>
+                Criar Alerta
+            </button>
+        </div>
+    </div>
+
+    <!-- Technical Analysis Modal -->
+    <div class="modal" id="technicalModal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <span>Análise Técnica</span>
+                <button class="close-btn" onclick="closeModal('technicalModal')">&times;</button>
+            </div>
+            
+            <div class="form-group">
+                <label class="form-label">Símbolo</label>
+                <input type="text" class="form-input" id="analysisSymbol" placeholder="Ex: PETR4.SA">
+            </div>
+            
+            <div class="form-group">
+                <label class="form-label">Estratégia</label>
+                <select class="form-select" id="analysisStrategy">
+                    <option value="day_trading">Day Trading</option>
+                    <option value="swing_trading">Swing Trading</option>
+                    <option value="long_term">Longo Prazo</option>
+                    <option value="momentum">Momentum</option>
+                    <option value="trend_following">Tendências</option>
+                </select>
+            </div>
+            
+            <button class="btn btn-primary" onclick="performAnalysis()">
+                <i class="fas fa-chart-bar"></i>
+                Analisar
+            </button>
+            
+            <div class="analysis-results" id="analysisResults" style="display: none;">
+                <div class="result-header">Resultado da Análise</div>
+                <div class="result-grid">
+                    <div class="result-item">
+                        <span>Sinal:</span>
+                        <span id="analysisSignal">-</span>
+                    </div>
+                    <div class="result-item">
+                        <span>Força:</span>
+                        <span id="analysisStrength">-</span>
+                    </div>
+                    <div class="result-item">
+                        <span>RSI:</span>
+                        <span id="analysisRSI">-</span>
+                    </div>
+                    <div class="result-item">
+                        <span>MACD:</span>
+                        <span id="analysisMACD">-</span>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Sprint 6: Modal de Configuração de API -->
+    <div id="apiConfigModal" class="modal" style="display: none;">
+        <div class="modal-content" style="max-width: 600px;">
+            <div class="modal-header">
+                <h2>⚙️ Configuração da API</h2>
+                <span class="close" onclick="closeModal('apiConfigModal')">&times;</span>
+            </div>
+            <div class="modal-body">
+                <p>Configure seu token da brapi.dev para acessar dados reais de mercado.</p>
+                
+                <div class="form-group" style="margin-bottom: 1.5rem;">
+                    <label style="display: block; margin-bottom: 0.5rem; font-weight: 500;">
+                        Token da API:
+                    </label>
+                    <input type="text" 
+                           id="brapiToken" 
+                           placeholder="Cole seu token aqui" 
+                           class="search-input" 
+                           style="width: 100%; margin-bottom: 0.5rem; padding: 0.75rem; border: 1px solid rgba(255,215,0,0.3); border-radius: 8px; background: rgba(255,255,255,0.05); color: #fff;">
+                    <small style="color: #ffffff; opacity: 0.7;">
+                        Deixe em branco para usar dados de teste limitados (PETR4, VALE3, MGLU3, ITUB4)
+                    </small>
+                </div>
+                
+                <div class="form-group" style="margin-bottom: 1.5rem;">
+                    <label style="display: flex; align-items: center; cursor: pointer;">
+                        <input type="checkbox" 
+                               id="useRealDataCheckbox" 
+                               checked 
+                               style="margin-right: 0.5rem; width: 18px; height: 18px;">
+                        <span>Usar dados reais (desmarque para usar apenas mock)</span>
+                    </label>
+                </div>
+                
+                <div style="background: rgba(23, 162, 184, 0.2); border: 1px solid rgba(23, 162, 184, 0.5); border-radius: 8px; padding: 1rem; margin-bottom: 1rem;">
+                    <strong style="display: block; margin-bottom: 0.5rem;">📝 Como obter seu token:</strong>
+                    <ol style="margin: 0; padding-left: 1.5rem;">
+                        <li>Acesse <a href="https://brapi.dev/dashboard" target="_blank" style="color: #ffd700;">brapi.dev/dashboard</a></li>
+                        <li>Faça login ou crie uma conta gratuita</li>
+                        <li>Copie seu token da seção "Chaves de API"</li>
+                    </ol>
+                </div>
+                
+                <div style="background: rgba(255, 193, 7, 0.2); border: 1px solid rgba(255, 193, 7, 0.5); border-radius: 8px; padding: 1rem;">
+                    <strong style="display: block; margin-bottom: 0.5rem;">ℹ️ Plano Gratuito:</strong>
+                    <ul style="margin: 0; padding-left: 1.5rem;">
+                        <li>15.000 requisições por mês</li>
+                        <li>Acesso a +4.000 ações da B3</li>
+                        <li>Dados atualizados a cada 30 minutos</li>
+                        <li>Histórico de até 20 anos</li>
+                    </ul>
+                </div>
+            </div>
+            <div class="modal-footer" style="display: flex; gap: 1rem; justify-content: flex-end; margin-top: 1.5rem;">
+                <button class="btn btn-secondary" onclick="closeModal('apiConfigModal')">
+                    Cancelar
+                </button>
+                <button class="btn btn-primary" onclick="saveApiConfig()">
+                    💾 Salvar Configuração
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Sprint 6: Modal de Importação de Dados -->
+    <div id="importModal" class="modal" style="display: none;">
+        <div class="modal-content" style="max-width: 700px;">
+            <div class="modal-header">
+                <h2>📥 Importar Dados Históricos</h2>
+                <span class="close" onclick="closeModal('importModal')">&times;</span>
+            </div>
+            <div class="modal-body">
+                <p>Importe dados históricos de até 20 anos para análises avançadas.</p>
+                
+                <div class="import-stats" id="importStats" style="display: grid; grid-template-columns: repeat(3, 1fr); gap: 1rem; margin-bottom: 1.5rem; padding: 1rem; background: rgba(255,255,255,0.05); border-radius: 8px;">
+                    <div style="text-align: center;">
+                        <div style="font-size: 0.875rem; opacity: 0.7;">Ações no banco</div>
+                        <div style="font-size: 1.5rem; font-weight: bold; color: #ffd700;" id="stockCount">0</div>
+                    </div>
+                    <div style="text-align: center;">
+                        <div style="font-size: 0.875rem; opacity: 0.7;">Registros totais</div>
+                        <div style="font-size: 1.5rem; font-weight: bold; color: #ffd700;" id="recordCount">0</div>
+                    </div>
+                    <div style="text-align: center;">
+                        <div style="font-size: 0.875rem; opacity: 0.7;">Tamanho</div>
+                        <div style="font-size: 1.5rem; font-weight: bold; color: #ffd700;" id="dbSize">0 KB</div>
+                    </div>
+                </div>
+
+                <div class="import-options" style="margin-bottom: 1.5rem;">
+                    <label style="display: block; margin-bottom: 0.5rem; cursor: pointer;">
+                        <input type="radio" name="importType" value="priority" checked style="margin-right: 0.5rem;">
+                        🚀 Importar TODAS as ações da B3 (recomendado)
+                    </label>
+                    <label style="display: block; cursor: pointer;">
+                        <input type="radio" name="importType" value="custom" style="margin-right: 0.5rem;">
+                        📝 Importar ações específicas
+                    </label>
+                    <textarea id="customSymbols" 
+                              placeholder="Digite os símbolos separados por vírgula (ex: PETR4,VALE3,ITUB4)"
+                              style="display: none; width: 100%; margin-top: 1rem; padding: 0.75rem; border: 1px solid rgba(255,215,0,0.3); border-radius: 8px; background: rgba(255,255,255,0.05); color: #fff; min-height: 80px;"></textarea>
+                </div>
+
+                <div class="import-progress" id="importProgress" style="display: none; margin-bottom: 1.5rem;">
+                    <div style="background: rgba(255,255,255,0.1); border-radius: 8px; overflow: hidden; height: 30px; margin-bottom: 0.5rem;">
+                        <div id="progressFill" style="background: linear-gradient(90deg, #ffd700, #ffed4e); height: 100%; width: 0%; transition: width 0.3s;"></div>
+                    </div>
+                    <div id="progressText" style="text-align: center; font-weight: bold;">0%</div>
+                    <div id="progressDetails" style="margin-top: 0.5rem; font-size: 0.875rem; opacity: 0.8;"></div>
+                </div>
+
+                <div style="background: rgba(255, 193, 7, 0.2); border: 1px solid rgba(255, 193, 7, 0.5); border-radius: 8px; padding: 1rem;">
+                    <strong style="display: block; margin-bottom: 0.5rem;">⚠️ Atenção:</strong>
+                    <ul style="margin: 0; padding-left: 1.5rem;">
+                        <li>A importação completa pode levar 30-60 minutos</li>
+                        <li>Serão importadas ~400+ ações da B3</li>
+                        <li>Consome requisições da API (estimado: 400-800 requisições)</li>
+                        <li>Só precisa ser feita uma vez</li>
+                        <li>Dados ficam salvos no navegador</li>
+                        <li>Você pode fechar o modal e continuar usando o sistema</li>
+                    </ul>
+                </div>
+            </div>
+            <div class="modal-footer" style="display: flex; gap: 1rem; justify-content: flex-end; margin-top: 1.5rem;">
+                <button class="btn btn-secondary" onclick="closeModal('importModal')">
+                    Cancelar
+                </button>
+                <button class="btn btn-primary" onclick="startImport()" id="btnStartImport">
+                    📥 Iniciar Importação
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Sprint 6: Novos Serviços de Dados -->
+    <script src="../backend/quantum-trades-backend/src/static/src/config.js"></script>
+    <script src="../backend/quantum-trades-backend/src/static/src/services/mockDataService.js"></script>
+    <script src="../backend/quantum-trades-backend/src/static/src/services/realDataService.js"></script>
+    <script src="services/localDataService.js"></script>
+    <script src="services/hybridDataService.js"></script>
+    <script src="../backend/quantum-trades-backend/src/static/src/services/databaseService.js"></script>
+    <script src="../backend/quantum-trades-backend/src/static/src/services/syncService.js"></script>
+    <script src="../backend/quantum-trades-backend/src/static/src/services/dataService.js"></script>
+
+    <script>
+        // Global variables
+        let alerts = [
+            { id: 1, symbol: 'PETR4.SA', type: 'price_above', value: 75.00, description: 'Preço acima de R$ 75,00' },
+            { id: 2, symbol: 'VALE3.SA', type: 'rsi_oversold', value: null, description: 'RSI Sobrevenda' }
+        ];
+
+        // Stock database for autocomplete
+        const stockDatabase = [
+            { symbol: 'PETR4', name: 'Petrobras PN', price: 71.34, change: 4.91 },
+            { symbol: 'VALE3', name: 'Vale ON', price: 65.89, change: -1.83 },
+            { symbol: 'ITUB4', name: 'Itaú Unibanco PN', price: 32.45, change: 2.75 },
+            { symbol: 'BBDC4', name: 'Bradesco PN', price: 28.91, change: -1.53 },
+            { symbol: 'ABEV3', name: 'Ambev ON', price: 14.67, change: 1.59 },
+            { symbol: 'MGLU3', name: 'Magazine Luiza ON', price: 8.45, change: -3.21 },
+            { symbol: 'WEGE3', name: 'WEG ON', price: 45.78, change: 1.89 },
+            { symbol: 'RENT3', name: 'Localiza ON', price: 67.23, change: 0.45 },
+            { symbol: 'LREN3', name: 'Lojas Renner ON', price: 19.87, change: -2.15 },
+            { symbol: 'JBSS3', name: 'JBS ON', price: 34.56, change: 3.78 },
+            { symbol: 'SUZB3', name: 'Suzano ON', price: 52.34, change: -1.67 },
+            { symbol: 'VIVT3', name: 'Telefônica Brasil ON', price: 41.23, change: 0.89 },
+            { symbol: 'GGBR4', name: 'Gerdau PN', price: 23.45, change: 2.34 },
+            { symbol: 'USIM5', name: 'Usiminas PNA', price: 12.78, change: -0.98 },
+            { symbol: 'CSNA3', name: 'CSN ON', price: 18.90, change: 1.45 },
+            { symbol: 'GOAU4', name: 'Metalúrgica Gerdau PN', price: 15.67, change: -0.76 },
+            { symbol: 'EMBR3', name: 'Embraer ON', price: 28.34, change: 4.56 },
+            { symbol: 'AZUL4', name: 'Azul PN', price: 16.78, change: -2.89 },
+            { symbol: 'GOLL4', name: 'Gol PN', price: 9.45, change: -5.67 },
+            { symbol: 'CIEL3', name: 'Cielo ON', price: 5.23, change: 1.23 }
+        ];
+
+        let currentSuggestionIndex = -1;
+
+        // Initialize page
+        document.addEventListener('DOMContentLoaded', function() {
+            updateAlertCounts();
+            loadPopularStocks();
+            initializeAutocomplete();
+            
+            // Add enter key support for search
+            document.getElementById('searchInput').addEventListener('keypress', function(e) {
+                if (e.key === 'Enter') {
+                    searchStock();
+                }
+            });
+        });
+
+        // Initialize autocomplete functionality
+        function initializeAutocomplete() {
+            const searchInput = document.getElementById('searchInput');
+            const suggestionsContainer = document.getElementById('autocompleteSuggestions');
+
+            searchInput.addEventListener('input', function(e) {
+                const query = e.target.value.trim().toUpperCase();
+                
+                if (query.length === 0) {
+                    hideSuggestions();
+                    return;
+                }
+
+                const filteredStocks = stockDatabase.filter(stock => 
+                    stock.symbol.includes(query) || 
+                    stock.name.toUpperCase().includes(query)
+                ).slice(0, 8); // Limit to 8 suggestions
+
+                if (filteredStocks.length > 0) {
+                    showSuggestions(filteredStocks);
+                } else {
+                    hideSuggestions();
+                }
+            });
+
+            searchInput.addEventListener('keydown', function(e) {
+                const suggestions = document.querySelectorAll('.autocomplete-suggestion');
+                
+                if (e.key === 'ArrowDown') {
+                    e.preventDefault();
+                    currentSuggestionIndex = Math.min(currentSuggestionIndex + 1, suggestions.length - 1);
+                    updateSuggestionHighlight(suggestions);
+                } else if (e.key === 'ArrowUp') {
+                    e.preventDefault();
+                    currentSuggestionIndex = Math.max(currentSuggestionIndex - 1, -1);
+                    updateSuggestionHighlight(suggestions);
+                } else if (e.key === 'Enter' && currentSuggestionIndex >= 0) {
+                    e.preventDefault();
+                    selectSuggestion(suggestions[currentSuggestionIndex]);
+                } else if (e.key === 'Escape') {
+                    hideSuggestions();
+                }
+            });
+
+            // Hide suggestions when clicking outside
+            document.addEventListener('click', function(e) {
+                if (!e.target.closest('.autocomplete-container')) {
+                    hideSuggestions();
+                }
+            });
+        }
+
+        // Show autocomplete suggestions
+        function showSuggestions(stocks) {
+            const suggestionsContainer = document.getElementById('autocompleteSuggestions');
+            currentSuggestionIndex = -1;
+            
+            suggestionsContainer.innerHTML = stocks.map(stock => {
+                const changeClass = stock.change >= 0 ? 'positive' : 'negative';
+                const changeIcon = stock.change >= 0 ? '↗' : '↘';
+                
+                return `
+                    <div class="autocomplete-suggestion" data-symbol="${stock.symbol}" onclick="selectSuggestionBySymbol('${stock.symbol}')">
+                        <div>
+                            <div class="suggestion-symbol">${stock.symbol}</div>
+                            <div class="suggestion-name">${stock.name}</div>
+                        </div>
+                        <div class="suggestion-price ${changeClass}">
+                            R$ ${stock.price.toFixed(2)} ${changeIcon} ${stock.change >= 0 ? '+' : ''}${stock.change.toFixed(2)}%
+                        </div>
+                    </div>
+                `;
+            }).join('');
+            
+            suggestionsContainer.style.display = 'block';
+        }
+
+        // Hide autocomplete suggestions
+        function hideSuggestions() {
+            const suggestionsContainer = document.getElementById('autocompleteSuggestions');
+            suggestionsContainer.style.display = 'none';
+            currentSuggestionIndex = -1;
+        }
+
+        // Update suggestion highlight
+        function updateSuggestionHighlight(suggestions) {
+            suggestions.forEach((suggestion, index) => {
+                suggestion.classList.toggle('highlighted', index === currentSuggestionIndex);
+            });
+        }
+
+        // Select suggestion
+        function selectSuggestion(suggestionElement) {
+            const symbol = suggestionElement.getAttribute('data-symbol');
+            selectSuggestionBySymbol(symbol);
+        }
+
+        // Select suggestion by symbol
+        function selectSuggestionBySymbol(symbol) {
+            const searchInput = document.getElementById('searchInput');
+            searchInput.value = symbol;
+            hideSuggestions();
+            searchStock();
+        }
+
+        // Update data with real market data
+        async function updateData() {
+            try {
+                showToast('Atualizando dados reais...');
+                
+                // Atualizar ações populares
+                const popularResponse = await fetch('/api/real-market/popular');
+                if (popularResponse.ok) {
+                    const popularData = await popularResponse.json();
+                    if (popularData.success) {
+                        updatePopularStocks(popularData.data);
+                    }
+                }
+                
+                // Atualizar status do mercado
+                const statusResponse = await fetch('/api/real-market/status');
+                if (statusResponse.ok) {
+                    const statusData = await statusResponse.json();
+                    if (statusData.success) {
+                        updateMarketStatus(statusData.data);
+                    }
+                }
+                
+                showToast('Dados atualizados com sucesso!');
+                
+            } catch (error) {
+                console.error('Erro ao atualizar dados:', error);
+                showToast('Erro ao atualizar dados', 'error');
+            }
+        }
+
+        // Update popular stocks display
+        function updatePopularStocks(stocks) {
+            const container = document.getElementById('popularStocks');
+            if (!container) return;
+            
+            container.innerHTML = stocks.map(stock => {
+                const changeClass = stock.change >= 0 ? 'positive' : 'negative';
+                const changeIcon = stock.change >= 0 ? '↗' : '↘';
+                
+                return `
+                    <div class="stock-item">
+                        <div class="stock-info">
+                            <div class="stock-name">${stock.symbol}</div>
+                            <div class="stock-price-info">
+                                <span class="stock-price">R$ ${stock.price.toFixed(2)}</span>
+                                <span class="stock-change ${changeClass}">${changeIcon} ${stock.change >= 0 ? '+' : ''}${stock.change.toFixed(2)}%</span>
+                            </div>
+                        </div>
+                        <div class="stock-actions">
+                            <button class="btn btn-secondary btn-sm" onclick="createAlert('${stock.symbol}.SA')">
+                                <i class="fas fa-bell"></i>
+                            </button>
+                            <button class="btn btn-primary btn-sm" onclick="openTechnicalAnalysis('${stock.symbol}.SA')">
+                                <i class="fas fa-chart-bar"></i>
+                            </button>
+                        </div>
+                    </div>
+                `;
+            }).join('');
+        }
+
+        // Update market status
+        function updateMarketStatus(status) {
+            // Atualizar status do mercado no card
+            const marketCard = document.querySelector('.dashboard-card .card-value');
+            if (marketCard && marketCard.textContent === 'Aberto') {
+                marketCard.textContent = status.status;
+            }
+        }
+
+         // Search stock with mock data (corrigido)
+        async function searchStock() {
+            const symbol = document.getElementById('searchInput').value.trim().toUpperCase();
+            if (!symbol) {
+                showToast('Digite um código de ação válido', 'error');
+                return;
+            }
+
+            try {
+                showToast('🔍 Buscando cotação...', 'info');
+                
+                // Usar serviço híbrido (atual + histórico)
+                const quote = await quantumHybridData.getQuote(symbol);
+                
+                if (quote) {
+                    const sourceMsg = quote.source === 'brapi_current' 
+                        ? '🌐 Cotação atual' 
+                        : '📊 Última cotação disponível';
+                    
+                    showToast(`${symbol} encontrada! ${sourceMsg}`, 'success');
+                    
+                    displaySearchResult({
+                        symbol: quote.symbol,
+                        name: quote.name,
+                        price: quote.price,
+                        change: parseFloat(quote.change),
+                        volume: quote.volume,
+                        dayHigh: quote.high,
+                        dayLow: quote.low,
+                        lastUpdate: quote.date
+                    });
+                } else {
+                    throw new Error('Ação não encontrada');
+                }
+                
+            } catch (error) {
+                console.error('Erro ao buscar ação:', error);
+                showToast(`Ação ${symbol} não encontrada`, 'warning');
+                displaySearchResult({ 
+                    symbol: symbol, 
+                    name: 'Ação não encontrada', 
+                    price: 0, 
+                    change: 0, 
+                    volume: 0 
+                });
+            }
+        }
+
+        // Display search result
+        function displaySearchResult(stock) {
+            const resultsDiv = document.getElementById('searchResults');
+            const changeClass = stock.change >= 0 ? 'positive' : 'negative';
+            const changeIcon = stock.change >= 0 ? '↗' : '↘';
+            
+            resultsDiv.innerHTML = `
+                <div class="stock-result">
+                    <div class="stock-header">
+                        <div class="stock-symbol">${stock.symbol}</div>
+                        <div class="stock-name">${stock.name}</div>
+                        <div class="stock-price-info">
+                            <span class="stock-price">R$ ${stock.price.toFixed(2)}</span>
+                            <span class="stock-change ${changeClass}">${changeIcon} ${stock.change >= 0 ? '+' : ''}${stock.change.toFixed(2)}%</span>
+                        </div>
+                    </div>
+                    <div class="stock-details">
+                        <div>Volume: ${stock.volume.toLocaleString()}</div>
+                        <div>Máxima: R$ ${stock.dayHigh ? stock.dayHigh.toFixed(2) : 'N/A'}</div>
+                        <div>Mínima: R$ ${stock.dayLow ? stock.dayLow.toFixed(2) : 'N/A'}</div>
+                        <div>Última atualização: ${stock.lastUpdate ? new Date(stock.lastUpdate).toLocaleTimeString() : 'N/A'}</div>
+                    </div>
+                    <div class="stock-actions">
+                        <button class="btn btn-secondary btn-sm" onclick="createAlert('${stock.symbol}.SA')">
+                            <i class="fas fa-bell"></i>
+                            Alerta
+                        </button>
+                        <button class="btn btn-primary btn-sm" onclick="openTechnicalAnalysis('${stock.symbol}.SA')">
+                            <i class="fas fa-chart-bar"></i>
+                            Analisar
+                        </button>
+                    </div>
+                </div>
+            `;
+            resultsDiv.style.display = 'block';
+        }
+
+        // Load popular stocks
+        function loadPopularStocks() {
+            // Stocks are already loaded in HTML, this could update them dynamically
+            showToast('Ações populares atualizadas');
+        }
+
+        // Open alerts modal
+        function openAlertsModal() {
+            document.getElementById('alertsModal').style.display = 'flex';
+        }
+
+        // Open technical analysis modal
+        function openTechnicalAnalysis(symbol = '') {
+            document.getElementById('analysisSymbol').value = symbol;
+            document.getElementById('technicalModal').style.display = 'flex';
+        }
+
+        // Close modal
+        function closeModal(modalId) {
+            document.getElementById(modalId).style.display = 'none';
+            if (modalId === 'technicalModal') {
+                document.getElementById('analysisResults').style.display = 'none';
+            }
+        }
+
+        // Create alert
+        function createAlert(symbol) {
+            document.getElementById('alertSymbol').value = symbol;
+            openAlertsModal();
+        }
+
+        // Update alert fields based on type
+        function updateAlertFields() {
+            const alertType = document.getElementById('alertType').value;
+            const valueGroup = document.getElementById('valueGroup');
+            
+            if (alertType === 'rsi_oversold' || alertType === 'rsi_overbought' || alertType === 'volume_spike') {
+                valueGroup.style.display = 'none';
+            } else {
+                valueGroup.style.display = 'block';
+            }
+        }
+
+        // Create alert from modal
+        function createAlertFromModal() {
+            const symbol = document.getElementById('alertSymbol').value.trim();
+            const type = document.getElementById('alertType').value;
+            const value = document.getElementById('alertValue').value;
+
+            if (!symbol || !type) {
+                showToast('Preencha todos os campos obrigatórios', 'error');
+                return;
+            }
+
+            if ((type === 'price_above' || type === 'price_below') && !value) {
+                showToast('Informe o valor para alertas de preço', 'error');
+                return;
+            }
+
+            // Create alert
+            const newAlert = {
+                id: alerts.length + 1,
+                symbol: symbol,
+                type: type,
+                value: value ? parseFloat(value) : null,
+                description: getAlertDescription(type, value)
+            };
+
+            alerts.push(newAlert);
+            updateAlertCounts();
+            updateActiveAlerts();
+            closeModal('alertsModal');
+            showToast('Alerta criado com sucesso!');
+
+            // Clear form
+            document.getElementById('alertSymbol').value = '';
+            document.getElementById('alertType').value = '';
+            document.getElementById('alertValue').value = '';
+        }
+
+        // Get alert description
+        function getAlertDescription(type, value) {
+            switch (type) {
+                case 'price_above':
+                    return `Preço acima de R$ ${parseFloat(value).toFixed(2)}`;
+                case 'price_below':
+                    return `Preço abaixo de R$ ${parseFloat(value).toFixed(2)}`;
+                case 'rsi_oversold':
+                    return 'RSI Sobrevenda';
+                case 'rsi_overbought':
+                    return 'RSI Sobrecompra';
+                case 'volume_spike':
+                    return 'Pico de Volume';
+                default:
+                    return 'Alerta personalizado';
+            }
+        }
+
+        // Remove alert
+        function removeAlert(alertId) {
+            alerts = alerts.filter(alert => alert.id !== alertId);
+            updateAlertCounts();
+            updateActiveAlerts();
+            showToast('Alerta removido com sucesso!');
+        }
+
+        // Update alert counts
+        function updateAlertCounts() {
+            const count = alerts.length;
+            document.getElementById('alertCount').textContent = count;
+            document.getElementById('dashboardAlertCount').textContent = count;
+        }
+
+        // Update active alerts display
+        function updateActiveAlerts() {
+            const alertsContainer = document.getElementById('activeAlerts');
+            
+            if (alerts.length === 0) {
+                alertsContainer.innerHTML = '<div class="alert-item">Nenhum alerta ativo</div>';
+                return;
+            }
+
+            alertsContainer.innerHTML = alerts.map(alert => `
+                <div class="alert-item">
+                    <div>
+                        <strong>${alert.symbol}</strong> - ${alert.description}
+                    </div>
+                    <button class="btn btn-danger btn-sm" onclick="removeAlert(${alert.id})">
+                        <i class="fas fa-trash"></i>
+                    </button>
+                </div>
+            `).join('');
+        }
+
+        // Perform technical analysis
+        function performAnalysis() {
+            const symbol = document.getElementById('analysisSymbol').value.trim();
+            const strategy = document.getElementById('analysisStrategy').value;
+
+            if (!symbol) {
+                showToast('Digite um símbolo válido', 'error');
+                return;
+            }
+
+            // Simulate analysis
+            setTimeout(() => {
+                const mockResults = {
+                    signal: ['Compra', 'Venda', 'Neutro'][Math.floor(Math.random() * 3)],
+                    strength: ['Forte', 'Médio', 'Fraco'][Math.floor(Math.random() * 3)],
+                    rsi: (Math.random() * 100).toFixed(1),
+                    macd: ['Bullish', 'Bearish', 'Neutro'][Math.floor(Math.random() * 3)]
+                };
+
+                document.getElementById('analysisSignal').textContent = mockResults.signal;
+                document.getElementById('analysisStrength').textContent = mockResults.strength;
+                document.getElementById('analysisRSI').textContent = mockResults.rsi;
+                document.getElementById('analysisMACD').textContent = mockResults.macd;
+                
+                document.getElementById('analysisResults').style.display = 'block';
+                showToast('Análise técnica concluída!');
+            }, 1000);
+        }
+
+        // Logout (corrigido)
+        function logout() {
+            if (confirm('Deseja realmente sair?')) {
+                // Limpar dados de sessão se existirem
+                localStorage.removeItem('quantum_trades_remember');
+                localStorage.removeItem('quantum_trades_session');
+                sessionStorage.clear();
+                
+                // Mostrar toast de logout
+                showToast('Logout realizado com sucesso!', 'success');
+                
+                // Redirecionar para login após 1.5 segundos
+                setTimeout(() => {
+                    // Usar replace para evitar voltar com botão back
+                    window.location.replace('index.html');
+                }, 1500);
+            }
+        }
+
+        // Show toast notification
+        function showToast(message, type = 'success') {
+            const toast = document.createElement('div');
+            toast.className = `toast ${type}`;
+            toast.textContent = message;
+            document.body.appendChild(toast);
+
+            setTimeout(() => toast.classList.add('show'), 100);
+            setTimeout(() => {
+                toast.classList.remove('show');
+                setTimeout(() => document.body.removeChild(toast), 300);
+            }, 3000);
+        }
+
+        // Close modals when clicking outside
+        window.onclick = function(event) {
+            const modals = document.querySelectorAll('.modal');
+            modals.forEach(modal => {
+                if (event.target === modal) {
+                    modal.style.display = 'none';
+                }
+            });
+        }
+
+        // Funções do Menu Hambúrguer
+        function toggleMenu() {
+            const menu = document.getElementById('hamburgerMenu');
+            const overlay = document.getElementById('menuOverlay');
+            
+            menu.classList.toggle('open');
+            overlay.classList.toggle('active');
+        }
+
+        function closeMenu() {
+            const menu = document.getElementById('hamburgerMenu');
+            const overlay = document.getElementById('menuOverlay');
+            
+            menu.classList.remove('open');
+            overlay.classList.remove('active');
+        }
+
+        function navigateTo(section) {
+            // Remove active class from all menu items
+            document.querySelectorAll('.menu-item').forEach(item => {
+                item.classList.remove('active');
+            });
+            
+            // Add active class to clicked item (find the button that was clicked)
+            const clickedButton = event.target.closest('.menu-item');
+            if (clickedButton) {
+                clickedButton.classList.add('active');
+            }
+            
+            // Close menu
+            closeMenu();
+            
+            // Navigate based on section
+            switch(section) {
+                case 'dashboard':
+                    // Already on dashboard, just scroll to top
+                    window.scrollTo(0, 0);
+                    showToast('Navegando para o painel principal');
+                    break;
+                case 'portfolio':
+                    // Navigate to portfolio page
+                    showToast('Carregando portfólio...');
+                    setTimeout(() => {
+                        window.location.href = 'portfolio.html';
+                    }, 500);
+                    break;
+                case 'alerts':
+                    // Open alerts modal
+                    showToast('Abrindo alertas...');
+                    setTimeout(() => {
+                        openAlertsModal();
+                    }, 500);
+                    break;
+                default:
+                    showToast('Funcionalidade em desenvolvimento', 'error');
+            }
+        }
+
+        function navigateToAI(section) {
+            // Close menu
+            closeMenu();
+            
+            // Show loading toast
+            showToast('Carregando módulo de IA...');
+            
+            // Navigate to local AI panel
+            setTimeout(() => {
+                if (section === 'dashboard') {
+                    window.location.href = 'painel_ia.html';
+                } else {
+                    // Para outras seções, ir para o painel principal e mostrar mensagem
+                    window.location.href = 'painel_ia.html';
+                }
+            }, 800);
+        }
+
+        // Close menu when clicking outside or pressing ESC
+        document.addEventListener('keydown', function(event) {
+            if (event.key === 'Escape') {
+                closeMenu();
+            }
+        });
+
+        // Handle window resize
+        window.addEventListener('resize', function() {
+            if (window.innerWidth > 768) {
+                closeMenu();
+            }
+        });
+
+        // ==================== SPRINT 6: FUNÇÕES DE CONFIGURAÇÃO E IMPORTAÇÃO ====================
+
+        // Abrir modal de configuração da API
+        function openApiConfig() {
+            const token = localStorage.getItem('quantum_brapi_token') || '';
+            document.getElementById('brapiToken').value = token;
+            document.getElementById('useRealDataCheckbox').checked = QuantumConfig.features.useRealData;
+            document.getElementById('apiConfigModal').style.display = 'flex';
+        }
+
+        // Salvar configuração da API
+        function saveApiConfig() {
+            const token = document.getElementById('brapiToken').value.trim();
+            const useRealData = document.getElementById('useRealDataCheckbox').checked;
+            
+            if (token) {
+                QuantumConfig.setApiToken(token);
+                quantumDataService.updateToken(token);
+                showToast('✅ Token configurado com sucesso!', 'success');
+            }
+            
+            QuantumConfig.features.useRealData = useRealData;
+            localStorage.setItem('quantum_use_real_data', useRealData);
+            
+            showToast('⚙️ Configuração salva!', 'success');
+            closeModal('apiConfigModal');
+            
+            // Recarregar dados se necessário
+            if (useRealData && token) {
+                showToast('🔄 Configuração aplicada!', 'info');
+            }
+        }
+
+        // Abrir modal de importação
+        async function openImportModal() {
+            document.getElementById('importModal').style.display = 'flex';
+            await loadImportStats();
+        }
+
+        // Carregar estatísticas do banco
+        async function loadImportStats() {
+            try {
+                const stats = await quantumDB.getStats();
+                document.getElementById('stockCount').textContent = stats.symbols.length;
+                document.getElementById('recordCount').textContent = stats.totalRecords.toLocaleString();
+                document.getElementById('dbSize').textContent = stats.size.toFixed(2) + ' KB';
+            } catch (error) {
+                console.error('Erro ao carregar estatísticas:', error);
+            }
+        }
+
+        // Iniciar importação
+        async function startImport() {
+            const importType = document.querySelector('input[name="importType"]:checked').value;
+            const btnImport = document.getElementById('btnStartImport');
+            const progressDiv = document.getElementById('importProgress');
+            const progressFill = document.getElementById('progressFill');
+            const progressText = document.getElementById('progressText');
+            const progressDetails = document.getElementById('progressDetails');
+            
+            btnImport.disabled = true;
+            progressDiv.style.display = 'block';
+            progressFill.style.width = '0%';
+            progressText.textContent = '0%';
+            progressDetails.innerHTML = 'Iniciando importação...';
+
+            try {
+                let symbols = null;
+                
+                if (importType === 'custom') {
+                    const customText = document.getElementById('customSymbols').value;
+                    if (!customText.trim()) {
+                        showToast('Digite os símbolos das ações', 'warning');
+                        btnImport.disabled = false;
+                        return;
+                    }
+                    symbols = customText.split(',').map(s => s.trim().toUpperCase());
+                }
+
+                // Iniciar importação
+                showToast('🚀 Iniciando importação...', 'info');
+                
+                // Monitorar progresso
+                const checkProgress = setInterval(() => {
+                    const progress = quantumSync.getProgress();
+                    progressFill.style.width = progress.percentage + '%';
+                    progressText.textContent = progress.percentage + '%';
+                    progressDetails.innerHTML = `
+                        Importando: ${progress.currentSymbol}<br>
+                        Progresso: ${progress.current} de ${progress.total}
+                    `;
+                }, 500);
+
+                const results = await quantumSync.importPriorityStocks(symbols);
+
+                clearInterval(checkProgress);
+
+                // Atualizar progresso final
+                progressFill.style.width = '100%';
+                progressText.textContent = '100%';
+                progressDetails.innerHTML = `
+                    ✅ Sucesso: ${results.success.length}<br>
+                    ⏭️ Puladas: ${results.skipped.length}<br>
+                    ❌ Erros: ${results.errors.length}
+                `;
+
+                showToast('✅ Importação concluída!', 'success');
+                await loadImportStats();
+
+            } catch (error) {
+                console.error('Erro na importação:', error);
+                showToast('❌ Erro na importação: ' + error.message, 'error');
+            } finally {
+                btnImport.disabled = false;
+            }
+        }
+
+        // Alternar tipo de importação
+        document.addEventListener('DOMContentLoaded', function() {
+            const radios = document.querySelectorAll('input[name="importType"]');
+            radios.forEach(radio => {
+                radio.addEventListener('change', (e) => {
+                    const customArea = document.getElementById('customSymbols');
+                    if (customArea) {
+                        customArea.style.display = e.target.value === 'custom' ? 'block' : 'none';
+                    }
+                });
+            });
+        });
+
+        // ==================== FIM SPRINT 6 ====================
+    </script>
+</body>
+</html>
+
