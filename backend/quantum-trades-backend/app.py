@@ -12,6 +12,7 @@ from dotenv import load_dotenv
 
 from services.telegram_service import TelegramService, TelegramCarteirasReader
 from modules.carteira_parser import CarteiraParser, parse_telegram_messages, get_recommendations_summary
+from modules.magnus_learning import MagnusLearningEngine, MagnusAnalyzer
 
 # Carregar variáveis de ambiente
 load_dotenv()
@@ -26,8 +27,13 @@ TELEGRAM_API_HASH = os.getenv('TELEGRAM_API_HASH')
 TELEGRAM_PHONE = os.getenv('TELEGRAM_PHONE')
 TELEGRAM_GROUP = os.getenv('TELEGRAM_GROUP_USERNAME')
 
-# Instância global do serviço (será inicializada quando necessário)
+# Instâncias globais
 telegram_service = None
+magnus_engine = MagnusLearningEngine(learning_rate=0.3)
+magnus_analyzer = MagnusAnalyzer(magnus_engine)
+
+# Tentar carregar base de conhecimento existente
+magnus_engine.load_knowledge_base()
 
 
 def get_telegram_service():
@@ -46,8 +52,13 @@ def health_check():
     return jsonify({
         'status': 'ok',
         'service': 'Magnus Wealth API',
-        'version': '1.0.0',
-        'telegram_configured': all([TELEGRAM_API_ID, TELEGRAM_API_HASH, TELEGRAM_PHONE])
+        'version': '1.1.0',
+        'telegram_configured': all([TELEGRAM_API_ID, TELEGRAM_API_HASH, TELEGRAM_PHONE]),
+        'magnus_learning': {
+            'enabled': True,
+            'last_update': magnus_engine.last_update,
+            'total_recommendations': len(magnus_engine.knowledge_base['recommendation_history'])
+        }
     })
 
 
@@ -286,12 +297,257 @@ def analyze_carteiras_from_telegram():
         }), 500
 
 
+# ============================================================================
+# NOVOS ENDPOINTS - MAGNUS LEARNING
+# ============================================================================
+
+@app.route('/api/magnus/learn', methods=['POST'])
+def magnus_learn():
+    """
+    Processa recomendações do Telegram e atualiza aprendizado do Magnus.
+    
+    Body:
+        - carteiras: Lista de carteiras analisadas
+    """
+    data = request.get_json()
+    
+    if not data or 'carteiras' not in data:
+        return jsonify({
+            'error': 'Carteiras não fornecidas',
+            'message': 'Envie um JSON com a chave "carteiras" contendo a lista de carteiras'
+        }), 400
+    
+    try:
+        carteiras = data['carteiras']
+        processed = magnus_engine.process_telegram_recommendations(carteiras)
+        
+        # Salvar base de conhecimento
+        magnus_engine.save_knowledge_base()
+        
+        return jsonify({
+            'success': True,
+            'processed': processed,
+            'statistics': magnus_engine.get_learning_statistics()
+        })
+    
+    except Exception as e:
+        return jsonify({
+            'error': 'Erro ao processar aprendizado',
+            'message': str(e)
+        }), 500
+
+
+@app.route('/api/magnus/learn-from-telegram', methods=['GET'])
+def magnus_learn_from_telegram():
+    """
+    Lê do Telegram, analisa e atualiza aprendizado do Magnus automaticamente.
+    
+    Query params:
+        - group: Username ou ID do grupo (opcional)
+        - limit: Número de mensagens (padrão: 100)
+    """
+    service = get_telegram_service()
+    if not service:
+        return jsonify({
+            'error': 'Telegram não configurado'
+        }), 400
+    
+    group = request.args.get('group', TELEGRAM_GROUP)
+    limit = int(request.args.get('limit', 100))
+    
+    if not group:
+        return jsonify({
+            'error': 'Grupo não especificado'
+        }), 400
+    
+    try:
+        loop = asyncio.new_event_loop()
+        asyncio.set_event_loop(loop)
+        
+        async def process():
+            # Ler mensagens
+            reader = TelegramCarteirasReader(service)
+            await service.connect()
+            carteiras_raw = await reader.read_carteiras(group, limit)
+            await service.disconnect()
+            
+            # Analisar
+            parser = CarteiraParser()
+            carteiras = parser.parse_messages(carteiras_raw)
+            
+            return carteiras
+        
+        carteiras = loop.run_until_complete(process())
+        loop.close()
+        
+        # Processar aprendizado
+        processed = magnus_engine.process_telegram_recommendations(carteiras)
+        
+        # Salvar base de conhecimento
+        magnus_engine.save_knowledge_base()
+        
+        return jsonify({
+            'success': True,
+            'total_messages': len(carteiras),
+            'processed': processed,
+            'statistics': magnus_engine.get_learning_statistics()
+        })
+    
+    except Exception as e:
+        return jsonify({
+            'error': 'Erro ao processar aprendizado',
+            'message': str(e)
+        }), 500
+
+
+@app.route('/api/magnus/recommendations', methods=['GET'])
+def get_magnus_recommendations():
+    """
+    Retorna recomendações do Magnus baseadas no aprendizado.
+    
+    Query params:
+        - limit: Número de recomendações (padrão: 10)
+    """
+    limit = int(request.args.get('limit', 10))
+    
+    try:
+        top_tickers = magnus_engine.get_top_recommended_tickers(limit=limit)
+        
+        recommendations = []
+        for ticker, weight in top_tickers:
+            rec = magnus_engine.get_ticker_recommendation(ticker)
+            recommendations.append(rec)
+        
+        return jsonify({
+            'success': True,
+            'total': len(recommendations),
+            'recommendations': recommendations,
+            'statistics': magnus_engine.get_learning_statistics()
+        })
+    
+    except Exception as e:
+        return jsonify({
+            'error': 'Erro ao gerar recomendações',
+            'message': str(e)
+        }), 500
+
+
+@app.route('/api/magnus/recommendation/<ticker>', methods=['GET'])
+def get_ticker_recommendation(ticker: str):
+    """
+    Retorna recomendação do Magnus para um ticker específico.
+    
+    Path params:
+        - ticker: Código do ticker (ex: PETR4)
+    """
+    try:
+        recommendation = magnus_engine.get_ticker_recommendation(ticker.upper())
+        
+        return jsonify({
+            'success': True,
+            'recommendation': recommendation
+        })
+    
+    except Exception as e:
+        return jsonify({
+            'error': 'Erro ao gerar recomendação',
+            'message': str(e)
+        }), 500
+
+
+@app.route('/api/magnus/portfolio', methods=['GET'])
+def get_magnus_portfolio():
+    """
+    Gera sugestão de portfolio do Magnus.
+    
+    Query params:
+        - num_assets: Número de ativos (padrão: 5)
+    """
+    num_assets = int(request.args.get('num_assets', 5))
+    
+    try:
+        portfolio = magnus_engine.get_portfolio_suggestion(num_assets=num_assets)
+        
+        return jsonify({
+            'success': True,
+            'portfolio': portfolio
+        })
+    
+    except Exception as e:
+        return jsonify({
+            'error': 'Erro ao gerar portfolio',
+            'message': str(e)
+        }), 500
+
+
+@app.route('/api/magnus/analyze/<ticker>', methods=['GET'])
+def analyze_ticker_with_magnus(ticker: str):
+    """
+    Analisa um ticker combinando dados de mercado e aprendizado do Magnus.
+    
+    Path params:
+        - ticker: Código do ticker (ex: PETR4)
+    """
+    try:
+        analysis = magnus_analyzer.analyze_ticker(ticker.upper())
+        
+        return jsonify({
+            'success': True,
+            'analysis': analysis
+        })
+    
+    except Exception as e:
+        return jsonify({
+            'error': 'Erro ao analisar ticker',
+            'message': str(e)
+        }), 500
+
+
+@app.route('/api/magnus/statistics', methods=['GET'])
+def get_magnus_statistics():
+    """Retorna estatísticas do aprendizado do Magnus."""
+    try:
+        stats = magnus_engine.get_learning_statistics()
+        
+        return jsonify({
+            'success': True,
+            'statistics': stats
+        })
+    
+    except Exception as e:
+        return jsonify({
+            'error': 'Erro ao obter estatísticas',
+            'message': str(e)
+        }), 500
+
+
+@app.route('/api/magnus/reset', methods=['POST'])
+def reset_magnus_knowledge():
+    """Reseta a base de conhecimento do Magnus."""
+    try:
+        magnus_engine.reset_knowledge()
+        magnus_engine.save_knowledge_base()
+        
+        return jsonify({
+            'success': True,
+            'message': 'Base de conhecimento resetada com sucesso'
+        })
+    
+    except Exception as e:
+        return jsonify({
+            'error': 'Erro ao resetar conhecimento',
+            'message': str(e)
+        }), 500
+
+
 if __name__ == '__main__':
     print("=" * 60)
     print("MAGNUS WEALTH API - Quantum Trades")
     print("=" * 60)
     print(f"Telegram configurado: {all([TELEGRAM_API_ID, TELEGRAM_API_HASH, TELEGRAM_PHONE])}")
     print(f"Grupo padrão: {TELEGRAM_GROUP or 'Não configurado'}")
+    print(f"Magnus Learning: Ativado")
+    print(f"Recomendações processadas: {len(magnus_engine.knowledge_base['recommendation_history'])}")
     print("=" * 60)
     print("\nEndpoints disponíveis:")
     print("  GET  /api/health")
@@ -301,6 +557,15 @@ if __name__ == '__main__':
     print("  POST /api/carteiras/parse")
     print("  POST /api/carteiras/summary")
     print("  GET  /api/carteiras/analyze")
+    print("\nMagnus Learning:")
+    print("  POST /api/magnus/learn")
+    print("  GET  /api/magnus/learn-from-telegram")
+    print("  GET  /api/magnus/recommendations")
+    print("  GET  /api/magnus/recommendation/<ticker>")
+    print("  GET  /api/magnus/portfolio")
+    print("  GET  /api/magnus/analyze/<ticker>")
+    print("  GET  /api/magnus/statistics")
+    print("  POST /api/magnus/reset")
     print("\nIniciando servidor...")
     print("=" * 60)
     

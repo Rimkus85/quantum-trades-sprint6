@@ -539,6 +539,30 @@
             </div>
         </div>
 
+        <!-- Magnus Learning - Recomendações do Telegram -->
+        <div class="section">
+            <h2 class="section-title">
+                <i class="fas fa-brain"></i> Magnus Learning - Recomendações Inteligentes
+            </h2>
+            <p class="section-subtitle">Análises baseadas em aprendizado de recomendações do Telegram</p>
+            
+            <div style="display: flex; gap: 1rem; margin-bottom: 1.5rem; flex-wrap: wrap;">
+                <button onclick="syncMagnusLearning()" class="btn" style="background: linear-gradient(135deg, #4caf50, #66bb6a);">
+                    <i class="fas fa-sync-alt"></i> Sincronizar com Telegram
+                </button>
+                <button onclick="showMagnusPortfolio()" class="btn" style="background: linear-gradient(135deg, #2196f3, #42a5f5);">
+                    <i class="fas fa-chart-pie"></i> Ver Portfolio Sugerido
+                </button>
+                <button onclick="showMagnusStatistics()" class="btn" style="background: linear-gradient(135deg, #ff9800, #ffa726);">
+                    <i class="fas fa-chart-bar"></i> Estatísticas
+                </button>
+            </div>
+            
+            <div id="magnus-recommendations"></div>
+            <div id="magnus-portfolio"></div>
+            <div id="magnus-statistics"></div>
+        </div>
+
         <!-- Predições Mais Recentes -->
         <div class="section">
             <h2 class="section-title">Predições Mais Recentes</h2>
@@ -601,6 +625,9 @@
             </div>
         </div>
     </main>
+
+    <!-- Magnus Learning Integration -->
+    <script src="js/magnus_learning.js"></script>
 
     <script>
         // Menu Functions - IGUAIS AO DASHBOARD
@@ -697,6 +724,60 @@
         window.addEventListener('resize', function() {
             if (window.innerWidth > 768) {
                 closeMenu();
+            }
+        });
+
+        // Magnus Learning Functions
+        async function syncMagnusLearning() {
+            showToast('Sincronizando com Telegram...', 'info');
+            
+            try {
+                const result = await MagnusLearning.learnFromTelegram(100);
+                showToast(`Magnus aprendeu com ${result.total_messages} mensagens!`, 'success');
+                
+                // Atualizar recomendações
+                await loadMagnusRecommendations();
+            } catch (error) {
+                showToast('Erro ao sincronizar. Verifique se o backend está rodando.', 'error');
+                console.error(error);
+            }
+        }
+
+        async function loadMagnusRecommendations() {
+            try {
+                const recommendations = await MagnusLearning.getRecommendations(10);
+                MagnusLearning.renderRecommendations(recommendations, 'magnus-recommendations');
+            } catch (error) {
+                console.error('Erro ao carregar recomendações:', error);
+            }
+        }
+
+        async function showMagnusPortfolio() {
+            try {
+                const portfolio = await MagnusLearning.getPortfolioSuggestion(5);
+                MagnusLearning.renderPortfolio(portfolio, 'magnus-portfolio');
+            } catch (error) {
+                showToast('Erro ao gerar portfolio', 'error');
+                console.error(error);
+            }
+        }
+
+        async function showMagnusStatistics() {
+            try {
+                const stats = await MagnusLearning.getStatistics();
+                MagnusLearning.renderStatistics(stats, 'magnus-statistics');
+            } catch (error) {
+                showToast('Erro ao carregar estatísticas', 'error');
+                console.error(error);
+            }
+        }
+
+        // Carregar recomendações ao iniciar
+        window.addEventListener('DOMContentLoaded', async () => {
+            try {
+                await loadMagnusRecommendations();
+            } catch (error) {
+                console.log('Backend não disponível. Magnus Learning em modo offline.');
             }
         });
     </script>
