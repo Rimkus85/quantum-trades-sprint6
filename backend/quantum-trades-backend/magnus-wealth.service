@@ -1,0 +1,41 @@
+[Unit]
+Description=Magnus Wealth API - Sistema de Análise de Investimentos com IA
+After=network.target
+Documentation=https://github.com/Rimkus85/quantum-trades-sprint6
+
+[Service]
+Type=simple
+User=ubuntu
+Group=ubuntu
+WorkingDirectory=/home/ubuntu/magnus-wealth/backend/quantum-trades-backend
+Environment="PATH=/home/ubuntu/magnus-wealth/backend/quantum-trades-backend/venv/bin:/usr/local/bin:/usr/bin:/bin"
+Environment="FLASK_ENV=production"
+Environment="FLASK_DEBUG=False"
+Environment="PORT=5000"
+
+# Comando de execução
+ExecStart=/home/ubuntu/magnus-wealth/backend/quantum-trades-backend/venv/bin/gunicorn \
+    --bind 0.0.0.0:5000 \
+    --workers 2 \
+    --timeout 120 \
+    --access-logfile /var/log/magnus/access.log \
+    --error-logfile /var/log/magnus/error.log \
+    wsgi:app
+
+# Reiniciar automaticamente em caso de falha
+Restart=always
+RestartSec=10
+StartLimitInterval=0
+
+# Limites de recursos
+LimitNOFILE=65536
+LimitNPROC=4096
+
+# Logging
+StandardOutput=journal
+StandardError=journal
+SyslogIdentifier=magnus-wealth
+
+[Install]
+WantedBy=multi-user.target
+
