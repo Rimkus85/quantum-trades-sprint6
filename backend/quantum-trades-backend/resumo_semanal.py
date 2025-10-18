@@ -26,8 +26,8 @@ SESSION_FILE = os.path.join(BASE_DIR, 'magnus_session')
 
 # Grupos para enviar (você pode adicionar mais)
 GRUPOS_DESTINO = [
-    # Adicione os IDs ou usernames dos grupos aqui
-    # Exemplo: -1001234567890 ou @nome_do_grupo
+    -4844836232,  # Magnus Wealth🎯💵🪙
+    # Adicione mais grupos aqui se necessário
 ]
 
 async def carregar_conhecimento():
