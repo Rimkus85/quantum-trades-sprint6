@@ -1,0 +1,19 @@
+# Magnus Wealth - Resumo Semanal
+# Executa todo sábado às 10:00
+# Envia resumo para o grupo Magnus Wealth no Telegram
+
+0 10 * * 6 cd /home/ubuntu/magnus-wealth/backend/quantum-trades-backend && python3 resumo_semanal.py >> logs/resumo_semanal.log 2>&1
+
+# Formato do cron:
+# minuto hora dia_do_mês mês dia_da_semana comando
+# 0 10 * * 6 = Todo sábado (6) às 10:00
+
+# Para instalar este cron:
+# crontab cron_resumo_semanal.txt
+
+# Para ver crons instalados:
+# crontab -l
+
+# Para editar crons:
+# crontab -e
+
