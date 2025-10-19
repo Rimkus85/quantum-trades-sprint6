@@ -110,6 +110,24 @@ class BinanceTrader:
             logger.error(f"✗ Erro ao configurar alavancagem para {symbol}: {e}")
             return False
     
+    def configurar_margem_isolada(self, symbol):
+        """Configura margem ISOLADA para um símbolo"""
+        try:
+            self.client.futures_change_margin_type(
+                symbol=symbol,
+                marginType='ISOLATED'
+            )
+            logger.info(f"✓ Margem ISOLADA configurada para {symbol}")
+            return True
+        except Exception as e:
+            # Se já estiver em modo isolado, ignora o erro
+            if 'No need to change margin type' in str(e):
+                logger.info(f"✓ {symbol} já está em margem ISOLADA")
+                return True
+            else:
+                logger.error(f"✗ Erro ao configurar margem isolada para {symbol}: {e}")
+                return False
+    
     def obter_preco_atual(self, symbol):
         """Obtém preço atual de um símbolo"""
         try:
@@ -151,6 +169,10 @@ class BinanceTrader:
             logger.info(f"\n{'='*60}")
             logger.info(f"ABRINDO POSIÇÃO {lado} - {symbol}")
             logger.info(f"{'='*60}")
+            
+            # Configurar margem isolada
+            if not self.configurar_margem_isolada(symbol):
+                logger.warning(f"Continuando sem margem isolada para {symbol}")
             
             # Configurar alavancagem
             if not self.configurar_alavancagem(symbol):
