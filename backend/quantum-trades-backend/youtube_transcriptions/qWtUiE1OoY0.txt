@@ -1,0 +1,234 @@
+[PROGRESS] Starting Speech-to-Text conversion...
+[PROGRESS] Transcribing audio file: youtube_downloads/qWtUiE1OoY0.mp3, file size: 24.69 MB
+[PROGRESS] Transcription may take some time depending on file size and audio length...
+[PROGRESS] Transcription completed successfully!
+
+TRANSCRIPTION RESULT:
+Total Duration: 1078.8 seconds
+Language: portuguese
+Timestamped segments:
+[00:000.0 - 00:005.4] Nesse vídeo eu vou te ajudar a acabar com a confusão nos investimentos e se você fizer
+[00:005.4 - 00:011.7] tudo o que eu falar, você vai poder ter a chance de ganhar 21 por mês de renda passiva
+[00:011.7 - 00:013.8] e você precisa seguir um plano.
+[00:013.8 - 00:022.1] Vou fazer aqui uma apresentação muito dinâmica para você, muito simples e é claro, se você
+[00:022.1 - 00:027.2] está nesse canal, já deixa um like aqui, saiba, eu sou apaixonado por investimentos,
+[00:027.2 - 00:030.9] estou fazendo isso aqui há mais de 20 anos já, sou mestre em finanças, sou o maior
+[00:030.9 - 00:037.0] analista independente do Brasil e aqui é a primeira variável que você tem que observar
+[00:037.0 - 00:044.1] nesse teu problema, você tem objetivos, você tem variáveis, você tem problemas que outras
+[00:044.1 - 00:049.8] pessoas também têm e é por isso que a gente consegue mapear tão simplesmente isso aqui,
+[00:049.8 - 00:052.1] a gente tem alternativas e a gente tem uma solução.
+[00:052.1 - 00:054.0] Então qual que é o teu objetivo?
+[00:054.0 - 01:000.8] Renda passiva, porque a tua atividade profissional, ela te demanda tempo, você não consegue
+[01:000.8 - 01:005.9] escalar ela, você não consegue multiplicar ela, você sabe que a tua saúde vai declinar
+[01:005.9 - 01:009.9] ao longo do tempo, você vai querer ter mais tempo de lazer do lado das pessoas que você
+[01:009.9 - 01:015.8] ama, cuidar mais da tua saúde e não dá para trabalhar 10, 12, 15 horas por dia até
+[01:015.8 - 01:021.8] 70 anos, então você tem que começar a construir o quanto antes esse caminho para essa solução
+[01:021.8 - 01:028.8] para que você possa sim ficar tranquilo e não perder sono, não perder a calma por
+[01:028.8 - 01:029.8] causa de boleto.
+[01:029.8 - 01:035.5] Então se você tem o objetivo lá de ganhar 20 mil por mês, você tem que multiplicar
+[01:035.5 - 01:041.5] esse teu gasto mensal por 600 ou 300 vezes, o que tem implícito aqui?
+[01:041.5 - 01:049.5] Você vai poder gastar entre 2% e 4% do teu capital por ano, então isso não é um número
+[01:049.5 - 01:054.9] que saiu da minha cabeça, aleatório, existem vários estudos previdenciários que mostram
+[01:054.9 - 02:000.0] que essa é a taxa de retirada saudável numa carteira de investimentos para que você tenha
+[02:000.0 - 02:005.1] segurança e a gente está vivendo um problema muito sério hoje em dia que é o seguinte,
+[02:005.1 - 02:011.0] com a evolução do Mondial, Ozempic, todos esses medicamentos aí, o principal motivo
+[02:011.0 - 02:017.7] de morte das pessoas tende a acabar, que é doença metabólica, pessoas caem muito gordas
+[02:017.7 - 02:024.6] e isso atrapalha o coração, atrapalha o sistema vascular e aí gerar AVC que são
+[02:024.6 - 02:030.8] dois grandes motivos de óbitos hoje em dia na nossa sociedade, então quando esse problema
+[02:030.8 - 02:035.0] ele for mitigado, a gente vai ter um problema muito sério na previdência, você não pode
+[02:035.0 - 02:044.2] mais confiar em se aposentar pelo INSS ou terceirizar isso para outras pessoas.
+[02:044.2 - 02:047.0] Então quais são as variáveis que você pode controlar?
+[02:047.0 - 02:054.1] Tempo que você vai trabalhar e tempo que você vai aportar, então quanto antes você
+[02:054.1 - 03:000.3] começar isso, melhor, menos você vai precisar arriscar, que é o segundo ponto aqui, então
+[03:000.3 - 03:004.6] o teu nível de retorno, quanto antes você começa, menor ele precisa ser para você
+[03:004.6 - 03:011.4] alcançar o mesmo objetivo, quanto mais você demora para começar a resolver esse problema,
+[03:011.4 - 03:015.2] mais dinheiro você vai ter que ganhar através de rentabilidade e isso está atrelado a assumir
+[03:015.2 - 03:018.4] mais riscos, perfeito?
+[03:018.4 - 03:024.7] Outra questão que você precisa lidar também é o seguinte, você vai ter uma curva de
+[03:024.7 - 03:029.6] aprendizado com investimentos, então você pode começar com retorno menor, mas você
+[03:029.6 - 03:035.6] vai melhorar isso ao longo do tempo, e aí claro, se você se tornar uma pessoa fluente
+[03:035.6 - 03:040.8] nos investimentos, você também tem a oportunidade de se aposentar até com muito mais dinheiro
+[03:041.2 - 03:042.9] do que você imaginava.
+[03:042.9 - 03:047.0] Outra variável que você tem que controlar também são os teus aportes mensais, então
+[03:047.0 - 03:052.9] nas soluções de investimentos que eu sugiro para as pessoas, eu também penso em quanto
+[03:052.9 - 03:058.2] tempo elas vão ter que dedicar para o assunto, para que elas possam executar essa tarefa
+[03:058.2 - 04:004.6] da maneira mais adequada possível, então as minhas soluções são totalmente objetivas
+[04:004.6 - 04:008.8] em relação ao que você tem que fazer, ao que você tem que pensar, para que você não
+[04:008.8 - 04:016.6] perca tempo lendo relatório, acompanhando notícia, vendo a narrativa do mercado, se
+[04:016.6 - 04:021.0] ela é favorável, desfavorável, não tem que acompanhar política, todas essas coisas
+[04:021.0 - 04:023.9] aí acabam sendo ruídos no final das contas.
+[04:023.9 - 04:033.3] E aí quanto mais cedo você começar, menos aporte você vai ter que fazer e quanto maior
+[04:033.3 - 04:038.9] o retorno que você tem também, menor serão os aportes necessários, então você pode
+[04:038.9 - 04:045.9] gastar mais, você pode focar mais em trabalhar e produzir, porque os investimentos não vão
+[04:045.9 - 04:051.4] tomar muito o teu tempo e é claro, quem já tem o valor inicial para começar, está com
+[04:051.4 - 04:056.4] uma vantagem, mas não é um problema se você está começando do zero, o importante é
+[04:056.4 - 04:059.9] que você coloque o trem no trilho e comece agora.
+[04:059.9 - 05:004.3] Só que a gente tem alguns problemas hoje em dia, quais são eles?
+[05:004.3 - 05:010.3] Primeiro, a gente já falou do tempo, o tempo está contra você, então eu já estou aqui
+[05:010.3 - 05:016.0] com 40 anos e eu já penso, cara, já passou 20 anos aí que eu estou na minha vida profissional
+[05:016.0 - 05:020.0] plena, será que eu estou indo no ritmo certo?
+[05:020.0 - 05:024.6] Isso gera uma insegurança, eu sei que você também sente essa insegurança, pô, já passou
+[05:024.6 - 05:028.3] muito tempo, não comecei a investir, não comecei a poupar, não comecei a pensar na
+[05:028.3 - 05:032.4] minha aposentadoria, agora eu vou ter que correr atrás desse problema.
+[05:032.4 - 05:037.5] Então o quanto antes você enfrentar esse problema, melhor vai ser para você, para
+[05:037.5 - 05:040.9] as pessoas que confiam em você para resolver esse problema para a tua família, porque
+[05:040.9 - 05:048.2] no caso, lá da minha casa, a minha esposa, ela confia totalmente em mim para essa situação
+[05:048.2 - 05:054.1] de eu cuidar financeiramente dela e da minha filha também.
+[05:054.9 - 05:058.0] Então, quais são os problemas que a gente enfrenta na hora de começar a investir?
+[05:058.0 - 06:002.0] Insegurança com relação ao futuro, porque a gente não sabe se a inflação vai aumentar,
+[06:002.0 - 06:010.0] se o PIB vai cair, se vai ter guerra, se vai ter problema sistemático aí na economia
+[06:010.0 - 06:015.4] mundial, então tudo isso tende a fazer as pessoas ficarem travadas investindo de maneira
+[06:015.4 - 06:020.4] muito conservadora e isso é um conflito com os teus objetivos de médio e longo prazo,
+[06:020.4 - 06:024.5] até porque se você quer fazer os 20 mil por mês, você vai ter que multiplicar esse
+[06:024.5 - 06:029.2] capital por 300, 600 vezes, a gente está falando de algo próximo de 6 a 12 milhões
+[06:029.2 - 06:030.2] de reais.
+[06:030.2 - 06:034.5] Então, se você não tem um salário muito alto, se você não joga futebol, se você
+[06:034.5 - 06:039.6] não trabalha com mídia, você vai ter que pegar o teu salário e esse salário vai ter
+[06:039.6 - 06:044.3] que gerar uma poupança para que você possa fazer esses aportes.
+[06:044.3 - 06:048.3] Outro problema que a gente tem também, são muitas alternativas.
+[06:048.3 - 06:053.8] Então, existe um zoológico de produtos de investimentos, você não sabe que bicho
+[06:053.8 - 06:054.8] é que bicho.
+[06:054.8 - 07:000.7] Então, você chega lá na plataforma da XP, do BTG, do teu Banco Itaú, Bradesco, qualquer
+[07:000.7 - 07:006.4] que seja ele, você vai ver 300 alternativas diferentes e muitas dessas alternativas é
+[07:006.4 - 07:011.3] trocar 6 por meia dúzia, mas aí tudo vem com um nome complexo, com um nome bonito,
+[07:011.3 - 07:017.3] com um nome chamativo, tem nome de bicho, tem nome de pedra preciosa, é Eagle, Diamond,
+[07:017.3 - 07:022.9] você quer lá, bota em inglês e tudo isso te deixa paralisado, porque quando você tem
+[07:022.9 - 07:027.4] muitas alternativas, a primeira coisa que você faz é você para, tá bom?
+[07:027.4 - 07:033.8] E aí, a gente ainda tem produtos complexos, porque tem produto que no cenário A você
+[07:033.8 - 07:039.3] ganha, mas se o cenário A mais B se misturar, você perde e aí você não consegue ter
+[07:039.3 - 07:044.2] clareza de qual que é o cenário que você ganha e que você perde e isso te deixa inseguro
+[07:044.2 - 07:048.0] e você com insegurança também fica paralisado.
+[07:048.0 - 07:053.8] Então, se esses problemas estão acontecendo com você, saiba, isso é um dos grandes pits
+[07:053.8 - 07:058.4] da indústria financeira para que você se torne cliente deles, e aí você chega nas
+[07:058.4 - 07:059.4] alternativas.
+[07:059.4 - 08:003.8] A primeira alternativa é você fazer o que o banco sugere para você, aí tem um problema
+[08:003.8 - 08:007.5] de conflito de interesse, porque você não sabe se o que o gerente do banco está te
+[08:007.5 - 08:013.5] falando para fazer é o que é melhor para a cota dele, da meta, ou para você, você
+[08:013.5 - 08:021.4] pode contratar um fundo, aí o fundo tem dois problemas, primeiro, custos muito altos,
+[08:021.4 - 08:028.3] você está falando de taxa de administração, taxa de performance, as próprias taxas de
+[08:028.3 - 08:033.0] negociação que o fundo tem, que isso gera um custo para ele e o conflito de interesse,
+[08:033.0 - 08:035.6] conflito de interesse que pouca gente conhece.
+[08:035.6 - 08:041.0] Primeiro, o gestor tem uma opção sobre o seu patrimônio, porque se ele ganhar muito
+[08:041.0 - 08:046.8] dinheiro, ele ganha performance, se ele não ganhar, ele não ganha nada, mas quem perde
+[08:046.8 - 08:047.8] é você.
+[08:047.8 - 08:053.5] Então, ele tem uma inclinação a arriscar muito com o seu patrimônio para ele ganhar
+[08:053.5 - 08:059.2] performance, ou quando ele já é uma instituição financeira muito grande, um fundo muito grande,
+[08:059.2 - 09:003.8] ele não quer perder os clientes, então ele acaba sendo muito conservador, e aí isso
+[09:003.8 - 09:006.1] também gera um conflito de interesse.
+[09:006.1 - 09:010.7] As empresas financeiras, normalmente elas são negociadas por um múltiplo do quanto
+[09:010.7 - 09:016.8] que elas administram, então se tiver muito sobe e desce no patrimônio dos clientes,
+[09:016.8 - 09:023.4] isso pode gerar uma debandada, num momento ruim, e isso pode erodir o valor dessa firma.
+[09:023.4 - 09:028.6] E aí a gente tem também a alternativa das consultorias especializadas independentes,
+[09:028.6 - 09:033.2] e aí o problema que normalmente gera para as pessoas é a falta de confiança por causa
+[09:033.2 - 09:034.2] da marca.
+[09:034.2 - 09:040.5] Então, você está comparando com o JP Morgan, está comparando com o Itaú, está comparando
+[09:040.5 - 09:047.4] com o Banco do Brasil, são marcas fortes, e aí às vezes você até confia na capacidade
+[09:047.4 - 09:052.2] profissional da pessoa que está te atendendo, mas você não tem aquela confiança que essas
+[09:052.2 - 09:058.3] grandes instituições, elas acabam te gerando, e isso é normal, é normal.
+[09:058.3 - 10:002.7] Você tem que ser diligente para saber o histórico, conhecer o passado, conhecer a
+[10:002.7 - 10:005.4] competência técnica da pessoa que está te ajudando.
+[10:005.4 - 10:010.5] E a quarta alternativa é você entrar em uma linha de aprendizado e tomar as decisões
+[10:010.5 - 10:014.9] por conta própria, só que isso demanda tempo e gera insegurança.
+[10:014.9 - 10:019.0] Então, as pessoas até aprendem, aprendem, aprendem, aprendem, mas na hora de colocar
+[10:019.0 - 10:024.5] em prática, gera aquela insegurança normal, é por isso que as pessoas hoje demandam tantas
+[10:024.5 - 10:029.6] mentorias, tantos treinamentos, para que elas possam ter essa segurança de agir.
+[10:029.6 - 10:033.6] E aí, qual que é a solução que eu te sugiro?
+[10:033.6 - 10:038.7] Primeiro, você tem um portfólio básico, entre renda fixa e renda variável.
+[10:038.7 - 10:041.9] É muito importante que você tenha esses dois tipos de ativos na sua carteira, por
+[10:041.9 - 10:042.9] quê?
+[10:042.9 - 10:047.6] Porque eles têm comportamentos independentes entre si, então a renda fixa vai te trazer
+[10:047.6 - 10:053.2] estabilidade e a renda variável vai te trazer acesso a retornos mais altos.
+[10:053.3 - 10:056.2] Mas o que você tem que ficar de olho para você não cair na armadilha?
+[10:056.2 - 11:000.3] Primeiro, o risco da renda fixa, porque não é só porque a gente está falando de renda
+[11:000.3 - 11:005.1] fixa, que a gente está falando que a gente está com um investimento de baixo risco.
+[11:005.1 - 11:011.1] Tem renda fixa muito arriscada e isso, se você não souber variar, pode se tornar um
+[11:011.1 - 11:015.9] prejuízo muito grande na sua carteira de investimentos e, é claro, te afastar do teu
+[11:015.9 - 11:017.5] objetivo de aposentadoria.
+[11:017.5 - 11:018.5] Rentabilidade também.
+[11:019.1 - 11:024.2] Então, a gente tem renda fixa que tem rentabilidade baixa, porque ela é muito pouco arriscada
+[11:024.2 - 11:028.3] e tem renda fixa que tem rentabilidade baixa, porque os custos são muito altos.
+[11:028.3 - 11:035.0] Então, esses dias eu estava vendo um fundo de uma empresa financeira grande e eles cobravam
+[11:035.0 - 11:040.2] 4% de taxa de administração, cara, aquilo ali é um roubo para mim, é um absurdo.
+[11:040.2 - 11:043.8] E tinha mais de 50 mil cotistas nesse fundo.
+[11:043.8 - 11:048.8] Então, você tem que analisar a rentabilidade através primeiro do risco e depois também
+[11:048.8 - 11:053.8] dos custos implicados nesse investimento e também até os custos tributários hoje em
+[11:053.8 - 11:055.7] dia.
+[11:055.7 - 12:001.5] Outra coisa que a gente pode observar também é a liquidez, porque quanto mais tempo a
+[12:001.5 - 12:007.8] instituição financeira fica com o teu dinheiro na posse dele, mais tempo ela tem para multiplicar
+[12:007.8 - 12:010.0] em outras atividades mais arriscadas.
+[12:010.0 - 12:015.5] E aí, para eles te oferecerem mais retorno, eles exigem que você fique com o dinheiro
+[12:015.5 - 12:018.2] parado lá, preso, durante mais tempo.
+[12:018.2 - 12:024.5] Então, existe aí um intervalo ideal para que você possa ter a liquidez.
+[12:024.5 - 12:030.3] Eu gosto de liquidez imediata, um dia no máximo, mas isso aí é uma coisa que você tem que
+[12:030.3 - 12:033.0] avaliar conforme a tua necessidade.
+[12:033.0 - 12:034.0] E a gente tem a renda variável.
+[12:034.0 - 12:039.4] Renda variável, um dos primeiros erros que eu quero esclarecer para as pessoas é que
+[12:039.8 - 12:045.2] todas elas têm o mesmo risco e não, isso não é verdade, porque se a gente pegar essa
+[12:045.2 - 12:049.7] categoria inteira, renda variável, a gente tem ações, fundos imobiliários, ações
+[12:049.7 - 12:051.8] americanas, ETFs diversificados.
+[12:051.8 - 12:057.9] Então, uma maneira de a gente diminuir o risco é através da diversificação, mas
+[12:057.9 - 13:001.4] a gente tem também a característica única de cada ativo.
+[13:001.4 - 13:005.8] Então, a gente tem ações de alta volatilidade, alto, sobe e desce e tem ações de baixa
+[13:005.8 - 13:006.8] volatilidade.
+[13:006.8 - 13:013.1] Tem ações que pagam mais dividendos, tendem a ser menos voláteis e tem ações que pagam
+[13:013.1 - 13:017.4] menos dividendos, que tendem a ser mais voláteis e também tem a estratégia que você usa
+[13:017.4 - 13:018.4] para investir.
+[13:018.4 - 13:023.1] Então, você pode fazer uma estratégia de fatores, onde você pré-seleciona algumas
+[13:023.1 - 13:027.0] características em comum dos ativos que você quer ter na sua carteira.
+[13:027.0 - 13:031.8] Você pode fazer o buy and hold, que eu não recomendo e você também pode surfar tendências,
+[13:031.8 - 13:036.4] e aí abre espaço para você ganhar na alta, ganhar na baixa e ter uma estratégia muito
+[13:036.4 - 13:037.4] mais flexível.
+[13:037.4 - 13:043.6] E também, a renda variável gera um problema de liquidez, porque quanto mais tempo eu estou
+[13:043.6 - 13:047.9] disposto a deixar meus dinheiros na renda variável, maior é a probabilidade de eu
+[13:047.9 - 13:049.7] aumentar os meus retornos.
+[13:049.7 - 13:056.1] Então, quem investe no curto prazo tem um problema, porque fica refém do humor do mercado.
+[13:056.1 - 14:000.8] Quanto mais tempo você fica no mercado, maior é a probabilidade de você ser bem cedido
+[14:000.8 - 14:003.8] e alcançar os seus resultados.
+[14:003.8 - 14:013.9] Então, para falar aqui uma solução simples, portfólio simples, carteira simples, carteira
+[14:013.9 - 14:020.4] mais simples que eu posso te dar aqui nessa aulinha, objetiva, curta e super simples,
+[14:020.4 - 14:024.5] é o seguinte, você vai abrir a sua conta na corretora e aí você vai comprar esses
+[14:024.5 - 14:034.0] três ativos, LFTB11, que ele é o que?
+[14:034.0 - 14:049.3] Tesouro Selic, você pode também ter o Divo11, isso aqui, múltiplas ações de dividendos
+[14:049.3 - 14:050.3] num produto só.
+[14:051.3 - 15:000.8] Tem o IVVB11, são múltiplas ações americanas.
+[15:000.8 - 15:006.7] Aqui você vai ter a Apple, vai ter NVIDIA, Microsoft, Nike, Disney, todas essas empresas.
+[15:006.7 - 15:013.8] E aí vai ter um problema, primeiro, quanto colocar em cada um desses ativos, isso é
+[15:013.8 - 15:018.5] uma resposta importante, isso vai ter a ver com o teu perfil de risco.
+[15:018.5 - 15:023.6] Outra alternativa que você tem também, qual que é a estratégia que eu vou usar
+[15:023.6 - 15:027.9] para ter esses ativos, porque quando eu boto aqui Divo11 e IVVB11, não significa que você
+[15:027.9 - 15:032.8] tem que comprar, pode ser às vezes vender, então tudo depende da tua estratégia.
+[15:032.8 - 15:037.4] Mas se você comprar esses três ativos aqui em pesos iguais e segurar para os próximos
+[15:037.4 - 15:041.2] 10 anos, a probabilidade de você ganhar dinheiro é muito alta.
+[15:041.2 - 15:043.8] Vai ter o melhor resultado possível?
+[15:043.8 - 15:044.8] Não.
+[15:044.8 - 15:046.7] Vai alcançar o teu objetivo?
+[15:046.7 - 15:047.7] Não sei.
+[15:047.8 - 15:053.6] Tem que ver o teu caso específico aí, tem que saber as variáveis que você vai trabalhar
+[15:053.6 - 15:057.0] o teu aporte mensal, mas fazendo o modelo mais simples.
+[15:057.0 - 16:000.8] Você vai ter um retorno para o ativo, não vai ser o maior retorno, é claro, isso vai
+[16:000.8 - 16:003.3] impactar lá na tua aposentadoria.
+[16:003.3 - 16:009.0] Então é um tema muito simples, acabei de te dar a resposta do que você tem que fazer
+[16:009.0 - 16:014.5] para acabar com essa confusão na hora de investir e fazer os teus 20 mil por mês na
+[16:014.5 - 16:015.5] aposentadoria.
+[16:016.0 - 16:021.8] E aqui, é claro, eu tenho que botar um espaço para ajudar quem quer ser ajudado.
+[16:021.8 - 16:026.2] Então eu tenho uma mentoria chamada Master Business, onde eu faço um acompanhamento
+[16:026.2 - 16:033.0] individual com investidores que tem mais de 500 mil reais e tem como objetivo aprender
+[16:033.0 - 16:038.7] e acelerar os ganhos fazendo um trabalho personalizado a quatro mãos comigo.
+[16:038.7 - 16:043.2] Caso você tenha um valor a partir de 300 mil reais e você queira ser atendido pela
+[16:043.2 - 16:048.1] minha equipe, eu posso te encaminhar para a minha consultoria de investimentos, a Beginning
+[16:048.1 - 16:052.0] Capital, e lá você vai ser atendido pelo meu sócio, o gestor Christian Wachburger,
+[16:052.0 - 16:057.5] onde você vai executar junto com ele e a minha equipe todo esse plano personalizado
+[16:057.5 - 17:001.9] para você, para que você possa dormir tranquilo sabendo que você não está fazendo besteira
+[17:001.9 - 17:006.1] e que você está endereçando exatamente esse problema.
+[17:006.1 - 17:010.0] Nesse caso aí a gente estaria falando daquela alternativa que é a consultoria especializada
+[17:010.0 - 17:016.8] independente e eu sei que você pode ter uma baixa confiança, sei lá, o cara está
+[17:016.8 - 17:021.4] fazendo aí esse vídeo na internet, não conheço muito bem ele, então se você quiser
+[17:021.4 - 17:028.4] marcar e agendar uma reunião comigo, com a minha equipe, escreve consultoria embaixo
+[17:028.4 - 17:031.9] desse vídeo aqui, porque a minha equipe vai entrar em contato com você para que a gente
+[17:031.9 - 17:036.4] possa conhecer o teu caso, para a gente se especializar no teu problema e te trazer uma
+[17:036.4 - 17:037.4] solução.
+[17:037.4 - 17:042.7] É sem compromisso essa reunião e eu acabo ficando por aqui lembrando que esse canal
+[17:042.7 - 17:047.8] aqui é um canal, para quem sabe, que viver a presença de Deus é a maior riqueza que
+[17:047.8 - 17:053.2] existe, então conta com a gente, conta comigo aqui, compartilha esse vídeo com alguém
+[17:053.2 - 17:055.3] e dê o bleiblei, é só o começo!
+Complete transcription result saved to: qWtUiE1OoY0_transcription_20251019_072703.json

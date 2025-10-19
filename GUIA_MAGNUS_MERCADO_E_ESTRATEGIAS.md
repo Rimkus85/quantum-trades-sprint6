@@ -1081,47 +1081,81 @@ Patrimônio necessário = (R$ 20.000 × 12) / Taxa de Retorno
 
 ### 10.2 Cálculo do Patrimônio Necessário
 
-**Cenário 1: Conservador (6% ao ano)**
+**Baseado no vídeo "Como Se Aposentar com 20k Mensal" - Tio Huli**
+
+**Regra do Multiplicador:**
+> "Multiplique seu gasto mensal por 300 a 600 vezes"
+
+**Taxa de Retirada Segura:**
+> "2% a 4% do capital por ano" (baseado em estudos previdenciários)
+
+**Cálculo Prático:**
+
 ```
-Taxa: 6% ao ano (dividendos + juros)
-Renda anual: R$ 240.000
+Objetivo: R$ 20.000/mês
+Renda anual necessária: R$ 240.000
 
-Patrimônio = R$ 240.000 / 0.06
-Patrimônio = R$ 4.000.000
+Patrimônio = Renda Anual / Taxa de Retirada
+```
 
-Alocação:
-- 50% Renda Fixa (Tesouro IPCA+)
-- 30% Ações pagadoras de dividendos
+**Cenário 1: Conservador (2% ao ano)**
+```
+Taxa de Retirada: 2% ao ano
+Multiplicador: 600x
+
+Patrimônio = R$ 20.000 × 600
+Patrimônio = R$ 12.000.000
+
+Alocação Sugerida:
+- 60% Renda Fixa (Tesouro IPCA+, CDBs)
+- 25% Ações pagadoras de dividendos
+- 15% Fundos Imobiliários
+
+Vantagem: Maior segurança, patrimônio dura indefinidamente
+Desvantagem: Requer mais capital inicial
+```
+
+**Cenário 2: Moderado (3% ao ano)**
+```
+Taxa de Retirada: 3% ao ano
+Multiplicador: 400x
+
+Patrimônio = R$ 20.000 × 400
+Patrimônio = R$ 8.000.000
+
+Alocação Sugerida:
+- 40% Renda Fixa
+- 40% Ações (dividendos + crescimento)
 - 20% Fundos Imobiliários
+
+Vantagem: Equilíbrio entre segurança e retorno
+Desvantagem: Requer disciplina no rebalanceamento
 ```
 
-**Cenário 2: Moderado (8% ao ano)**
+**Cenário 3: Balanceado (4% ao ano)**
 ```
-Taxa: 8% ao ano
-Renda anual: R$ 240.000
+Taxa de Retirada: 4% ao ano (Regra dos 4%)
+Multiplicador: 300x
 
-Patrimônio = R$ 240.000 / 0.08
-Patrimônio = R$ 3.000.000
+Patrimônio = R$ 20.000 × 300
+Patrimônio = R$ 6.000.000
 
-Alocação:
-- 30% Renda Fixa
+Alocação Sugerida:
+- 30% Renda Fixa (reserva de segurança)
 - 50% Ações (dividendos + crescimento)
 - 20% Fundos Imobiliários
+
+Vantagem: Patrimônio mais acessível
+Desvantagem: Maior risco de esgotar capital em crises longas
 ```
 
-**Cenário 3: Agressivo (10% ao ano)**
-```
-Taxa: 10% ao ano
-Renda anual: R$ 240.000
+**Resumo Visual:**
 
-Patrimônio = R$ 240.000 / 0.10
-Patrimônio = R$ 2.400.000
-
-Alocação:
-- 10% Renda Fixa (reserva)
-- 70% Ações (dividendos + crescimento)
-- 20% Fundos Imobiliários
-```
+| Taxa Retirada | Multiplicador | Patrimônio Necessário | Segurança |
+|---------------|---------------|----------------------|----------|
+| 2% ao ano | 600x | R$ 12.000.000 | ⭐⭐⭐⭐⭐ |
+| 3% ao ano | 400x | R$ 8.000.000 | ⭐⭐⭐⭐ |
+| 4% ao ano | 300x | R$ 6.000.000 | ⭐⭐⭐ |
 
 ---
 
