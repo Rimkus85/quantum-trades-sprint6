@@ -24,24 +24,33 @@ PYTHON=/usr/bin/python3
 LOGS_DIR=/home/ubuntu/quantum-trades-sprint6/backend/quantum-trades-backend/logs
 
 # ============================================================================
-# ANÁLISE DIÁRIA - 21:00 (Após fechamento do mercado)
+# ANÁLISE DIÁRIA DE AÇÕES - 21:00 (Após fechamento do mercado)
 # ============================================================================
 # Executa análise completa do dia e envia para o grupo Magnus Wealth
 # Horário: 21:00 todos os dias
 0 21 * * * cd $MAGNUS_DIR && $PYTHON analise_diaria.py >> $LOGS_DIR/analise_diaria.log 2>&1
 
 # ============================================================================
-# ANÁLISE DE OPÇÕES - Horários estratégicos (Dias úteis)
+# ANÁLISE DIÁRIA DE CRIPTOMOEDAS - 21:00 (Horário de Brasília)
 # ============================================================================
+# Executa análise HiLo Activator nas Top 15 criptomoedas
+# Gera recomendações de compra/venda com gestão de risco
+# Horário: 21:00 todos os dias (após análise de ações)
+5 21 * * * cd $MAGNUS_DIR && $PYTHON analisador_cripto_hilo.py >> $LOGS_DIR/analise_cripto.log 2>&1
+
+# ============================================================================
+# ANÁLISE DE OPÇÕES COM RECOMENDAÇÕES - Horários estratégicos (Dias úteis)
+# ============================================================================
+# Gera recomendações de calls, puts e venda coberta com disclaimers
 
 # 10:10 - Análise de abertura (após abertura do mercado)
-10 10 * * 1-5 cd $MAGNUS_DIR && $PYTHON analise_opcoes.py >> $LOGS_DIR/analise_opcoes.log 2>&1
+10 10 * * 1-5 cd $MAGNUS_DIR && $PYTHON analisador_opcoes_recomendacoes.py >> $LOGS_DIR/analise_opcoes.log 2>&1
 
 # 14:00 - Análise meio-dia
-0 14 * * 1-5 cd $MAGNUS_DIR && $PYTHON analise_opcoes.py >> $LOGS_DIR/analise_opcoes.log 2>&1
+0 14 * * 1-5 cd $MAGNUS_DIR && $PYTHON analisador_opcoes_recomendacoes.py >> $LOGS_DIR/analise_opcoes.log 2>&1
 
 # 16:45 - Análise pré-fechamento (antes do fechamento às 17:00)
-45 16 * * 1-5 cd $MAGNUS_DIR && $PYTHON analise_opcoes.py >> $LOGS_DIR/analise_opcoes.log 2>&1
+45 16 * * 1-5 cd $MAGNUS_DIR && $PYTHON analisador_opcoes_recomendacoes.py >> $LOGS_DIR/analise_opcoes.log 2>&1
 
 # ============================================================================
 # RESUMO SEMANAL - Sábado 10:00
@@ -49,6 +58,13 @@ LOGS_DIR=/home/ubuntu/quantum-trades-sprint6/backend/quantum-trades-backend/logs
 # Envia resumo semanal com análise consolidada da semana
 # Horário: Sábado às 10:00
 0 10 * * 6 cd $MAGNUS_DIR && $PYTHON resumo_semanal.py >> $LOGS_DIR/resumo_semanal.log 2>&1
+
+# ============================================================================
+# BOT DE COMANDOS - 24/7
+# ============================================================================
+# Bot que responde comandos no Telegram
+# Executa em background permanente
+@reboot cd $MAGNUS_DIR && nohup $PYTHON bot_comandos.py >> $LOGS_DIR/bot_comandos.log 2>&1 &
 
 # ============================================================================
 # LIMPEZA DE LOGS - Domingo 02:00
