@@ -13,6 +13,12 @@ from dotenv import load_dotenv
 from services.telegram_service import TelegramService, TelegramCarteirasReader
 from modules.carteira_parser import CarteiraParser, parse_telegram_messages, get_recommendations_summary
 from modules.magnus_learning import MagnusLearningEngine, MagnusAnalyzer
+from ml_models.sentiment_analyzer import SentimentAnalyzer
+from ml_models.price_predictor import PricePredictor
+from ml_models.portfolio_optimizer import PortfolioOptimizer
+from ml_models.backtester import Backtester
+from ml_models.model_evaluator import ModelEvaluator
+from services.historical_data_service import HistoricalDataService
 
 # Carregar variáveis de ambiente
 load_dotenv()
@@ -28,9 +34,19 @@ TELEGRAM_PHONE = os.getenv('TELEGRAM_PHONE')
 TELEGRAM_GROUP = os.getenv('TELEGRAM_GROUP_USERNAME')
 
 # Instâncias globais
-telegram_service = None
+telgram_service = None
 magnus_engine = MagnusLearningEngine(learning_rate=0.3)
 magnus_analyzer = MagnusAnalyzer(magnus_engine)
+
+# Modelos de ML
+sentiment_analyzer = SentimentAnalyzer()
+price_predictor = PricePredictor()
+portfolio_optimizer = PortfolioOptimizer()
+
+# Backtesting e Performance
+backtester = Backtester(initial_capital=10000)
+model_evaluator = ModelEvaluator()
+historical_data_service = HistoricalDataService()
 
 # Tentar carregar base de conhecimento existente
 magnus_engine.load_knowledge_base()
@@ -536,6 +552,452 @@ def reset_magnus_knowledge():
     except Exception as e:
         return jsonify({
             'error': 'Erro ao resetar conhecimento',
+            'message': str(e)
+        }), 500
+
+
+# ============================================================================
+# ENDPOINTS DE MACHINE LEARNING
+# ============================================================================
+
+@app.route('/api/ml/sentiment/analyze', methods=['POST'])
+def analyze_sentiment():
+    """
+    Analisa sentimento de um texto.
+    
+    Body:
+        - text: Texto a ser analisado
+    """
+    data = request.get_json()
+    
+    if not data or 'text' not in data:
+        return jsonify({
+            'error': 'Campo "text" é obrigatório'
+        }), 400
+    
+    try:
+        result = sentiment_analyzer.analyze_text(data['text'])
+        
+        return jsonify({
+            'success': True,
+            'analysis': result
+        })
+    
+    except Exception as e:
+        return jsonify({
+            'error': 'Erro ao analisar sentimento',
+            'message': str(e)
+        }), 500
+
+
+@app.route('/api/ml/sentiment/ticker/<ticker>', methods=['GET'])
+def analyze_ticker_sentiment(ticker: str):
+    """
+    Analisa sentimento agregado para um ticker.
+    
+    Path params:
+        - ticker: Código do ticker (ex: PETR4)
+    
+    Query params:
+        - limit: Número de mensagens (padrão: 100)
+    """
+    limit = int(request.args.get('limit', 100))
+    
+    try:
+        # Buscar mensagens do Telegram
+        service = get_telegram_service()
+        if not service:
+            return jsonify({
+                'error': 'Telegram não configurado'
+            }), 503
+        
+        messages = asyncio.run(service.get_messages(limit=limit))
+        
+        # Analisar sentimento
+        result = sentiment_analyzer.analyze_ticker_sentiment(ticker.upper(), messages)
+        
+        return jsonify({
+            'success': True,
+            'analysis': result
+        })
+    
+    except Exception as e:
+        return jsonify({
+            'error': 'Erro ao analisar sentimento do ticker',
+            'message': str(e)
+        }), 500
+
+
+@app.route('/api/ml/sentiment/market', methods=['GET'])
+def analyze_market_sentiment():
+    """
+    Analisa sentimento geral do mercado.
+    
+    Query params:
+        - limit: Número de mensagens (padrão: 100)
+    """
+    limit = int(request.args.get('limit', 100))
+    
+    try:
+        # Buscar mensagens do Telegram
+        service = get_telegram_service()
+        if not service:
+            return jsonify({
+                'error': 'Telegram não configurado'
+            }), 503
+        
+        messages = asyncio.run(service.get_messages(limit=limit))
+        
+        # Analisar sentimento
+        result = sentiment_analyzer.get_market_sentiment(messages)
+        
+        return jsonify({
+            'success': True,
+            'analysis': result
+        })
+    
+    except Exception as e:
+        return jsonify({
+            'error': 'Erro ao analisar sentimento do mercado',
+            'message': str(e)
+        }), 500
+
+
+@app.route('/api/ml/predict/train', methods=['POST'])
+def train_price_predictor():
+    """
+    Treina modelo de previsão de preços.
+    
+    Body:
+        - ticker: Código do ticker
+        - prices: Lista de preços históricos
+        - dates: Lista de datas (opcional)
+    """
+    data = request.get_json()
+    
+    if not data or 'ticker' not in data or 'prices' not in data:
+        return jsonify({
+            'error': 'Campos "ticker" e "prices" são obrigatórios'
+        }), 400
+    
+    try:
+        result = price_predictor.train_model(
+            ticker=data['ticker'],
+            prices=data['prices'],
+            dates=data.get('dates')
+        )
+        
+        return jsonify({
+            'success': True,
+            'training': result
+        })
+    
+    except Exception as e:
+        return jsonify({
+            'error': 'Erro ao treinar modelo',
+            'message': str(e)
+        }), 500
+
+
+@app.route('/api/ml/predict/price/<ticker>', methods=['POST'])
+def predict_price(ticker: str):
+    """
+    Prevê preços futuros de um ticker.
+    
+    Path params:
+        - ticker: Código do ticker
+    
+    Body:
+        - prices: Lista de preços históricos recentes
+        - days: Número de dias a prever (padrão: 7)
+    """
+    data = request.get_json()
+    
+    if not data or 'prices' not in data:
+        return jsonify({
+            'error': 'Campo "prices" é obrigatório'
+        }), 400
+    
+    try:
+        days = data.get('days', 7)
+        
+        result = price_predictor.predict_next_days(
+            ticker=ticker.upper(),
+            prices=data['prices'],
+            days=days
+        )
+        
+        return jsonify({
+            'success': True,
+            'prediction': result
+        })
+    
+    except Exception as e:
+        return jsonify({
+            'error': 'Erro ao prever preços',
+            'message': str(e)
+        }), 500
+
+
+@app.route('/api/ml/portfolio/optimize', methods=['POST'])
+def optimize_portfolio():
+    """
+    Otimiza portfólio de ativos.
+    
+    Body:
+        - prices_history: Dicionário {ticker: [preços]}
+        - risk_tolerance: Tolerância ao risco (conservative, moderate, aggressive)
+        - optimization_type: Tipo de otimização (sharpe, min_volatility)
+    """
+    data = request.get_json()
+    
+    if not data or 'prices_history' not in data:
+        return jsonify({
+            'error': 'Campo "prices_history" é obrigatório'
+        }), 400
+    
+    try:
+        risk_tolerance = data.get('risk_tolerance', 'moderate')
+        optimization_type = data.get('optimization_type', 'sharpe')
+        
+        if optimization_type == 'sharpe':
+            result = portfolio_optimizer.optimize_sharpe_ratio(
+                prices_history=data['prices_history'],
+                risk_tolerance=risk_tolerance
+            )
+        else:
+            result = portfolio_optimizer.optimize_min_volatility(
+                prices_history=data['prices_history']
+            )
+        
+        return jsonify({
+            'success': True,
+            'portfolio': result
+        })
+    
+    except Exception as e:
+        return jsonify({
+            'error': 'Erro ao otimizar portfólio',
+            'message': str(e)
+        }), 500
+
+
+@app.route('/api/ml/models/status', methods=['GET'])
+def get_models_status():
+    """
+    Retorna status dos modelos de ML.
+    """
+    try:
+        trained_models = price_predictor.list_trained_models()
+        
+        return jsonify({
+            'success': True,
+            'models': {
+                'sentiment_analyzer': {
+                    'status': 'ready',
+                    'positive_words': len(sentiment_analyzer.positive_words),
+                    'negative_words': len(sentiment_analyzer.negative_words)
+                },
+                'price_predictor': {
+                    'status': 'ready',
+                    'trained_tickers': trained_models,
+                    'total_models': len(trained_models)
+                },
+                'portfolio_optimizer': {
+                    'status': 'ready'
+                }
+            }
+        })
+    
+    except Exception as e:
+        return jsonify({
+            'error': 'Erro ao obter status dos modelos',
+            'message': str(e)
+        }), 500
+
+
+# ============================================================================
+# ENDPOINTS DE BACKTESTING E PERFORMANCE
+# ============================================================================
+
+@app.route('/api/historical/<ticker>', methods=['GET'])
+def get_historical_data(ticker: str):
+    """
+    Busca dados históricos de um ticker.
+    
+    Path params:
+        - ticker: Código do ticker
+    
+    Query params:
+        - period: Período (1d, 5d, 1mo, 3mo, 6mo, 1y, 2y, 5y, 10y, ytd, max)
+        - use_cache: Se deve usar cache (default: true)
+    """
+    period = request.args.get('period', '1y')
+    use_cache = request.args.get('use_cache', 'true').lower() == 'true'
+    
+    try:
+        data = historical_data_service.get_historical_data(
+            ticker=ticker.upper(),
+            period=period,
+            use_cache=use_cache
+        )
+        
+        if not data:
+            return jsonify({
+                'error': 'Dados não encontrados para este ticker'
+            }), 404
+        
+        return jsonify({
+            'success': True,
+            'data': data
+        })
+    
+    except Exception as e:
+        return jsonify({
+            'error': 'Erro ao buscar dados históricos',
+            'message': str(e)
+        }), 500
+
+
+@app.route('/api/backtest/buy-and-hold', methods=['POST'])
+def run_buy_and_hold_backtest():
+    """
+    Executa backtesting de estratégia Buy and Hold.
+    
+    Body:
+        - ticker: Código do ticker
+        - period: Período (default: 1y)
+        - initial_capital: Capital inicial (default: 10000)
+    """
+    data = request.get_json()
+    
+    if not data or 'ticker' not in data:
+        return jsonify({
+            'error': 'Campo "ticker" é obrigatório'
+        }), 400
+    
+    try:
+        ticker = data['ticker'].upper()
+        period = data.get('period', '1y')
+        initial_capital = data.get('initial_capital', 10000)
+        
+        # Buscar dados históricos
+        historical_data = historical_data_service.get_historical_data(ticker, period)
+        
+        if not historical_data:
+            return jsonify({
+                'error': 'Dados históricos não encontrados'
+            }), 404
+        
+        # Extrair preços e datas
+        prices = [item['close'] for item in historical_data['data']]
+        dates = [item['date'] for item in historical_data['data']]
+        
+        # Executar backtest
+        bt = Backtester(initial_capital=initial_capital)
+        result = bt.backtest_buy_and_hold(ticker, prices, dates)
+        
+        # Salvar resultado
+        filepath = bt.save_result(result)
+        result['saved_to'] = filepath
+        
+        return jsonify({
+            'success': True,
+            'backtest': result
+        })
+    
+    except Exception as e:
+        return jsonify({
+            'error': 'Erro ao executar backtest',
+            'message': str(e)
+        }), 500
+
+
+@app.route('/api/backtest/portfolio', methods=['POST'])
+def run_portfolio_backtest():
+    """
+    Executa backtesting de portfólio.
+    
+    Body:
+        - allocations: Dicionário {ticker: peso}
+        - period: Período (default: 1y)
+        - initial_capital: Capital inicial (default: 10000)
+    """
+    data = request.get_json()
+    
+    if not data or 'allocations' not in data:
+        return jsonify({
+            'error': 'Campo "allocations" é obrigatório'
+        }), 400
+    
+    try:
+        allocations = data['allocations']
+        period = data.get('period', '1y')
+        initial_capital = data.get('initial_capital', 10000)
+        
+        # Buscar dados históricos de todos os tickers
+        tickers = list(allocations.keys())
+        historical_data = historical_data_service.get_multiple_tickers(tickers, period)
+        
+        # Extrair preços
+        prices_history = {}
+        dates = None
+        
+        for ticker, data_item in historical_data.items():
+            prices_history[ticker] = [item['close'] for item in data_item['data']]
+            if dates is None:
+                dates = [item['date'] for item in data_item['data']]
+        
+        # Executar backtest
+        bt = Backtester(initial_capital=initial_capital)
+        result = bt.backtest_portfolio(allocations, prices_history, dates)
+        
+        # Salvar resultado
+        filepath = bt.save_result(result)
+        result['saved_to'] = filepath
+        
+        return jsonify({
+            'success': True,
+            'backtest': result
+        })
+    
+    except Exception as e:
+        return jsonify({
+            'error': 'Erro ao executar backtest de portfólio',
+            'message': str(e)
+        }), 500
+
+
+@app.route('/api/performance/evaluate-predictor', methods=['POST'])
+def evaluate_price_predictor_performance():
+    """
+    Avalia performance do preditor de preços.
+    
+    Body:
+        - actual_prices: Preços reais
+        - predicted_prices: Preços previstos
+    """
+    data = request.get_json()
+    
+    if not data or 'actual_prices' not in data or 'predicted_prices' not in data:
+        return jsonify({
+            'error': 'Campos "actual_prices" e "predicted_prices" são obrigatórios'
+        }), 400
+    
+    try:
+        result = model_evaluator.evaluate_price_predictor(
+            actual_prices=data['actual_prices'],
+            predicted_prices=data['predicted_prices']
+        )
+        
+        return jsonify({
+            'success': True,
+            'evaluation': result
+        })
+    
+    except Exception as e:
+        return jsonify({
+            'error': 'Erro ao avaliar preditor',
             'message': str(e)
         }), 500
 

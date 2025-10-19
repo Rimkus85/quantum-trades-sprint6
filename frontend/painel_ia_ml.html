@@ -1,0 +1,351 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Magnus Wealth - IA e Machine Learning</title>
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        :root {
+            --primary: #1a1a2e;
+            --secondary: #16213e;
+            --accent: #ffd700;
+            --success: #4CAF50;
+            --danger: #f44336;
+            --text: #ffffff;
+            --text-secondary: rgba(255, 255, 255, 0.7);
+        }
+
+        body {
+            margin: 0;
+            padding: 0;
+            padding-top: 80px;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(135deg, #1a1a2e 0%, #16213e 50%, #0f3460 100%);
+            color: var(--text);
+            min-height: 100vh;
+        }
+
+        .header {
+            background: rgba(26, 26, 46, 0.95);
+            backdrop-filter: blur(10px);
+            padding: 1rem 2rem;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            border-bottom: 1px solid rgba(255, 215, 0, 0.2);
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            z-index: 1000;
+        }
+
+        .logo {
+            display: flex;
+            align-items: center;
+            gap: 0.75rem;
+            font-size: 1.2rem;
+            font-weight: bold;
+            color: var(--accent);
+        }
+
+        .btn {
+            padding: 0.5rem 1rem;
+            border: none;
+            border-radius: 8px;
+            cursor: pointer;
+            font-weight: 500;
+            transition: all 0.3s ease;
+            text-decoration: none;
+            display: inline-flex;
+            align-items: center;
+            gap: 0.5rem;
+            background: linear-gradient(135deg, var(--accent), #ffed4e);
+            color: var(--primary);
+        }
+
+        .btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 8px 25px rgba(255, 215, 0, 0.4);
+        }
+
+        .main-content {
+            padding: 2rem;
+            max-width: 1600px;
+            margin: 0 auto;
+        }
+
+        .page-title {
+            font-size: 2rem;
+            margin-bottom: 0.5rem;
+            color: var(--accent);
+            display: flex;
+            align-items: center;
+            gap: 1rem;
+        }
+
+        .page-subtitle {
+            color: var(--text-secondary);
+            margin-bottom: 2rem;
+        }
+
+        .section {
+            background: rgba(255, 255, 255, 0.05);
+            border-radius: 12px;
+            padding: 1.5rem;
+            margin-bottom: 2rem;
+            border: 1px solid rgba(255, 215, 0, 0.1);
+        }
+
+        .section-title {
+            font-size: 1.5rem;
+            color: var(--accent);
+            margin-bottom: 1rem;
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+        }
+
+        .sentiment-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+            gap: 1rem;
+            margin-top: 1rem;
+        }
+
+        .sentiment-card {
+            background: rgba(255, 255, 255, 0.03);
+            border-radius: 8px;
+            padding: 1.5rem;
+            border: 1px solid rgba(255, 215, 0, 0.1);
+            text-align: center;
+            transition: all 0.3s ease;
+        }
+
+        .sentiment-card:hover {
+            transform: translateY(-5px);
+            border-color: var(--accent);
+        }
+
+        .sentiment-emoji {
+            font-size: 3rem;
+            margin-bottom: 0.5rem;
+        }
+
+        .sentiment-ticker {
+            font-size: 1.2rem;
+            font-weight: bold;
+            color: var(--accent);
+            margin-bottom: 0.5rem;
+        }
+
+        .sentiment-label {
+            font-size: 1rem;
+            margin-bottom: 0.5rem;
+        }
+
+        .sentiment-score {
+            font-size: 0.9rem;
+            color: var(--text-secondary);
+        }
+
+        .prediction-container {
+            margin-top: 1rem;
+        }
+
+        .prediction-chart {
+            background: rgba(255, 255, 255, 0.03);
+            border-radius: 8px;
+            padding: 1rem;
+            height: 400px;
+        }
+
+        .portfolio-allocation {
+            margin-top: 1rem;
+        }
+
+        .allocation-chart {
+            max-width: 400px;
+            margin: 0 auto;
+        }
+
+        .allocation-list {
+            margin-top: 1.5rem;
+        }
+
+        .allocation-item {
+            background: rgba(255, 255, 255, 0.03);
+            border-radius: 8px;
+            padding: 1rem;
+            margin-bottom: 0.5rem;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .allocation-ticker {
+            font-weight: bold;
+            color: var(--accent);
+        }
+
+        .allocation-weight {
+            font-size: 1.2rem;
+            font-weight: bold;
+        }
+
+        .metrics-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 1rem;
+            margin-top: 1rem;
+        }
+
+        .metric-card {
+            background: rgba(255, 255, 255, 0.03);
+            border-radius: 8px;
+            padding: 1rem;
+            text-align: center;
+        }
+
+        .metric-label {
+            font-size: 0.85rem;
+            color: var(--text-secondary);
+            margin-bottom: 0.5rem;
+        }
+
+        .metric-value {
+            font-size: 1.5rem;
+            font-weight: bold;
+            color: var(--accent);
+        }
+
+        .loading {
+            text-align: center;
+            padding: 2rem;
+            color: var(--text-secondary);
+        }
+
+        .loading-spinner {
+            border: 4px solid rgba(255, 215, 0, 0.1);
+            border-top: 4px solid var(--accent);
+            border-radius: 50%;
+            width: 40px;
+            height: 40px;
+            animation: spin 1s linear infinite;
+            margin: 0 auto 1rem;
+        }
+
+        @keyframes spin {
+            from { transform: rotate(0deg); }
+            to { transform: rotate(360deg); }
+        }
+
+        @media (max-width: 768px) {
+            .main-content {
+                padding: 1rem;
+            }
+
+            .page-title {
+                font-size: 1.5rem;
+            }
+
+            .sentiment-grid {
+                grid-template-columns: 1fr;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="header">
+        <div class="logo">
+            <i class="fas fa-brain"></i>
+            <span>Magnus Wealth - IA</span>
+        </div>
+        <a href="dashboard_final.html" class="btn">
+            <i class="fas fa-chart-line"></i>
+            Dashboard
+        </a>
+    </div>
+
+    <div class="main-content">
+        <h1 class="page-title">
+            <i class="fas fa-robot"></i>
+            Inteligência Artificial e Machine Learning
+        </h1>
+        <p class="page-subtitle">Análise de sentimento, previsões de preços e otimização de portfólio</p>
+
+        <!-- Sentimento de Mercado -->
+        <div class="section">
+            <h2 class="section-title">
+                <i class="fas fa-smile"></i>
+                Sentimento de Mercado
+            </h2>
+            <div id="market-sentiment" class="loading">
+                <div class="loading-spinner"></div>
+                <p>Analisando sentimento do mercado...</p>
+            </div>
+        </div>
+
+        <!-- Sentimento por Ticker -->
+        <div class="section">
+            <h2 class="section-title">
+                <i class="fas fa-chart-bar"></i>
+                Sentimento por Ativo
+            </h2>
+            <div id="ticker-sentiments" class="sentiment-grid">
+                <div class="loading">
+                    <div class="loading-spinner"></div>
+                    <p>Carregando análises...</p>
+                </div>
+            </div>
+        </div>
+
+        <!-- Previsões de Preços -->
+        <div class="section">
+            <h2 class="section-title">
+                <i class="fas fa-crystal-ball"></i>
+                Previsões de Preços
+            </h2>
+            <div id="price-predictions" class="prediction-container">
+                <div class="loading">
+                    <div class="loading-spinner"></div>
+                    <p>Gerando previsões...</p>
+                </div>
+            </div>
+        </div>
+
+        <!-- Portfólio Otimizado -->
+        <div class="section">
+            <h2 class="section-title">
+                <i class="fas fa-briefcase"></i>
+                Portfólio Otimizado
+            </h2>
+            <div id="optimized-portfolio">
+                <div class="loading">
+                    <div class="loading-spinner"></div>
+                    <p>Otimizando portfólio...</p>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script src="js/ml_service.js"></script>
+    <script>
+        // Inicializar ao carregar a página
+        document.addEventListener('DOMContentLoaded', () => {
+            loadMarketSentiment();
+            loadTickerSentiments();
+            // Previsões e otimização serão carregadas sob demanda
+        });
+    </script>
+</body>
+</html>
+

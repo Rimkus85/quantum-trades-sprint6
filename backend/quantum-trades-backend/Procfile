@@ -1,0 +1,8 @@
+# Magnus Wealth - Procfile para Railway/Heroku
+
+# Bot de comandos (processo principal - sempre ativo)
+bot: python3 bot_comandos.py
+
+# API Flask (opcional - descomente se quiser expor API REST)
+# web: gunicorn --bind 0.0.0.0:$PORT --workers 2 --timeout 120 wsgi:app
+

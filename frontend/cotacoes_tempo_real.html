@@ -1,0 +1,477 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Magnus Wealth - Cotações em Tempo Real</title>
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
+    <!-- Socket.IO Client -->
+    <script src="https://cdn.socket.io/4.5.4/socket.io.min.js"></script>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        :root {
+            --primary: #1a1a2e;
+            --secondary: #16213e;
+            --accent: #ffd700;
+            --success: #4CAF50;
+            --danger: #f44336;
+            --text: #ffffff;
+            --text-secondary: rgba(255, 255, 255, 0.7);
+        }
+
+        body {
+            margin: 0;
+            padding: 0;
+            padding-top: 80px;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(135deg, #1a1a2e 0%, #16213e 50%, #0f3460 100%);
+            color: var(--text);
+            min-height: 100vh;
+        }
+
+        .header {
+            background: rgba(26, 26, 46, 0.95);
+            backdrop-filter: blur(10px);
+            padding: 1rem 2rem;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            border-bottom: 1px solid rgba(255, 215, 0, 0.2);
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            z-index: 1000;
+        }
+
+        .logo {
+            display: flex;
+            align-items: center;
+            gap: 0.75rem;
+            font-size: 1.2rem;
+            font-weight: bold;
+            color: var(--accent);
+        }
+
+        .connection-status {
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+            padding: 0.5rem 1rem;
+            border-radius: 8px;
+            background: rgba(255, 255, 255, 0.05);
+            font-size: 0.9rem;
+        }
+
+        .status-indicator {
+            width: 10px;
+            height: 10px;
+            border-radius: 50%;
+            background: var(--danger);
+            animation: pulse 2s infinite;
+        }
+
+        .status-indicator.connected {
+            background: var(--success);
+        }
+
+        @keyframes pulse {
+            0%, 100% { opacity: 1; }
+            50% { opacity: 0.5; }
+        }
+
+        .main-content {
+            padding: 2rem;
+            max-width: 1400px;
+            margin: 0 auto;
+        }
+
+        .page-title {
+            font-size: 2rem;
+            margin-bottom: 0.5rem;
+            color: var(--accent);
+            display: flex;
+            align-items: center;
+            gap: 1rem;
+        }
+
+        .add-ticker {
+            background: rgba(255, 255, 255, 0.05);
+            border-radius: 12px;
+            padding: 1.5rem;
+            margin-bottom: 2rem;
+            display: flex;
+            gap: 1rem;
+            align-items: center;
+        }
+
+        .add-ticker input {
+            flex: 1;
+            padding: 0.75rem 1rem;
+            border: 1px solid rgba(255, 215, 0, 0.3);
+            border-radius: 8px;
+            background: rgba(255, 255, 255, 0.05);
+            color: var(--text);
+            font-size: 1rem;
+        }
+
+        .add-ticker input:focus {
+            outline: none;
+            border-color: var(--accent);
+        }
+
+        .add-ticker button {
+            padding: 0.75rem 1.5rem;
+            border: none;
+            border-radius: 8px;
+            background: linear-gradient(135deg, var(--accent), #ffed4e);
+            color: var(--primary);
+            font-weight: bold;
+            cursor: pointer;
+            transition: all 0.3s ease;
+        }
+
+        .add-ticker button:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 8px 25px rgba(255, 215, 0, 0.4);
+        }
+
+        .tickers-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
+            gap: 1.5rem;
+        }
+
+        .ticker-card {
+            background: rgba(255, 255, 255, 0.05);
+            border-radius: 12px;
+            padding: 1.5rem;
+            border: 1px solid rgba(255, 215, 0, 0.1);
+            transition: all 0.3s ease;
+            position: relative;
+        }
+
+        .ticker-card:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 10px 30px rgba(255, 215, 0, 0.2);
+            border-color: var(--accent);
+        }
+
+        .ticker-card.updating {
+            animation: flash 0.5s;
+        }
+
+        @keyframes flash {
+            0%, 100% { background: rgba(255, 255, 255, 0.05); }
+            50% { background: rgba(255, 215, 0, 0.1); }
+        }
+
+        .remove-btn {
+            position: absolute;
+            top: 1rem;
+            right: 1rem;
+            background: rgba(244, 67, 54, 0.2);
+            border: none;
+            border-radius: 50%;
+            width: 30px;
+            height: 30px;
+            color: var(--danger);
+            cursor: pointer;
+            transition: all 0.3s ease;
+        }
+
+        .remove-btn:hover {
+            background: var(--danger);
+            color: white;
+        }
+
+        .ticker-symbol {
+            font-size: 1.5rem;
+            font-weight: bold;
+            color: var(--accent);
+            margin-bottom: 0.5rem;
+        }
+
+        .ticker-price {
+            font-size: 2rem;
+            font-weight: bold;
+            margin-bottom: 0.5rem;
+        }
+
+        .ticker-change {
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+            font-size: 1.1rem;
+            font-weight: 500;
+        }
+
+        .ticker-change.positive {
+            color: var(--success);
+        }
+
+        .ticker-change.negative {
+            color: var(--danger);
+        }
+
+        .ticker-info {
+            margin-top: 1rem;
+            padding-top: 1rem;
+            border-top: 1px solid rgba(255, 255, 255, 0.1);
+            display: flex;
+            justify-content: space-between;
+            font-size: 0.85rem;
+            color: var(--text-secondary);
+        }
+
+        .empty-state {
+            text-align: center;
+            padding: 3rem;
+            color: var(--text-secondary);
+        }
+
+        .empty-state i {
+            font-size: 4rem;
+            margin-bottom: 1rem;
+            opacity: 0.3;
+        }
+
+        @media (max-width: 768px) {
+            .main-content {
+                padding: 1rem;
+            }
+
+            .page-title {
+                font-size: 1.5rem;
+            }
+
+            .tickers-grid {
+                grid-template-columns: 1fr;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="header">
+        <div class="logo">
+            <i class="fas fa-chart-line"></i>
+            <span>Magnus Wealth</span>
+        </div>
+        <div class="connection-status">
+            <div class="status-indicator" id="status-indicator"></div>
+            <span id="status-text">Desconectado</span>
+        </div>
+    </div>
+
+    <div class="main-content">
+        <h1 class="page-title">
+            <i class="fas fa-signal"></i>
+            Cotações em Tempo Real
+        </h1>
+        <p class="page-subtitle" style="color: var(--text-secondary); margin-bottom: 2rem;">
+            Acompanhe cotações atualizadas automaticamente via WebSocket
+        </p>
+
+        <div class="add-ticker">
+            <input type="text" 
+                   id="ticker-input" 
+                   placeholder="Digite o ticker (ex: PETR4, VALE3, ITUB4)" 
+                   autocomplete="off">
+            <button onclick="addTicker()">
+                <i class="fas fa-plus"></i> Adicionar
+            </button>
+        </div>
+
+        <div class="tickers-grid" id="tickers-grid">
+            <div class="empty-state">
+                <i class="fas fa-chart-line"></i>
+                <p>Nenhum ticker adicionado</p>
+                <p style="font-size: 0.9rem; margin-top: 0.5rem;">
+                    Digite um ticker acima e clique em "Adicionar"
+                </p>
+            </div>
+        </div>
+    </div>
+
+    <script src="js/websocket_service.js"></script>
+    <script>
+        // Tickers ativos
+        const activeTickers = new Set();
+
+        // Atualizar status de conexão
+        WebSocketService.onConnectionChange((connected) => {
+            const indicator = document.getElementById('status-indicator');
+            const text = document.getElementById('status-text');
+            
+            if (connected) {
+                indicator.classList.add('connected');
+                text.textContent = 'Conectado';
+            } else {
+                indicator.classList.remove('connected');
+                text.textContent = 'Desconectado';
+            }
+        });
+
+        // Adicionar ticker
+        function addTicker() {
+            const input = document.getElementById('ticker-input');
+            const ticker = input.value.trim().toUpperCase();
+            
+            if (!ticker) {
+                alert('Digite um ticker válido');
+                return;
+            }
+            
+            if (activeTickers.has(ticker)) {
+                alert('Ticker já adicionado');
+                return;
+            }
+            
+            // Adicionar à lista
+            activeTickers.add(ticker);
+            
+            // Criar card
+            createTickerCard(ticker);
+            
+            // Inscrever no WebSocket
+            WebSocketService.subscribe(ticker, (data) => {
+                updateTickerCard(data);
+            });
+            
+            // Limpar input
+            input.value = '';
+        }
+
+        // Remover ticker
+        function removeTicker(ticker) {
+            activeTickers.delete(ticker);
+            WebSocketService.unsubscribe(ticker);
+            
+            const card = document.getElementById(`ticker-${ticker}`);
+            if (card) {
+                card.remove();
+            }
+            
+            // Mostrar empty state se não houver tickers
+            if (activeTickers.size === 0) {
+                showEmptyState();
+            }
+        }
+
+        // Criar card de ticker
+        function createTickerCard(ticker) {
+            const grid = document.getElementById('tickers-grid');
+            
+            // Remover empty state
+            if (activeTickers.size === 1) {
+                grid.innerHTML = '';
+            }
+            
+            const card = document.createElement('div');
+            card.id = `ticker-${ticker}`;
+            card.className = 'ticker-card';
+            card.innerHTML = `
+                <button class="remove-btn" onclick="removeTicker('${ticker}')">
+                    <i class="fas fa-times"></i>
+                </button>
+                <div class="ticker-symbol">${ticker}</div>
+                <div class="ticker-price" id="price-${ticker}">R$ -</div>
+                <div class="ticker-change" id="change-${ticker}">
+                    <i class="fas fa-minus"></i>
+                    <span>-</span>
+                </div>
+                <div class="ticker-info">
+                    <span>Volume: <span id="volume-${ticker}">-</span></span>
+                    <span id="time-${ticker}">-</span>
+                </div>
+            `;
+            
+            grid.appendChild(card);
+        }
+
+        // Atualizar card de ticker
+        function updateTickerCard(data) {
+            const ticker = data.ticker;
+            const card = document.getElementById(`ticker-${ticker}`);
+            
+            if (!card) return;
+            
+            // Animação de atualização
+            card.classList.add('updating');
+            setTimeout(() => card.classList.remove('updating'), 500);
+            
+            // Atualizar preço
+            const priceElement = document.getElementById(`price-${ticker}`);
+            priceElement.textContent = `R$ ${data.price.toFixed(2)}`;
+            
+            // Atualizar variação
+            const changeElement = document.getElementById(`change-${ticker}`);
+            const changePercent = data.changePercent || 0;
+            const isPositive = changePercent >= 0;
+            
+            changeElement.className = `ticker-change ${isPositive ? 'positive' : 'negative'}`;
+            changeElement.innerHTML = `
+                <i class="fas fa-${isPositive ? 'arrow-up' : 'arrow-down'}"></i>
+                <span>${isPositive ? '+' : ''}${changePercent.toFixed(2)}%</span>
+            `;
+            
+            // Atualizar volume
+            const volumeElement = document.getElementById(`volume-${ticker}`);
+            volumeElement.textContent = formatVolume(data.volume || 0);
+            
+            // Atualizar horário
+            const timeElement = document.getElementById(`time-${ticker}`);
+            const date = new Date(data.timestamp);
+            timeElement.textContent = date.toLocaleTimeString('pt-BR');
+        }
+
+        // Mostrar empty state
+        function showEmptyState() {
+            const grid = document.getElementById('tickers-grid');
+            grid.innerHTML = `
+                <div class="empty-state">
+                    <i class="fas fa-chart-line"></i>
+                    <p>Nenhum ticker adicionado</p>
+                    <p style="font-size: 0.9rem; margin-top: 0.5rem;">
+                        Digite um ticker acima e clique em "Adicionar"
+                    </p>
+                </div>
+            `;
+        }
+
+        // Formatar volume
+        function formatVolume(volume) {
+            if (volume >= 1000000000) {
+                return (volume / 1000000000).toFixed(2) + 'B';
+            } else if (volume >= 1000000) {
+                return (volume / 1000000).toFixed(2) + 'M';
+            } else if (volume >= 1000) {
+                return (volume / 1000).toFixed(2) + 'K';
+            }
+            return volume.toString();
+        }
+
+        // Event listener para Enter no input
+        document.getElementById('ticker-input').addEventListener('keypress', (e) => {
+            if (e.key === 'Enter') {
+                addTicker();
+            }
+        });
+
+        // Adicionar alguns tickers padrão
+        setTimeout(() => {
+            const defaultTickers = ['PETR4', 'VALE3', 'ITUB4'];
+            defaultTickers.forEach(ticker => {
+                document.getElementById('ticker-input').value = ticker;
+                addTicker();
+            });
+        }, 1000);
+    </script>
+</body>
+</html>
+

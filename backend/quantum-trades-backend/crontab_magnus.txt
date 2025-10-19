@@ -1,0 +1,99 @@
+# ============================================================================
+# MAGNUS WEALTH - AGENDAMENTO DE TAREFAS (CRONTAB)
+# ============================================================================
+# 
+# Este arquivo contém todas as tarefas agendadas do Magnus Wealth
+# 
+# Instalação:
+#   crontab crontab_magnus.txt
+# 
+# Verificar:
+#   crontab -l
+# 
+# Editar:
+#   crontab -e
+# 
+# Remover:
+#   crontab -r
+# 
+# ============================================================================
+
+# Diretório base do projeto
+MAGNUS_DIR=/home/ubuntu/quantum-trades-sprint6/backend/quantum-trades-backend
+PYTHON=/usr/bin/python3
+LOGS_DIR=/home/ubuntu/quantum-trades-sprint6/backend/quantum-trades-backend/logs
+
+# ============================================================================
+# ANÁLISE DIÁRIA - 21:00 (Após fechamento do mercado)
+# ============================================================================
+# Executa análise completa do dia e envia para o grupo Magnus Wealth
+# Horário: 21:00 todos os dias
+0 21 * * * cd $MAGNUS_DIR && $PYTHON analise_diaria.py >> $LOGS_DIR/analise_diaria.log 2>&1
+
+# ============================================================================
+# ANÁLISE DE OPÇÕES - Horários estratégicos (Dias úteis)
+# ============================================================================
+
+# 10:10 - Análise de abertura (após abertura do mercado)
+10 10 * * 1-5 cd $MAGNUS_DIR && $PYTHON analise_opcoes.py >> $LOGS_DIR/analise_opcoes.log 2>&1
+
+# 14:00 - Análise meio-dia
+0 14 * * 1-5 cd $MAGNUS_DIR && $PYTHON analise_opcoes.py >> $LOGS_DIR/analise_opcoes.log 2>&1
+
+# 16:45 - Análise pré-fechamento (antes do fechamento às 17:00)
+45 16 * * 1-5 cd $MAGNUS_DIR && $PYTHON analise_opcoes.py >> $LOGS_DIR/analise_opcoes.log 2>&1
+
+# ============================================================================
+# RESUMO SEMANAL - Sábado 10:00
+# ============================================================================
+# Envia resumo semanal com análise consolidada da semana
+# Horário: Sábado às 10:00
+0 10 * * 6 cd $MAGNUS_DIR && $PYTHON resumo_semanal.py >> $LOGS_DIR/resumo_semanal.log 2>&1
+
+# ============================================================================
+# LIMPEZA DE LOGS - Domingo 02:00
+# ============================================================================
+# Remove logs com mais de 30 dias para economizar espaço
+# Horário: Domingo às 02:00
+0 2 * * 0 find $LOGS_DIR -name "*.log" -type f -mtime +30 -delete
+
+# ============================================================================
+# BACKUP DE DADOS - Domingo 03:00
+# ============================================================================
+# Faz backup da base de conhecimento e dados importantes
+# Horário: Domingo às 03:00
+0 3 * * 0 cd $MAGNUS_DIR && tar -czf backups/backup_$(date +\%Y\%m\%d).tar.gz youtube_knowledge/ logs/ *.json 2>/dev/null
+
+# ============================================================================
+# MONITORAMENTO DE SAÚDE - A cada 6 horas
+# ============================================================================
+# Verifica se todos os serviços estão funcionando
+# Horário: 00:00, 06:00, 12:00, 18:00
+# 0 */6 * * * cd $MAGNUS_DIR && $PYTHON health_check.py >> $LOGS_DIR/health_check.log 2>&1
+
+# ============================================================================
+# NOTAS IMPORTANTES
+# ============================================================================
+# 
+# Formato do cron:
+# ┌───────────── minuto (0 - 59)
+# │ ┌───────────── hora (0 - 23)
+# │ │ ┌───────────── dia do mês (1 - 31)
+# │ │ │ ┌───────────── mês (1 - 12)
+# │ │ │ │ ┌───────────── dia da semana (0 - 6) (0 = Domingo)
+# │ │ │ │ │
+# * * * * * comando a ser executado
+# 
+# Dias da semana:
+# 0 = Domingo
+# 1 = Segunda
+# 2 = Terça
+# 3 = Quarta
+# 4 = Quinta
+# 5 = Sexta
+# 6 = Sábado
+# 
+# 1-5 = Segunda a Sexta (dias úteis)
+# 
+# ============================================================================
+
