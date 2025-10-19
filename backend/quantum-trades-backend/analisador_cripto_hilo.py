@@ -2,10 +2,11 @@
 # -*- coding: utf-8 -*-
 """
 Analisador de Criptomoedas - Gann HiLo Activator (Implementação Correta)
-Magnus Wealth - Versão 8.2.0
+Magnus Wealth - Versão 8.3.0
 
-ATUALIZAÇÃO: Top 11 Criptos com Períodos Otimizados
+ATUALIZAÇÃO: Top 8 Criptos com Períodos Otimizados (Dados Reais Yahoo Finance)
 Data: 19/10/2025
+Execução: Diária às 21h
 """
 
 import requests
@@ -15,96 +16,45 @@ from datetime import datetime
 import os
 from dotenv import load_dotenv
 from telethon.sync import TelegramClient
+import yfinance as yf
 
 load_dotenv()
 
-# Top 11 Criptomoedas com Períodos Otimizados (Simulação 2025)
-TOP_11 = [
-    {'symbol': 'BTCUSDT', 'name': 'Bitcoin', 'emoji': '🥇', 'period': 45, 'tier': 1, 'alocacao': 0.25},
-    {'symbol': 'ETHUSDT', 'name': 'Ethereum', 'emoji': '🥈', 'period': 25, 'tier': 1, 'alocacao': 0.25},
-    {'symbol': 'BNBUSDT', 'name': 'Binance Coin', 'emoji': '🟡', 'period': 30, 'tier': 2, 'alocacao': 0.10},
-    {'symbol': 'SOLUSDT', 'name': 'Solana', 'emoji': '🟣', 'period': 25, 'tier': 2, 'alocacao': 0.10},
-    {'symbol': 'XRPUSDT', 'name': 'XRP', 'emoji': '💧', 'period': 55, 'tier': 2, 'alocacao': 0.10},
-    {'symbol': 'LINKUSDT', 'name': 'Chainlink', 'emoji': '🔗', 'period': 30, 'tier': 3, 'alocacao': 0.05},
-    {'symbol': 'LTCUSDT', 'name': 'Litecoin', 'emoji': '⚡', 'period': 25, 'tier': 3, 'alocacao': 0.05},
-    {'symbol': 'UNIUSDT', 'name': 'Uniswap', 'emoji': '🦄', 'period': 20, 'tier': 3, 'alocacao': 0.05},
-    {'symbol': 'ATOMUSDT', 'name': 'Cosmos', 'emoji': '⚛️', 'period': 35, 'tier': 3, 'alocacao': 0.05},
-    {'symbol': 'ALGOUSDT', 'name': 'Algorand', 'emoji': '🔷', 'period': 25, 'tier': 3, 'alocacao': 0.05},
-    {'symbol': 'VETUSDT', 'name': 'VeChain', 'emoji': '🌿', 'period': 35, 'tier': 3, 'alocacao': 0.05},
+# Top 8 Criptomoedas com Períodos Otimizados (Simulação 2025 - Dados Reais)
+# Removidas: XRP (-25.67%), Litecoin (-18.03%), Cosmos (-10.10%)
+TOP_8 = [
+    {'symbol': 'BTCUSDT', 'yahoo': 'BTC-USD', 'name': 'Bitcoin', 'emoji': '🥇', 'period': 40, 'tier': 1, 'alocacao': 0.25},
+    {'symbol': 'ETHUSDT', 'yahoo': 'ETH-USD', 'name': 'Ethereum', 'emoji': '🥈', 'period': 50, 'tier': 1, 'alocacao': 0.25},
+    {'symbol': 'BNBUSDT', 'yahoo': 'BNB-USD', 'name': 'Binance Coin', 'emoji': '🟡', 'period': 70, 'tier': 2, 'alocacao': 0.125},
+    {'symbol': 'SOLUSDT', 'yahoo': 'SOL-USD', 'name': 'Solana', 'emoji': '🟣', 'period': 45, 'tier': 2, 'alocacao': 0.125},
+    {'symbol': 'LINKUSDT', 'yahoo': 'LINK-USD', 'name': 'Chainlink', 'emoji': '🔗', 'period': 40, 'tier': 3, 'alocacao': 0.0625},
+    {'symbol': 'UNIUSDT', 'yahoo': 'UNI-USD', 'name': 'Uniswap', 'emoji': '🦄', 'period': 65, 'tier': 3, 'alocacao': 0.0625},
+    {'symbol': 'ALGOUSDT', 'yahoo': 'ALGO-USD', 'name': 'Algorand', 'emoji': '🔷', 'period': 40, 'tier': 3, 'alocacao': 0.0625},
+    {'symbol': 'VETUSDT', 'yahoo': 'VET-USD', 'name': 'VeChain', 'emoji': '🌿', 'period': 25, 'tier': 3, 'alocacao': 0.0625},
 ]
 
-def buscar_dados(symbol, limit=500):
+def buscar_dados(symbol, yahoo_symbol):
     """
-    Busca dados históricos da Binance
-    Fallback: Usa CoinGecko se Binance estiver bloqueada
+    Busca dados históricos do Yahoo Finance (dados reais diários)
     """
-    # Tentar Binance primeiro
     try:
-        url = f"https://api.binance.com/api/v3/klines"
-        params = {'symbol': symbol, 'interval': '1d', 'limit': limit}
-        r = requests.get(url, params=params, timeout=10)
+        print(f"   📊 Buscando dados de {yahoo_symbol}...")
+        ticker = yf.Ticker(yahoo_symbol)
+        df = ticker.history(period='1y', interval='1d')
         
-        if r.status_code == 200:
-            data = r.json()
-            if isinstance(data, list) and len(data) > 0:
-                df = pd.DataFrame(data, columns=['time','open','high','low','close','volume','close_time','quote_volume','trades','taker_buy_base','taker_buy_quote','ignore'])
-                df['close'] = df['close'].astype(float)
-                df['high'] = df['high'].astype(float)
-                df['low'] = df['low'].astype(float)
-                df['time'] = pd.to_datetime(df['time'], unit='ms')
-                return df
+        if df.empty:
+            raise ValueError(f"Nenhum dado retornado para {yahoo_symbol}")
+        
+        # Renomear colunas
+        df = df.reset_index()
+        df.columns = [c.lower() for c in df.columns]
+        df = df.rename(columns={'date': 'time'})
+        
+        return df[['time', 'open', 'high', 'low', 'close', 'volume']]
+        
     except Exception as e:
-        print(f"Erro ao buscar dados da Binance: {e}")
-    
-    # Fallback: CoinGecko
-    print(f"Usando CoinGecko como fallback para {symbol}...")
-    
-    # Mapear símbolos Binance para IDs CoinGecko
-    coingecko_ids = {
-        'BTCUSDT': 'bitcoin',
-        'ETHUSDT': 'ethereum',
-        'BNBUSDT': 'binancecoin',
-        'SOLUSDT': 'solana',
-        'XRPUSDT': 'ripple',
-        'LINKUSDT': 'chainlink',
-        'LTCUSDT': 'litecoin',
-        'UNIUSDT': 'uniswap',
-        'ATOMUSDT': 'cosmos',
-        'ALGOUSDT': 'algorand',
-        'VETUSDT': 'vechain'
-    }
-    
-    coin_id = coingecko_ids.get(symbol)
-    if not coin_id:
-        raise ValueError(f"Símbolo {symbol} não mapeado para CoinGecko")
-    
-    url = f"https://api.coingecko.com/api/v3/coins/{coin_id}/ohlc"
-    # CoinGecko aceita: 1, 7, 14, 30, 90, 180, 365, max
-    if limit <= 7:
-        days = 7
-    elif limit <= 30:
-        days = 30
-    elif limit <= 90:
-        days = 90
-    elif limit <= 180:
-        days = 180
-    else:
-        days = 365
-    
-    params = {'vs_currency': 'usd', 'days': days}
-    
-    r = requests.get(url, params=params, timeout=15)
-    r.raise_for_status()
-    
-    data = r.json()
-    
-    # CoinGecko retorna: [timestamp, open, high, low, close]
-    df = pd.DataFrame(data, columns=['timestamp', 'open', 'high', 'low', 'close'])
-    df['time'] = pd.to_datetime(df['timestamp'], unit='ms')
-    df['volume'] = 0  # CoinGecko OHLC não inclui volume
-    df = df[['time', 'open', 'high', 'low', 'close', 'volume']]
-    
-    return df
+        print(f"   ❌ Erro ao buscar {yahoo_symbol}: {e}")
+        return None
 
 def calcular_gann_hilo_activator(df, period, ma_type='SMA'):
     """
@@ -235,7 +185,10 @@ def analisar_cripto(cripto):
     print(f"Analisando {cripto['name']} ({cripto['symbol']}) com período {cripto['period']}...")
     
     # Buscar dados
-    df = buscar_dados(cripto['symbol'])
+    df = buscar_dados(cripto['symbol'], cripto['yahoo'])
+    
+    if df is None or len(df) == 0:
+        raise ValueError(f"Dados insuficientes para {cripto['name']}")
     
     # Calcular Gann HiLo Activator
     df = calcular_gann_hilo_activator(df, cripto['period'], ma_type='SMA')
@@ -313,7 +266,7 @@ def formatar_mensagem(resultados):
                 msg += f"{r['emoji']} *{r['name']}* {emoji_trend}\n"
                 msg += f"💰 Preço: ${r['preco']:,.2f}\n"
                 msg += f"📊 Período HiLo: {r['period']}\n"
-                msg += f"📈 Alocação: {r['alocacao']*100:.0f}%\n"
+                msg += f"📈 Alocação: {r['alocacao']*100:.2f}%\n"
                 msg += f"{emoji_sinal} Sinal: *{r['sinal']}*\n"
                 
                 if r['mudanca']:
@@ -336,7 +289,7 @@ def formatar_mensagem(resultados):
     
     msg += "⚠️ *Disclaimer:* Análise educacional. Não é recomendação de investimento.\n"
     msg += "📊 Indicador: Gann HiLo Activator (Robert Krausz)\n"
-    msg += "🔧 Magnus Wealth v8.2.0 - Top 11 Otimizado\n"
+    msg += "🔧 Magnus Wealth v8.3.0 - Top 8 Otimizado (Dados Reais)\n"
     
     return msg
 
@@ -354,13 +307,13 @@ def enviar_telegram(msg):
 if __name__ == '__main__':
     print('═══════════════════════════════════════════════════')
     print('  MAGNUS WEALTH - ANALISADOR DE CRIPTOMOEDAS')
-    print('  Gann HiLo Activator - v8.2.0')
-    print('  TOP 11 CRIPTOS - PERÍODOS OTIMIZADOS')
+    print('  Gann HiLo Activator - v8.3.0')
+    print('  TOP 8 CRIPTOS - PERÍODOS OTIMIZADOS (DADOS REAIS)')
     print('═══════════════════════════════════════════════════\n')
     
     resultados = []
     
-    for cripto in TOP_11:
+    for cripto in TOP_8:
         try:
             resultado = analisar_cripto(cripto)
             resultados.append(resultado)
@@ -370,7 +323,7 @@ if __name__ == '__main__':
     
     print('\n' + '═'*50)
     print('Análise concluída!')
-    print(f'Total de criptos analisadas: {len(resultados)}/{len(TOP_11)}')
+    print(f'Total de criptos analisadas: {len(resultados)}/{len(TOP_8)}')
     
     # Formatar e enviar mensagem
     if resultados:
