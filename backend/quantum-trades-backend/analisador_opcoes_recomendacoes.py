@@ -2,6 +2,7 @@
 """
 Analisador Completo de Opções - Magnus Wealth
 Gera recomendações com TODAS as estratégias e passo a passo de execução
+Versão 7.8.0 - Ajustado conforme feedback do mentor
 """
 
 import requests
@@ -12,6 +13,7 @@ import os
 from dotenv import load_dotenv
 from telethon.sync import TelegramClient
 import json
+import calendar
 
 load_dotenv()
 
@@ -97,6 +99,37 @@ class AnalisadorOpcoesCompleto:
         except:
             return 0
     
+    def gerar_codigo_opcao(self, ticker, tipo, strike, vencimento_dias=30):
+        """Gera código aproximado da opção (formato B3)"""
+        # Remover dígito do ticker
+        ticker_base = ''.join([c for c in ticker if not c.isdigit()])
+        
+        # Calcular vencimento (próxima terceira segunda-feira)
+        hoje = datetime.now()
+        mes_vencimento = hoje.month
+        ano_vencimento = hoje.year
+        
+        # Se já passou do dia 15, pegar próximo mês
+        if hoje.day > 15:
+            mes_vencimento += 1
+            if mes_vencimento > 12:
+                mes_vencimento = 1
+                ano_vencimento += 1
+        
+        # Letra do mês (A=Jan, B=Fev, ..., L=Dez)
+        letra_mes = chr(64 + mes_vencimento)  # A=65
+        
+        # Tipo: C=Call, W=Put (padrão B3)
+        letra_tipo = 'C' if tipo == 'CALL' else 'W'
+        
+        # Strike arredondado
+        strike_int = int(strike)
+        
+        # Formato: PETR4C4000 (exemplo)
+        codigo = f"{ticker}{letra_mes}{strike_int}"
+        
+        return codigo
+    
     # ========== ESTRATÉGIAS DE OPÇÕES ==========
     
     def gerar_compra_call(self, ticker, cotacao, tendencia, forca):
@@ -106,22 +139,24 @@ class AnalisadorOpcoesCompleto:
         
         preco = cotacao['regularMarketPrice']
         strike_ideal = preco * 1.02  # ATM ou ligeiramente OTM
+        codigo_opcao = self.gerar_codigo_opcao(ticker, 'CALL', strike_ideal)
         
         return {
             'tipo': 'COMPRA CALL',
             'ticker': ticker,
             'preco_ativo': preco,
             'strike_sugerido': strike_ideal,
+            'codigo_opcao': codigo_opcao,
             'tendencia': tendencia,
             'forca': forca,
             'motivo': f'Tendência de alta forte ({forca:.1f}%), rompimento detectado',
             'setup': 'Setup 1: Compra de Call em Rompimento',
             'objetivo': 'Lucrar com alta do ativo',
-            'risco': 'Limitado ao prêmio pago',
+            'risco': 'Limitado ao prêmio pago (pode perder 100%)',
             'retorno': 'Ilimitado',
             'holding': '5-15 dias',
             'gestao_risco': '3% do capital',
-            'passo_a_passo': self._passo_compra_call(ticker, strike_ideal)
+            'passo_a_passo': self._passo_compra_call(ticker, strike_ideal, codigo_opcao)
         }
     
     def gerar_compra_put(self, ticker, cotacao, tendencia, forca):
@@ -131,22 +166,24 @@ class AnalisadorOpcoesCompleto:
         
         preco = cotacao['regularMarketPrice']
         strike_ideal = preco * 0.98  # ATM ou ligeiramente OTM
+        codigo_opcao = self.gerar_codigo_opcao(ticker, 'PUT', strike_ideal)
         
         return {
             'tipo': 'COMPRA PUT',
             'ticker': ticker,
             'preco_ativo': preco,
             'strike_sugerido': strike_ideal,
+            'codigo_opcao': codigo_opcao,
             'tendencia': tendencia,
             'forca': forca,
             'motivo': f'Tendência de baixa forte ({forca:.1f}%), perda de suporte',
             'setup': 'Setup 2: Compra de Put em Queda',
             'objetivo': 'Lucrar com queda do ativo',
-            'risco': 'Limitado ao prêmio pago',
+            'risco': 'Limitado ao prêmio pago (pode perder 100%)',
             'retorno': 'Alto (até o ativo chegar a zero)',
             'holding': '3-10 dias',
             'gestao_risco': '3% do capital',
-            'passo_a_passo': self._passo_compra_put(ticker, strike_ideal)
+            'passo_a_passo': self._passo_compra_put(ticker, strike_ideal, codigo_opcao)
         }
     
     def gerar_trava_alta(self, ticker, cotacao, tendencia, forca):
@@ -157,6 +194,8 @@ class AnalisadorOpcoesCompleto:
         preco = cotacao['regularMarketPrice']
         strike_compra = preco  # ATM
         strike_venda = preco * 1.05  # 5% acima
+        codigo_compra = self.gerar_codigo_opcao(ticker, 'CALL', strike_compra)
+        codigo_venda = self.gerar_codigo_opcao(ticker, 'CALL', strike_venda)
         
         return {
             'tipo': 'TRAVA DE ALTA',
@@ -164,6 +203,8 @@ class AnalisadorOpcoesCompleto:
             'preco_ativo': preco,
             'strike_compra': strike_compra,
             'strike_venda': strike_venda,
+            'codigo_compra': codigo_compra,
+            'codigo_venda': codigo_venda,
             'tendencia': tendencia,
             'forca': forca,
             'motivo': f'Alta moderada esperada, reduzir custo da operação',
@@ -173,7 +214,7 @@ class AnalisadorOpcoesCompleto:
             'retorno': 'Limitado (diferença entre strikes - custo)',
             'holding': 'Até vencimento',
             'gestao_risco': '3% do capital',
-            'passo_a_passo': self._passo_trava_alta(ticker, strike_compra, strike_venda)
+            'passo_a_passo': self._passo_trava_alta(ticker, strike_compra, strike_venda, codigo_compra, codigo_venda)
         }
     
     def gerar_trava_baixa(self, ticker, cotacao, tendencia, forca):
@@ -184,6 +225,8 @@ class AnalisadorOpcoesCompleto:
         preco = cotacao['regularMarketPrice']
         strike_compra = preco  # ATM
         strike_venda = preco * 0.95  # 5% abaixo
+        codigo_compra = self.gerar_codigo_opcao(ticker, 'PUT', strike_compra)
+        codigo_venda = self.gerar_codigo_opcao(ticker, 'PUT', strike_venda)
         
         return {
             'tipo': 'TRAVA DE BAIXA',
@@ -191,6 +234,8 @@ class AnalisadorOpcoesCompleto:
             'preco_ativo': preco,
             'strike_compra': strike_compra,
             'strike_venda': strike_venda,
+            'codigo_compra': codigo_compra,
+            'codigo_venda': codigo_venda,
             'tendencia': tendencia,
             'forca': forca,
             'motivo': f'Baixa moderada esperada, reduzir custo',
@@ -200,7 +245,7 @@ class AnalisadorOpcoesCompleto:
             'retorno': 'Limitado (diferença entre strikes - custo)',
             'holding': 'Até vencimento',
             'gestao_risco': '3% do capital',
-            'passo_a_passo': self._passo_trava_baixa(ticker, strike_compra, strike_venda)
+            'passo_a_passo': self._passo_trava_baixa(ticker, strike_compra, strike_venda, codigo_compra, codigo_venda)
         }
     
     def gerar_borboleta(self, ticker, cotacao, tendencia, volatilidade):
@@ -213,6 +258,10 @@ class AnalisadorOpcoesCompleto:
         strike_medio = preco
         strike_alto = preco * 1.03
         
+        codigo_baixo = self.gerar_codigo_opcao(ticker, 'CALL', strike_baixo)
+        codigo_medio = self.gerar_codigo_opcao(ticker, 'CALL', strike_medio)
+        codigo_alto = self.gerar_codigo_opcao(ticker, 'CALL', strike_alto)
+        
         return {
             'tipo': 'BORBOLETA',
             'ticker': ticker,
@@ -220,6 +269,9 @@ class AnalisadorOpcoesCompleto:
             'strike_baixo': strike_baixo,
             'strike_medio': strike_medio,
             'strike_alto': strike_alto,
+            'codigo_baixo': codigo_baixo,
+            'codigo_medio': codigo_medio,
+            'codigo_alto': codigo_alto,
             'tendencia': tendencia,
             'volatilidade': volatilidade,
             'motivo': 'Mercado lateral, baixa volatilidade esperada',
@@ -229,7 +281,7 @@ class AnalisadorOpcoesCompleto:
             'retorno': 'Moderado (máximo no strike médio)',
             'holding': 'Até vencimento',
             'gestao_risco': '2% do capital',
-            'passo_a_passo': self._passo_borboleta(ticker, strike_baixo, strike_medio, strike_alto)
+            'passo_a_passo': self._passo_borboleta(ticker, strike_baixo, strike_medio, strike_alto, codigo_baixo, codigo_medio, codigo_alto)
         }
     
     def gerar_straddle(self, ticker, cotacao, volatilidade):
@@ -239,21 +291,25 @@ class AnalisadorOpcoesCompleto:
         
         preco = cotacao['regularMarketPrice']
         strike = preco  # ATM
+        codigo_call = self.gerar_codigo_opcao(ticker, 'CALL', strike)
+        codigo_put = self.gerar_codigo_opcao(ticker, 'PUT', strike)
         
         return {
             'tipo': 'STRADDLE',
             'ticker': ticker,
             'preco_ativo': preco,
             'strike': strike,
+            'codigo_call': codigo_call,
+            'codigo_put': codigo_put,
             'volatilidade': volatilidade,
             'motivo': f'Alta volatilidade ({volatilidade:.1f}%), movimento forte esperado',
             'setup': 'Straddle (Long Straddle)',
             'objetivo': 'Lucrar com movimento forte (alta ou baixa)',
-            'risco': 'Alto (custo de 2 opções)',
+            'risco': 'Alto (custo de 2 opções, pode perder 100%)',
             'retorno': 'Ilimitado (em qualquer direção)',
             'holding': '5-15 dias',
             'gestao_risco': '4% do capital (2 opções)',
-            'passo_a_passo': self._passo_straddle(ticker, strike)
+            'passo_a_passo': self._passo_straddle(ticker, strike, codigo_call, codigo_put)
         }
     
     def gerar_strangle(self, ticker, cotacao, volatilidade):
@@ -264,6 +320,8 @@ class AnalisadorOpcoesCompleto:
         preco = cotacao['regularMarketPrice']
         strike_call = preco * 1.03  # 3% acima
         strike_put = preco * 0.97  # 3% abaixo
+        codigo_call = self.gerar_codigo_opcao(ticker, 'CALL', strike_call)
+        codigo_put = self.gerar_codigo_opcao(ticker, 'PUT', strike_put)
         
         return {
             'tipo': 'STRANGLE',
@@ -271,274 +329,177 @@ class AnalisadorOpcoesCompleto:
             'preco_ativo': preco,
             'strike_call': strike_call,
             'strike_put': strike_put,
+            'codigo_call': codigo_call,
+            'codigo_put': codigo_put,
             'volatilidade': volatilidade,
             'motivo': f'Alta volatilidade ({volatilidade:.1f}%), custo menor que straddle',
             'setup': 'Strangle (Long Strangle)',
             'objetivo': 'Lucrar com movimento forte, custo reduzido',
-            'risco': 'Moderado (custo de 2 opções OTM)',
+            'risco': 'Moderado (custo de 2 opções OTM, pode perder 100%)',
             'retorno': 'Ilimitado (em qualquer direção)',
             'holding': '5-15 dias',
             'gestao_risco': '3% do capital',
-            'passo_a_passo': self._passo_strangle(ticker, strike_call, strike_put)
+            'passo_a_passo': self._passo_strangle(ticker, strike_call, strike_put, codigo_call, codigo_put)
         }
     
     # ========== PASSO A PASSO ==========
     
-    def _passo_compra_call(self, ticker, strike):
+    def _passo_compra_call(self, ticker, strike, codigo):
         return f"""
-**📋 PASSO A PASSO - COMPRA DE CALL**
+📋 **PASSO A PASSO - COMPRA DE CALL**
 
-**1️⃣ Abrir Plataforma**
-• Acesse ProfitChart ou sua corretora
-• Vá em "Opções" ou "Derivativos"
+**1️⃣ Código da Opção**
+• **{codigo}** (aproximado, verificar na plataforma)
+• Strike: R$ {strike:.2f}
+• Tipo: CALL
+• Vencimento: Próxima terceira segunda-feira
 
-**2️⃣ Buscar Opção**
-• Digite: {ticker}
-• Selecione "CALLS"
-• Procure strike próximo de R$ {strike:.2f}
-• Escolha vencimento: 15-30 dias
+**2️⃣ Posição Mínima Sugerida**
+• Prêmio esperado: 3-7% do preço do ativo
+• Exemplo: Se {ticker} = R$ {strike/1.02:.2f}, prêmio ~R$ {(strike/1.02)*0.05:.2f}
+• Posição mínima: 100 opções = ~R$ {(strike/1.02)*0.05*100:.2f}
+• Ideal: 200-500 opções para diluir custos
 
-**3️⃣ Analisar Prêmio**
-• Veja o preço da opção (ASK)
-• Calcule: Prêmio / Preço Ativo
-• Ideal: 3-7% do preço do ativo
-• Se > 10%, muito caro (evite)
+**3️⃣ Preço Limite**
+• Não pague mais que 5% acima do ASK
+• Se ASK = R$ 1,50, limite = R$ 1,58
 
-**4️⃣ Calcular Quantidade**
-• Capital disponível: R$ X
-• Risco: 3% = R$ Y
-• Quantidade: R$ Y / Prêmio
-• Exemplo: R$ 300 / R$ 1,50 = 200 opções
-
-**5️⃣ Executar Ordem**
-• Tipo: COMPRA
-• Código: {ticker}CXXX (verificar código real)
-• Quantidade: Calculada acima
-• Preço: Limite (não pague mais que 5% acima do ASK)
-• Validade: Dia
-
-**6️⃣ Confirmar e Monitorar**
-• Verifique ordem executada
-• Anote: Preço de entrada, stop loss
-• Monitore diariamente
-• Stop: 50% de perda OU ativo cair 3%
-• Alvo: 100-200% de lucro OU ativo perder tendência
+**4️⃣ Gestão da Operação**
+• **Stop Loss:** ZERO (ou perde tudo ou ganha gigante)
+• **Alvo:** 100-300% de lucro OU ativo perder tendência
+• **Estratégia:** Entrar com MUITA certeza do movimento
+• **Filosofia:** Perder pequeno, ganhar GIGANTESCO
 """
     
-    def _passo_compra_put(self, ticker, strike):
+    def _passo_compra_put(self, ticker, strike, codigo):
         return f"""
-**📋 PASSO A PASSO - COMPRA DE PUT**
+📋 **PASSO A PASSO - COMPRA DE PUT**
 
-**1️⃣ Abrir Plataforma**
-• Acesse ProfitChart ou sua corretora
-• Vá em "Opções" ou "Derivativos"
+**1️⃣ Código da Opção**
+• **{codigo}** (aproximado, verificar na plataforma)
+• Strike: R$ {strike:.2f}
+• Tipo: PUT
+• Vencimento: Próxima terceira segunda-feira
 
-**2️⃣ Buscar Opção**
-• Digite: {ticker}
-• Selecione "PUTS"
-• Procure strike próximo de R$ {strike:.2f}
-• Escolha vencimento: 15-30 dias
+**2️⃣ Posição Mínima Sugerida**
+• Prêmio esperado: 3-7% do preço do ativo
+• Posição mínima: 100 opções
+• Ideal: 200-500 opções
 
-**3️⃣ Analisar Prêmio**
-• Veja o preço da opção (ASK)
-• Calcule: Prêmio / Preço Ativo
-• Ideal: 3-7% do preço do ativo
+**3️⃣ Preço Limite**
+• Não pague mais que 5% acima do ASK
 
-**4️⃣ Calcular Quantidade**
-• Capital disponível: R$ X
-• Risco: 3% = R$ Y
-• Quantidade: R$ Y / Prêmio
-
-**5️⃣ Executar Ordem**
-• Tipo: COMPRA
-• Código: {ticker}WXXX (verificar código real)
-• Quantidade: Calculada acima
-• Preço: Limite
-• Validade: Dia
-
-**6️⃣ Confirmar e Monitorar**
-• Stop: 50% de perda OU ativo subir 3%
-• Alvo: 100-150% de lucro OU ativo encontrar suporte
+**4️⃣ Gestão da Operação**
+• **Stop Loss:** ZERO (ou perde tudo ou ganha gigante)
+• **Alvo:** 100-250% de lucro OU ativo encontrar suporte
+• **Estratégia:** Entrar com MUITA certeza do movimento
+• **Filosofia:** Perder pequeno, ganhar GIGANTESCO
 """
     
-    def _passo_trava_alta(self, ticker, strike_compra, strike_venda):
+    def _passo_trava_alta(self, ticker, strike_compra, strike_venda, codigo_compra, codigo_venda):
         return f"""
-**📋 PASSO A PASSO - TRAVA DE ALTA**
+📋 **PASSO A PASSO - TRAVA DE ALTA**
 
-**1️⃣ Entender a Trava**
-• Você vai COMPRAR 1 call (strike baixo)
-• E VENDER 1 call (strike alto)
-• Reduz custo mas limita ganho
+**1️⃣ Códigos das Opções**
+• **COMPRA:** {codigo_compra} (strike R$ {strike_compra:.2f})
+• **VENDA:** {codigo_venda} (strike R$ {strike_venda:.2f})
 
-**2️⃣ Primeira Perna - COMPRAR CALL**
-• Strike: R$ {strike_compra:.2f} (ATM)
-• Quantidade: Ex: 100 opções
-• Você PAGA o prêmio (ex: R$ 1,80)
+**2️⃣ Posição Mínima Sugerida**
+• Mesma quantidade nas 2 pernas
+• Mínimo: 100 opções cada
+• Ideal: 200-500 opções
 
-**3️⃣ Segunda Perna - VENDER CALL**
-• Strike: R$ {strike_venda:.2f} (OTM, 5% acima)
-• Quantidade: MESMA (100 opções)
-• Você RECEBE o prêmio (ex: R$ 0,60)
+**3️⃣ Preço Limite**
+• Custo da trava = Prêmio pago - Prêmio recebido
+• Exemplo: R$ 1,80 - R$ 0,60 = R$ 1,20
 
-**4️⃣ Calcular Custo e Ganho**
-• Custo líquido: R$ 1,80 - R$ 0,60 = R$ 1,20
-• Ganho máximo: (R$ {strike_venda:.2f} - R$ {strike_compra:.2f}) - R$ 1,20
-• Exemplo: (R$ 42 - R$ 40) - R$ 1,20 = R$ 0,80
-• Retorno: R$ 0,80 / R$ 1,20 = 67%
-
-**5️⃣ Executar Ordem**
-• Opção 1: Montar perna por perna (acima)
-• Opção 2: Usar "Spread" na plataforma
-• Selecione "Bull Call Spread"
-• Informe os 2 strikes
-• Sistema monta automaticamente
-
-**6️⃣ Gestão**
-• Risco: Custo da trava (R$ 1,20)
-• Ganho máximo: No vencimento, se ativo >= strike alto
-• Holding: Até vencimento
-• Não precisa de stop (risco já limitado)
+**4️⃣ Gestão**
+• **Stop:** Não precisa (risco já limitado)
+• **Alvo:** Deixar até vencimento
+• **Ganho máximo:** Se ativo >= strike de venda
 """
     
-    def _passo_trava_baixa(self, ticker, strike_compra, strike_venda):
+    def _passo_trava_baixa(self, ticker, strike_compra, strike_venda, codigo_compra, codigo_venda):
         return f"""
-**📋 PASSO A PASSO - TRAVA DE BAIXA**
+📋 **PASSO A PASSO - TRAVA DE BAIXA**
 
-**1️⃣ Entender a Trava**
-• Você vai COMPRAR 1 put (strike alto)
-• E VENDER 1 put (strike baixo)
-• Reduz custo mas limita ganho
+**1️⃣ Códigos das Opções**
+• **COMPRA:** {codigo_compra} (strike R$ {strike_compra:.2f})
+• **VENDA:** {codigo_venda} (strike R$ {strike_venda:.2f})
 
-**2️⃣ Primeira Perna - COMPRAR PUT**
-• Strike: R$ {strike_compra:.2f} (ATM)
-• Quantidade: Ex: 100 opções
-• Você PAGA o prêmio (ex: R$ 1,80)
+**2️⃣ Posição Mínima Sugerida**
+• Mesma quantidade nas 2 pernas
+• Mínimo: 100 opções cada
 
-**3️⃣ Segunda Perna - VENDER PUT**
-• Strike: R$ {strike_venda:.2f} (OTM, 5% abaixo)
-• Quantidade: MESMA (100 opções)
-• Você RECEBE o prêmio (ex: R$ 0,60)
+**3️⃣ Preço Limite**
+• Custo da trava = Prêmio pago - Prêmio recebido
 
-**4️⃣ Calcular Custo e Ganho**
-• Custo líquido: R$ 1,80 - R$ 0,60 = R$ 1,20
-• Ganho máximo: (R$ {strike_compra:.2f} - R$ {strike_venda:.2f}) - R$ 1,20
-
-**5️⃣ Executar Ordem**
-• Use "Bear Put Spread" na plataforma
-• Ou monte perna por perna
-
-**6️⃣ Gestão**
-• Ganho máximo: Se ativo <= strike baixo
-• Holding: Até vencimento
+**4️⃣ Gestão**
+• **Stop:** Não precisa (risco já limitado)
+• **Alvo:** Deixar até vencimento
+• **Ganho máximo:** Se ativo <= strike de venda
 """
     
-    def _passo_borboleta(self, ticker, strike_baixo, strike_medio, strike_alto):
+    def _passo_borboleta(self, ticker, strike_baixo, strike_medio, strike_alto, codigo_baixo, codigo_medio, codigo_alto):
         return f"""
-**📋 PASSO A PASSO - BORBOLETA**
+📋 **PASSO A PASSO - BORBOLETA**
 
-**1️⃣ Entender a Borboleta**
-• Você vai COMPRAR 1 call (strike baixo)
-• VENDER 2 calls (strike médio)
-• COMPRAR 1 call (strike alto)
-• Lucra se ativo ficar próximo ao strike médio
+**1️⃣ Códigos das Opções**
+• **COMPRA:** {codigo_baixo} (strike R$ {strike_baixo:.2f}) - 100 opções
+• **VENDA:** {codigo_medio} (strike R$ {strike_medio:.2f}) - 200 opções (DOBRO!)
+• **COMPRA:** {codigo_alto} (strike R$ {strike_alto:.2f}) - 100 opções
 
-**2️⃣ Primeira Perna**
-• COMPRAR call strike R$ {strike_baixo:.2f}
-• Quantidade: 100
-• Paga: Ex: R$ 2,50
+**2️⃣ Posição Mínima**
+• Padrão: 1-2-1 (100-200-100)
 
-**3️⃣ Segunda Perna**
-• VENDER call strike R$ {strike_medio:.2f}
-• Quantidade: 200 (DOBRO!)
-• Recebe: Ex: R$ 1,50 x 2 = R$ 3,00
+**3️⃣ Preço Limite**
+• Custo = (Prêmio baixo + Prêmio alto) - (2 x Prêmio médio)
 
-**4️⃣ Terceira Perna**
-• COMPRAR call strike R$ {strike_alto:.2f}
-• Quantidade: 100
-• Paga: Ex: R$ 0,80
-
-**5️⃣ Calcular Custo**
-• Custo: R$ 2,50 + R$ 0,80 - R$ 3,00 = R$ 0,30
-• Ganho máximo: Se ativo = R$ {strike_medio:.2f}
-
-**6️⃣ Executar Ordem**
-• Use "Butterfly Spread" na plataforma
-• Ou monte perna por perna (cuidado com a ordem!)
-
-**7️⃣ Gestão**
-• Ideal para mercado lateral
-• Ganho máximo: No strike médio
-• Perda máxima: Custo da borboleta
+**4️⃣ Gestão**
+• **Stop:** Não precisa
+• **Alvo:** Ativo próximo ao strike médio no vencimento
 """
     
-    def _passo_straddle(self, ticker, strike):
+    def _passo_straddle(self, ticker, strike, codigo_call, codigo_put):
         return f"""
-**📋 PASSO A PASSO - STRADDLE**
+📋 **PASSO A PASSO - STRADDLE**
 
-**1️⃣ Entender o Straddle**
-• Você vai COMPRAR 1 call (ATM)
-• E COMPRAR 1 put (ATM, mesmo strike)
-• Lucra se ativo se mover MUITO (qualquer direção)
+**1️⃣ Códigos das Opções**
+• **CALL:** {codigo_call} (strike R$ {strike:.2f})
+• **PUT:** {codigo_put} (strike R$ {strike:.2f})
 
-**2️⃣ Primeira Perna - COMPRAR CALL**
-• Strike: R$ {strike:.2f} (ATM)
-• Quantidade: 100
-• Paga: Ex: R$ 1,80
+**2️⃣ Posição Mínima**
+• Mesma quantidade nas 2 opções
+• Mínimo: 100 cada
 
-**3️⃣ Segunda Perna - COMPRAR PUT**
-• Strike: R$ {strike:.2f} (MESMO strike)
-• Quantidade: 100 (MESMA quantidade)
-• Paga: Ex: R$ 1,50
+**3️⃣ Preço Limite**
+• Custo total = Prêmio call + Prêmio put
 
-**4️⃣ Calcular Custo e Breakeven**
-• Custo total: R$ 1,80 + R$ 1,50 = R$ 3,30
-• Breakeven superior: R$ {strike:.2f} + R$ 3,30
-• Breakeven inferior: R$ {strike:.2f} - R$ 3,30
-• Precisa de movimento > 8% para lucrar
-
-**5️⃣ Executar Ordem**
-• Compre as 2 opções separadamente
-• Ou use "Straddle" na plataforma
-
-**6️⃣ Gestão**
-• Ideal para: Eventos (balanços, decisões importantes)
-• Risco: Alto (custo de 2 opções)
-• Alvo: Movimento forte em qualquer direção
+**4️⃣ Gestão**
+• **Stop Loss:** ZERO (ou perde tudo ou ganha gigante)
+• **Alvo:** Movimento forte em qualquer direção
+• **Ideal:** Antes de eventos (balanços, decisões)
 """
     
-    def _passo_strangle(self, ticker, strike_call, strike_put):
+    def _passo_strangle(self, ticker, strike_call, strike_put, codigo_call, codigo_put):
         return f"""
-**📋 PASSO A PASSO - STRANGLE**
+📋 **PASSO A PASSO - STRANGLE**
 
-**1️⃣ Entender o Strangle**
-• Similar ao straddle mas strikes diferentes
-• COMPRAR call OTM (acima do preço)
-• COMPRAR put OTM (abaixo do preço)
-• Custo menor, mas precisa de movimento maior
+**1️⃣ Códigos das Opções**
+• **CALL:** {codigo_call} (strike R$ {strike_call:.2f})
+• **PUT:** {codigo_put} (strike R$ {strike_put:.2f})
 
-**2️⃣ Primeira Perna - COMPRAR CALL**
-• Strike: R$ {strike_call:.2f} (3% acima)
-• Quantidade: 100
-• Paga: Ex: R$ 0,80
+**2️⃣ Posição Mínima**
+• Mesma quantidade nas 2 opções
+• Mínimo: 100 cada
 
-**3️⃣ Segunda Perna - COMPRAR PUT**
-• Strike: R$ {strike_put:.2f} (3% abaixo)
-• Quantidade: 100
-• Paga: Ex: R$ 0,70
-
-**4️⃣ Calcular Custo**
-• Custo total: R$ 0,80 + R$ 0,70 = R$ 1,50
+**3️⃣ Preço Limite**
+• Custo total = Prêmio call + Prêmio put
 • Mais barato que straddle!
-• Mas precisa de movimento > 10%
 
-**5️⃣ Executar Ordem**
-• Compre as 2 opções separadamente
-• Ou use "Strangle" na plataforma
-
-**6️⃣ Gestão**
-• Ideal para: Alta volatilidade esperada
-• Custo menor que straddle
-• Precisa de movimento maior para lucrar
+**4️⃣ Gestão**
+• **Stop Loss:** ZERO (ou perde tudo ou ganha gigante)
+• **Alvo:** Movimento forte (precisa ser maior que straddle)
 """
     
     # ========== ANÁLISE E ENVIO ==========
@@ -717,9 +678,10 @@ Estratégias: Calls, Puts, Travas, Borboletas, Straddles, Strangles
 
 ⚠️ **Lembre-se:**
 • Risco máximo: 3% por operação
-• Sempre use stop loss
+• Stop Loss: ZERO (perder tudo ou ganhar gigante)
+• Entrar com MUITA certeza do movimento
+• Filosofia: Perder pequeno, ganhar GIGANTESCO
 • Opções são instrumentos de ALTO RISCO
-• Siga o passo a passo com atenção
 • Em caso de dúvida, NÃO opere
 
 _Próxima análise: Conforme agenda_
