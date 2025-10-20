@@ -59,7 +59,17 @@ class BinanceTrader:
         if not self.api_key or not self.api_secret:
             raise ValueError("Chaves API da Binance não configuradas no .env")
         
-        self.client = Client(self.api_key, self.api_secret)
+        # Configurar proxy se disponível
+        proxies = None
+        proxy_url = os.getenv('PROXY_URL')
+        if proxy_url:
+            proxies = {
+                'http': proxy_url,
+                'https': proxy_url
+            }
+            logger.info(f"✓ Usando proxy: {proxy_url}")
+        
+        self.client = Client(self.api_key, self.api_secret, requests_params={'proxies': proxies} if proxies else None)
         
         # Verificar conexão
         try:
