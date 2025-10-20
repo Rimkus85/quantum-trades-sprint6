@@ -1,0 +1,422 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <meta name="apple-mobile-web-app-capable" content="yes">
+    <meta name="mobile-web-app-capable" content="yes">
+    <title>Magnus Wealth - Proxy Binance</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            padding: 20px;
+            color: #333;
+        }
+        
+        .container {
+            max-width: 500px;
+            margin: 0 auto;
+            background: white;
+            border-radius: 20px;
+            box-shadow: 0 20px 60px rgba(0,0,0,0.3);
+            overflow: hidden;
+        }
+        
+        .header {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            padding: 30px 20px;
+            text-align: center;
+        }
+        
+        .header h1 {
+            font-size: 24px;
+            margin-bottom: 5px;
+        }
+        
+        .header p {
+            font-size: 14px;
+            opacity: 0.9;
+        }
+        
+        .status {
+            padding: 15px 20px;
+            text-align: center;
+            font-weight: bold;
+            font-size: 16px;
+        }
+        
+        .status.offline {
+            background: #ff4444;
+            color: white;
+        }
+        
+        .status.online {
+            background: #00C851;
+            color: white;
+        }
+        
+        .content {
+            padding: 20px;
+        }
+        
+        .form-group {
+            margin-bottom: 20px;
+        }
+        
+        .form-group label {
+            display: block;
+            margin-bottom: 8px;
+            font-weight: 600;
+            color: #555;
+        }
+        
+        .form-group input {
+            width: 100%;
+            padding: 12px 15px;
+            border: 2px solid #e0e0e0;
+            border-radius: 10px;
+            font-size: 14px;
+            transition: border-color 0.3s;
+        }
+        
+        .form-group input:focus {
+            outline: none;
+            border-color: #667eea;
+        }
+        
+        .btn {
+            width: 100%;
+            padding: 15px;
+            border: none;
+            border-radius: 10px;
+            font-size: 16px;
+            font-weight: bold;
+            cursor: pointer;
+            transition: all 0.3s;
+        }
+        
+        .btn-primary {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+        }
+        
+        .btn-primary:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 5px 15px rgba(102, 126, 234, 0.4);
+        }
+        
+        .btn-primary:disabled {
+            opacity: 0.5;
+            cursor: not-allowed;
+            transform: none;
+        }
+        
+        .logs {
+            margin-top: 20px;
+            background: #f5f5f5;
+            border-radius: 10px;
+            padding: 15px;
+            max-height: 300px;
+            overflow-y: auto;
+        }
+        
+        .logs h3 {
+            margin-bottom: 10px;
+            color: #555;
+            font-size: 14px;
+        }
+        
+        .log-item {
+            padding: 8px;
+            margin-bottom: 5px;
+            background: white;
+            border-radius: 5px;
+            font-size: 12px;
+            font-family: 'Courier New', monospace;
+        }
+        
+        .log-item.success {
+            border-left: 3px solid #00C851;
+        }
+        
+        .log-item.error {
+            border-left: 3px solid #ff4444;
+        }
+        
+        .log-item.info {
+            border-left: 3px solid #33b5e5;
+        }
+        
+        .positions {
+            margin-top: 20px;
+        }
+        
+        .position-card {
+            background: #f9f9f9;
+            border-radius: 10px;
+            padding: 15px;
+            margin-bottom: 10px;
+            border-left: 4px solid #667eea;
+        }
+        
+        .position-card h4 {
+            margin-bottom: 10px;
+            color: #333;
+        }
+        
+        .position-info {
+            display: flex;
+            justify-content: space-between;
+            margin-bottom: 5px;
+            font-size: 14px;
+        }
+        
+        .position-info span:first-child {
+            color: #666;
+        }
+        
+        .position-info span:last-child {
+            font-weight: bold;
+        }
+        
+        .pnl-positive {
+            color: #00C851;
+        }
+        
+        .pnl-negative {
+            color: #ff4444;
+        }
+        
+        @media (max-width: 480px) {
+            body {
+                padding: 0;
+            }
+            
+            .container {
+                border-radius: 0;
+                min-height: 100vh;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="header">
+            <h1>🚀 Magnus Wealth</h1>
+            <p>Proxy Binance</p>
+        </div>
+        
+        <div class="status offline" id="status">
+            ⚠️ Aguardando configuração
+        </div>
+        
+        <div class="content">
+            <div class="form-group">
+                <label for="apiKey">🔑 API Key da Binance</label>
+                <input type="text" id="apiKey" placeholder="Cole sua API Key aqui">
+            </div>
+            
+            <div class="form-group">
+                <label for="apiSecret">🔐 API Secret da Binance</label>
+                <input type="password" id="apiSecret" placeholder="Cole seu API Secret aqui">
+            </div>
+            
+            <button class="btn btn-primary" id="connectBtn" onclick="connect()">
+                Conectar Binance
+            </button>
+            
+            <div class="positions" id="positions" style="display: none;">
+                <h3>📊 Posições Abertas</h3>
+                <div id="positionsList"></div>
+            </div>
+            
+            <div class="logs">
+                <h3>📝 Logs</h3>
+                <div id="logsList"></div>
+            </div>
+        </div>
+    </div>
+    
+    <script>
+        let binanceConnected = false;
+        let serverUrl = window.location.origin;
+        
+        // Carregar configuração salva
+        window.addEventListener('load', () => {
+            const savedApiKey = localStorage.getItem('binance_api_key');
+            const savedApiSecret = localStorage.getItem('binance_api_secret');
+            
+            if (savedApiKey && savedApiSecret) {
+                document.getElementById('apiKey').value = savedApiKey;
+                document.getElementById('apiSecret').value = savedApiSecret;
+                addLog('✓ Configuração carregada', 'info');
+                connect();
+            }
+            
+            // Atualizar status periodicamente
+            setInterval(checkHealth, 5000);
+            setInterval(loadPositions, 10000);
+        });
+        
+        async function connect() {
+            const apiKey = document.getElementById('apiKey').value.trim();
+            const apiSecret = document.getElementById('apiSecret').value.trim();
+            
+            if (!apiKey || !apiSecret) {
+                addLog('❌ Preencha API Key e Secret', 'error');
+                return;
+            }
+            
+            const btn = document.getElementById('connectBtn');
+            btn.disabled = true;
+            btn.textContent = 'Conectando...';
+            
+            try {
+                const response = await fetch(`${serverUrl}/api/proxy/connect`, {
+                    method: 'POST',
+                    headers: {'Content-Type': 'application/json'},
+                    body: JSON.stringify({ api_key: apiKey, api_secret: apiSecret })
+                });
+                
+                const data = await response.json();
+                
+                if (response.ok) {
+                    binanceConnected = true;
+                    updateStatus(true);
+                    addLog('✅ Conectado à Binance!', 'success');
+                    
+                    // Salvar configuração
+                    localStorage.setItem('binance_api_key', apiKey);
+                    localStorage.setItem('binance_api_secret', apiSecret);
+                    
+                    // Carregar posições
+                    loadPositions();
+                } else {
+                    throw new Error(data.error || 'Erro ao conectar');
+                }
+            } catch (error) {
+                addLog(`❌ Erro: ${error.message}`, 'error');
+                updateStatus(false);
+            } finally {
+                btn.disabled = false;
+                btn.textContent = 'Conectar Binance';
+            }
+        }
+        
+        async function checkHealth() {
+            try {
+                const response = await fetch(`${serverUrl}/api/proxy/health`);
+                const data = await response.json();
+                
+                if (data.binance_connected) {
+                    updateStatus(true);
+                }
+            } catch (error) {
+                // Silencioso
+            }
+        }
+        
+        async function loadPositions() {
+            if (!binanceConnected) return;
+            
+            try {
+                const response = await fetch(`${serverUrl}/api/proxy/positions`);
+                const data = await response.json();
+                
+                if (data.positions && data.positions.length > 0) {
+                    document.getElementById('positions').style.display = 'block';
+                    displayPositions(data.positions);
+                } else {
+                    document.getElementById('positions').style.display = 'none';
+                }
+            } catch (error) {
+                // Silencioso
+            }
+        }
+        
+        function displayPositions(positions) {
+            const list = document.getElementById('positionsList');
+            list.innerHTML = '';
+            
+            positions.forEach(pos => {
+                const pnl = parseFloat(pos.unrealized_pnl);
+                const pnlClass = pnl >= 0 ? 'pnl-positive' : 'pnl-negative';
+                
+                const card = document.createElement('div');
+                card.className = 'position-card';
+                card.innerHTML = `
+                    <h4>${pos.symbol}</h4>
+                    <div class="position-info">
+                        <span>Quantidade:</span>
+                        <span>${pos.amount}</span>
+                    </div>
+                    <div class="position-info">
+                        <span>Preço Entrada:</span>
+                        <span>$${parseFloat(pos.entry_price).toFixed(2)}</span>
+                    </div>
+                    <div class="position-info">
+                        <span>P&L:</span>
+                        <span class="${pnlClass}">$${pnl.toFixed(2)}</span>
+                    </div>
+                `;
+                list.appendChild(card);
+            });
+        }
+        
+        function updateStatus(online) {
+            const status = document.getElementById('status');
+            if (online) {
+                status.className = 'status online';
+                status.textContent = '✅ Online e pronto';
+                binanceConnected = true;
+            } else {
+                status.className = 'status offline';
+                status.textContent = '⚠️ Aguardando configuração';
+                binanceConnected = false;
+            }
+        }
+        
+        function addLog(message, type = 'info') {
+            const list = document.getElementById('logsList');
+            const item = document.createElement('div');
+            item.className = `log-item ${type}`;
+            
+            const time = new Date().toLocaleTimeString('pt-BR');
+            item.textContent = `[${time}] ${message}`;
+            
+            list.insertBefore(item, list.firstChild);
+            
+            // Manter apenas últimos 20 logs
+            while (list.children.length > 20) {
+                list.removeChild(list.lastChild);
+            }
+        }
+        
+        // Manter tela ativa (evitar sleep)
+        let wakeLock = null;
+        async function requestWakeLock() {
+            try {
+                if ('wakeLock' in navigator) {
+                    wakeLock = await navigator.wakeLock.request('screen');
+                    addLog('🔒 Wake lock ativado', 'info');
+                }
+            } catch (err) {
+                // Silencioso
+            }
+        }
+        
+        // Ativar wake lock quando conectar
+        document.getElementById('connectBtn').addEventListener('click', requestWakeLock);
+    </script>
+</body>
+</html>
+
