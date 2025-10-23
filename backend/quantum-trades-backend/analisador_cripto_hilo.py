@@ -1,8 +1,9 @@
 #!/usr/bin/env python3
 # -*- coding: utf-8 -*-
 """
-Analisador de Criptomoedas - Gann HiLo Activator (Implementação Correta)
+Analisador de Criptomoedas - CHiLo (Custom HiLo)
 Magnus Wealth - Versão 8.3.0
+Indicador: CHiLo por Paulo H. Parize e Tio Huli
 
 ATUALIZAÇÃO: Top 8 Criptos com Períodos Otimizados (Dados Reais Yahoo Finance)
 Data: 19/10/2025
@@ -58,25 +59,25 @@ def buscar_dados(symbol, yahoo_symbol):
 
 def calcular_gann_hilo_activator(df, period, ma_type='SMA'):
     """
-    Calcula o Gann HiLo Activator - IMPLEMENTAÇÃO CORRETA
+    Calcula o CHiLo (Custom HiLo) - Modo HiLo Activator
+    Indicador criado por Paulo H. Parize e Tio Huli
     
-    Fórmula matemática:
+    Fórmula matemática (Modo Activator):
     
-    1. Calcular SMAt-1(H,n) e SMAt-1(L,n)
+    1. Calcular MA(H,n) e MA(L,n) [SMA ou EMA]
     
-    2. HiLot(n) = {
-        1   se Ct > SMAt-1(H,n)      # BULLISH
-        0   se SMAt-1(L,n) ≤ Ct ≤ SMAt-1(H,n)  # NEUTRO
-       -1   se Ct < SMAt-1(L,n)      # BEARISH
-    }
+    2. Estado HiLo:
+        BULLISH (1)  se Close > MA(H,n)      # Tendência de alta
+        BEARISH (-1) se Close < MA(L,n)      # Tendência de baixa
+        NEUTRO (0)   caso contrário           # Zona neutra
     
-    3. GHLAt(n) = {
-        SMAt-1(L,n)    se HiLot(n) = 1   # Plota SMA dos lows
-        GHLAt-1(n)     se HiLot(n) = 0   # Mantém valor anterior
-        SMAt-1(H,n)    se HiLot(n) = -1  # Plota SMA dos highs
-    }
+    3. Linha CHiLo (Modo Activator):
+        Se BULLISH:  CHiLo = MA(L,n)   # Plota média dos lows (suporte)
+        Se BEARISH:  CHiLo = MA(H,n)   # Plota média dos highs (resistência)
+        Se NEUTRO:   CHiLo = valor anterior  # Mantém linha anterior
     
-    Referência: Sierra Chart, ThinkOrSwim, TradingView
+    Referência: TradingView - CHiLo by Parize
+    https://www.tradingview.com/script/YUqiooBi-CHiLo-Custom-HiLo-SMA-EMA-Activator-Shading-Auto-Decimals/
     """
     # Calcular médias móveis dos highs e lows
     if ma_type == 'SMA':
@@ -244,8 +245,24 @@ def formatar_mensagem(resultados):
     """
     Formata mensagem para envio ao Telegram
     """
-    msg = "🚀 *ANÁLISE DIÁRIA DE CRIPTOMOEDAS - GANN HILO ACTIVATOR*\n\n"
+    # Verificar se há mudanças de tendência
+    mudancas = [r for r in resultados if r['mudanca']]
+    
+    msg = "🚀 *ANÁLISE DIÁRIA DE CRIPTOMOEDAS - CHiLo (CUSTOM HILO)*\n\n"
     msg += f"📅 Data: {datetime.now().strftime('%d/%m/%Y %H:%M')}\n"
+    
+    # ALERTA GIGANTE se houver mudanças
+    if mudancas:
+        msg += "\n"
+        msg += "🚨🚨🚨🚨🚨🚨🚨🚨🚨🚨\n"
+        msg += "*⚠️ ALERTA DE MUDANÇA! ⚠️*\n"
+        msg += "🚨🚨🚨🚨🚨🚨🚨🚨🚨🚨\n"
+        msg += f"*{len(mudancas)} CRIPTO(S) MUDOU DE TENDÊNCIA!*\n"
+        for m in mudancas:
+            direcao = "🟢 COMPRA" if m['trend'] == 'verde' else "🔴 VENDA"
+            msg += f"• *{m['name']}* → {direcao}\n"
+        msg += "🚨🚨🚨🚨🚨🚨🚨🚨🚨🚨\n\n"
+    
     msg += "━━━━━━━━━━━━━━━━━━━━━━━━━━━━\n\n"
     
     # Agrupar por tier
@@ -270,7 +287,15 @@ def formatar_mensagem(resultados):
                 msg += f"{emoji_sinal} Sinal: *{r['sinal']}*\n"
                 
                 if r['mudanca']:
-                    msg += f"⚠️ *MUDANÇA DE TENDÊNCIA DETECTADA!*\n"
+                    msg += "\n"
+                    msg += "🔥🔥🔥🔥🔥🔥🔥🔥🔥🔥\n"
+                    if r['trend'] == 'verde':
+                        msg += "*💚 VIROU VERDE! SINAL DE COMPRA! 💚*\n"
+                        msg += "*📈 ZERA VENDA + ENTRA COMPRADO! 📈*\n"
+                    else:
+                        msg += "*❤️ VIROU VERMELHO! SINAL DE VENDA! ❤️*\n"
+                        msg += "*📉 ZERA COMPRA + ENTRA VENDIDO! 📉*\n"
+                    msg += "🔥🔥🔥🔥🔥🔥🔥🔥🔥🔥\n"
                 
                 msg += f"\n📈 *Performance com R$ 100:*\n"
                 msg += f"• Desde início: R$ {r['p_total']['capital']:.2f} ({r['p_total']['retorno']:+.1f}%)\n"
@@ -288,7 +313,8 @@ def formatar_mensagem(resultados):
     msg += "🟢 Virar verde = ZERA + COMPRA\n\n"
     
     msg += "⚠️ *Disclaimer:* Análise educacional. Não é recomendação de investimento.\n"
-    msg += "📊 Indicador: Gann HiLo Activator (Robert Krausz)\n"
+    msg += "📊 Indicador: CHiLo (Custom HiLo) - Modo Activator\n"
+    msg += "👥 Criadores: Paulo H. Parize e Tio Huli\n"
     msg += "🔧 Magnus Wealth v8.3.0 - Top 8 Otimizado (Dados Reais)\n"
     
     return msg
@@ -301,13 +327,18 @@ def enviar_telegram(msg):
     api_hash = os.getenv('TELEGRAM_API_HASH')
     group_id = int(os.getenv('TELEGRAM_GROUP_ID', '-4844836232'))
     
-    with TelegramClient('magnus_session', api_id, api_hash) as client:
+    # Usar caminho absoluto para o arquivo de sessão
+    script_dir = os.path.dirname(os.path.abspath(__file__))
+    session_path = os.path.join(script_dir, 'magnus_session')
+    
+    with TelegramClient(session_path, api_id, api_hash) as client:
         client.send_message(group_id, msg, parse_mode='markdown')
 
 if __name__ == '__main__':
     print('═══════════════════════════════════════════════════')
     print('  MAGNUS WEALTH - ANALISADOR DE CRIPTOMOEDAS')
-    print('  Gann HiLo Activator - v8.3.0')
+    print('  CHiLo (Custom HiLo) - Modo Activator - v8.3.0')
+    print('  Indicador: Paulo H. Parize e Tio Huli')
     print('  TOP 8 CRIPTOS - PERÍODOS OTIMIZADOS (DADOS REAIS)')
     print('═══════════════════════════════════════════════════\n')
     
