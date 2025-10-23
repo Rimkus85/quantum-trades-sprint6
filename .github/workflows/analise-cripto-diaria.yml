@@ -3,7 +3,7 @@ name: Análise Diária de Criptomoedas
 on:
   schedule:
     # Executar diariamente às 21:00 horário de Brasília (00:00 UTC)
-    - cron: '0 0 * * *'
+    - cron: '50 0 * * *'
   workflow_dispatch: # Permite execução manual
 
 jobs:
@@ -33,10 +33,9 @@ jobs:
         TELEGRAM_GROUP_ID=${{ secrets.TELEGRAM_GROUP_ID }}
         EOF
     
-    - name: Descriptografar e restaurar sessão do Telegram
+    - name: Restaurar sessão do Telegram
       run: |
-        # Descriptografar arquivo de sessão usando senha
-        openssl enc -aes-256-cbc -d -in backend/quantum-trades-backend/magnus_session.session.enc -out backend/quantum-trades-backend/magnus_session.session -k "${{ secrets.SESSION_PASSWORD }}" -pbkdf2
+        echo "${{ secrets.TELEGRAM_SESSION_BASE64 }}" | base64 -d > backend/quantum-trades-backend/magnus_session.session
     
     - name: Executar análise de criptomoedas
       run: |
@@ -48,4 +47,3 @@ jobs:
       run: |
         echo "Análise concluída!"
         echo "Verifique o Telegram para a mensagem."
-
