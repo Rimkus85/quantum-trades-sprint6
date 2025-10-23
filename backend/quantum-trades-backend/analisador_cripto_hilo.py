@@ -323,6 +323,8 @@ def enviar_telegram(msg):
     """
     Envia mensagem para o grupo do Telegram
     """
+    import asyncio
+    
     api_id = int(os.getenv('TELEGRAM_API_ID'))
     api_hash = os.getenv('TELEGRAM_API_HASH')
     group_id = int(os.getenv('TELEGRAM_GROUP_ID', '-4844836232'))
@@ -331,8 +333,33 @@ def enviar_telegram(msg):
     script_dir = os.path.dirname(os.path.abspath(__file__))
     session_path = os.path.join(script_dir, 'magnus_session')
     
-    with TelegramClient(session_path, api_id, api_hash) as client:
-        client.send_message(group_id, msg, parse_mode='markdown')
+    async def send():
+        client = TelegramClient(session_path, api_id, api_hash)
+        try:
+            await client.connect()
+            if not await client.is_user_authorized():
+                print("❌ Erro: Sessão não autorizada!")
+                return False
+            
+            await client.send_message(group_id, msg, parse_mode='markdown')
+            print("✓ Mensagem enviada com sucesso!")
+            return True
+        except Exception as e:
+            print(f"❌ Erro ao enviar: {e}")
+            import traceback
+            traceback.print_exc()
+            return False
+        finally:
+            await client.disconnect()
+    
+    # Executar de forma síncrona
+    try:
+        loop = asyncio.get_event_loop()
+    except RuntimeError:
+        loop = asyncio.new_event_loop()
+        asyncio.set_event_loop(loop)
+    
+    return loop.run_until_complete(send())
 
 if __name__ == '__main__':
     print('═══════════════════════════════════════════════════')
