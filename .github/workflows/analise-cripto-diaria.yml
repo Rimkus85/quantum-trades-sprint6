@@ -33,9 +33,10 @@ jobs:
         TELEGRAM_GROUP_ID=${{ secrets.TELEGRAM_GROUP_ID }}
         EOF
     
-    - name: Restaurar sessão do Telegram
+    - name: Descriptografar e restaurar sessão do Telegram
       run: |
-        echo "${{ secrets.TELEGRAM_SESSION_BASE64 }}" | base64 -d > backend/quantum-trades-backend/magnus_session.session
+        # Descriptografar arquivo de sessão usando senha
+        openssl enc -aes-256-cbc -d -in backend/quantum-trades-backend/magnus_session.session.enc -out backend/quantum-trades-backend/magnus_session.session -k "${{ secrets.SESSION_PASSWORD }}" -pbkdf2
     
     - name: Executar análise de criptomoedas
       run: |
