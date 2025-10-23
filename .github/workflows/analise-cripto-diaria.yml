@@ -1,0 +1,49 @@
+name: Análise Diária de Criptomoedas
+
+on:
+  schedule:
+    # Executar diariamente às 21:00 horário de Brasília (00:00 UTC)
+    - cron: '50 0 * * *'
+  workflow_dispatch: # Permite execução manual
+
+jobs:
+  analisar-criptos:
+    runs-on: ubuntu-latest
+    
+    steps:
+    - name: Checkout do código
+      uses: actions/checkout@v3
+    
+    - name: Configurar Python 3.11
+      uses: actions/setup-python@v4
+      with:
+        python-version: '3.11'
+    
+    - name: Instalar dependências
+      run: |
+        pip install yfinance python-dotenv telethon
+    
+    - name: Criar arquivo .env com secrets
+      run: |
+        cat > backend/quantum-trades-backend/.env << EOF
+        TELEGRAM_API_ID=${{ secrets.TELEGRAM_API_ID }}
+        TELEGRAM_API_HASH=${{ secrets.TELEGRAM_API_HASH }}
+        TELEGRAM_PHONE=${{ secrets.TELEGRAM_PHONE }}
+        TELEGRAM_PASSWORD=${{ secrets.TELEGRAM_PASSWORD }}
+        TELEGRAM_GROUP_ID=${{ secrets.TELEGRAM_GROUP_ID }}
+        EOF
+    
+    - name: Restaurar sessão do Telegram
+      run: |
+        echo "${{ secrets.TELEGRAM_SESSION_BASE64 }}" | base64 -d > backend/quantum-trades-backend/magnus_session.session
+    
+    - name: Executar análise de criptomoedas
+      run: |
+        cd backend/quantum-trades-backend
+        python3 analisador_cripto_hilo.py
+    
+    - name: Verificar resultado
+      if: always()
+      run: |
+        echo "Análise concluída!"
+        echo "Verifique o Telegram para a mensagem."
