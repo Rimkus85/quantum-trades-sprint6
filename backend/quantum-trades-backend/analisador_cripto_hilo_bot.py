@@ -304,11 +304,24 @@ def formatar_mensagem(resultados):
     
     msg += "━━━━━━━━━━━━━━━━━━━━━━━━━━━━\n\n"
     
+    # Calcular datas dos períodos
+    hoje = datetime.now()
+    data_6m = hoje - timedelta(days=180)
+    data_90d = hoje - timedelta(days=90)
+    data_30d = hoje - timedelta(days=30)
+    data_inicio = hoje - timedelta(days=365)  # Aproximadamente 1 ano de dados
+    
     msg += "📚 *Lógica da Estratégia:*\n"
-    msg += "🟢 Verde = COMPRA\n"
+    msg += "🜢 Verde = COMPRA\n"
     msg += "🔴 Virar vermelho = ZERA + VENDE\n"
     msg += "🔴 Vermelho = VENDA\n"
-    msg += "🟢 Virar verde = ZERA + COMPRA\n\n"
+    msg += "🜢 Virar verde = ZERA + COMPRA\n\n"
+    
+    msg += "📅 *Períodos de Análise:*\n"
+    msg += f"• Desde início: {data_inicio.strftime('%d/%m/%Y')} a {hoje.strftime('%d/%m/%Y')} (~1 ano)\n"
+    msg += f"• 6 meses: {data_6m.strftime('%d/%m/%Y')} a {hoje.strftime('%d/%m/%Y')}\n"
+    msg += f"• 90 dias: {data_90d.strftime('%d/%m/%Y')} a {hoje.strftime('%d/%m/%Y')}\n"
+    msg += f"• 30 dias: {data_30d.strftime('%d/%m/%Y')} a {hoje.strftime('%d/%m/%Y')}\n\n"
     
     msg += "⚠️ *Disclaimer:* Análise educacional. Não é recomendação de investimento.\n"
     msg += "📊 Indicador: CHiLo (Custom HiLo) - Modo Activator\n"
