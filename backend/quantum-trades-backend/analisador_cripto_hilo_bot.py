@@ -98,18 +98,22 @@ def calcular_gann_hilo_activator(df, period, ma_type='SMA'):
 def detectar_mudanca_tendencia(df):
     """
     Detecta mudança de tendência (virada de sinal)
+    Retorna: (mudou, direcao) onde direcao é 'COMPRA' ou 'VENDA'
     """
     if len(df) < 2:
-        return False
+        return False, None
     
     estado_atual = df['hilo_state'].iloc[-1]
     estado_anterior = df['hilo_state'].iloc[-2]
     
-    # Mudança de tendência = estado diferente e não-zero
-    if estado_atual != estado_anterior and estado_atual != 0:
-        return True
+    # Mudança de tendência = estado diferente
+    if estado_atual != estado_anterior:
+        if estado_atual == 1:  # Virou verde
+            return True, 'COMPRA'
+        elif estado_atual == -1:  # Virou vermelho
+            return True, 'VENDA'
     
-    return False
+    return False, None
 
 def calcular_performance(df, capital_inicial=100):
     """
@@ -150,16 +154,16 @@ def analisar_cripto(cripto):
     # Determinar tendência e sinal
     if estado == 1:
         trend = 'verde'
-        sinal = 'COMPRAR'
+        sinal = 'MANTER'  # Mantém comprado
     elif estado == -1:
         trend = 'vermelho'
-        sinal = 'VENDER'
+        sinal = 'MANTER'  # Mantém vendido
     else:
         trend = 'neutro'
-        sinal = 'MANTER'
+        sinal = 'MANTER'  # Neutro
     
     # Detectar mudança
-    mudanca = detectar_mudanca_tendencia(df)
+    mudou, direcao_mudanca = detectar_mudanca_tendencia(df)
     
     # Calcular performance em diferentes períodos
     p_total = calcular_performance(df)
@@ -179,7 +183,8 @@ def analisar_cripto(cripto):
         'preco': preco_atual,
         'trend': trend,
         'sinal': sinal,
-        'mudanca': mudanca,
+        'mudou': mudou,
+        'direcao_mudanca': direcao_mudanca,
         'p_total': p_total,
         'p_6m': p_6m,
         'p_90d': p_90d,
@@ -191,7 +196,7 @@ def formatar_mensagem(resultados):
     Formata mensagem para envio ao Telegram
     """
     # Verificar se há mudanças de tendência
-    mudancas = [r for r in resultados if r['mudanca']]
+    mudancas = [r for r in resultados if r['mudou']]
     
     msg = "🚀 *ANÁLISE DIÁRIA DE CRIPTOMOEDAS - CHiLo (CUSTOM HILO)*\n\n"
     msg += f"📅 Data: {datetime.now().strftime('%d/%m/%Y %H:%M')}\n"
@@ -204,7 +209,7 @@ def formatar_mensagem(resultados):
         msg += "🚨🚨🚨🚨🚨🚨🚨🚨🚨🚨\n"
         msg += f"*{len(mudancas)} CRIPTO(S) MUDOU DE TENDÊNCIA!*\n"
         for m in mudancas:
-            direcao = "🟢 COMPRA" if m['trend'] == 'verde' else "🔴 VENDA"
+            direcao = "🜢 COMPRA" if m['direcao_mudanca'] == 'COMPRA' else "🔴 VENDA"
             msg += f"• *{m['name']}* → {direcao}\n"
         msg += "🚨🚨🚨🚨🚨🚨🚨🚨🚨🚨\n\n"
     
@@ -223,7 +228,7 @@ def formatar_mensagem(resultados):
             
             for r in tier_list:
                 emoji_trend = '🟢' if r['trend'] == 'verde' else '🔴'
-                emoji_sinal = '🚨' if r['mudanca'] else '➡️'
+                emoji_sinal = '🚨' if r['mudou'] else '➡️'
                 
                 msg += f"{r['emoji']} *{r['name']}* {emoji_trend}\n"
                 msg += f"💰 Preço: ${r['preco']:,.2f}\n"
@@ -231,16 +236,16 @@ def formatar_mensagem(resultados):
                 msg += f"📈 Alocação: {r['alocacao']*100:.2f}%\n"
                 msg += f"{emoji_sinal} Sinal: *{r['sinal']}*\n"
                 
-                if r['mudanca']:
+                if r['mudou']:
                     msg += "\n"
-                    msg += "🔥🔥🔥🔥🔥🔥🔥🔥🔥🔥\n"
-                    if r['trend'] == 'verde':
+                    msg += "🚨🚨🚨🚨🚨🚨🚨🚨🚨🚨\n"
+                    if r['direcao_mudanca'] == 'COMPRA':
                         msg += "*💚 VIROU VERDE! SINAL DE COMPRA! 💚*\n"
                         msg += "*📈 ZERA VENDA + ENTRA COMPRADO! 📈*\n"
                     else:
                         msg += "*❤️ VIROU VERMELHO! SINAL DE VENDA! ❤️*\n"
                         msg += "*📉 ZERA COMPRA + ENTRA VENDIDO! 📉*\n"
-                    msg += "🔥🔥🔥🔥🔥🔥🔥🔥🔥🔥\n"
+                    msg += "🚨🚨🚨🚨🚨🚨🚨🚨🚨🚨\n"
                 
                 msg += f"\n📈 *Performance com R$ 100:*\n"
                 msg += f"• Desde início: R$ {r['p_total']['capital']:.2f} ({r['p_total']['retorno']:+.1f}%)\n"
