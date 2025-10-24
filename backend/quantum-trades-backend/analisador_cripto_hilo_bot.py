@@ -256,6 +256,54 @@ def formatar_mensagem(resultados):
             
             msg += "━━━━━━━━━━━━━━━━━━━━━━━━━━━━\n\n"
     
+    # RESUMO CONSOLIDADO DE PERFORMANCE
+    msg += "💰 *RESUMO CONSOLIDADO - PERFORMANCE COM R$ 100*\n\n"
+    
+    # Calcular performance por tier
+    for tier_num, tier_name in [(1, "TIER 1 - Blue Chips (50%)"), 
+                                 (2, "TIER 2 - Large Caps (25%)"), 
+                                 (3, "TIER 3 - Mid Caps (25%)")]:
+        tier_list = [r for r in resultados if r['tier'] == tier_num]
+        if tier_list:
+            # Calcular média ponderada pela alocação
+            total_alocacao = sum(r['alocacao'] for r in tier_list)
+            
+            p_total_tier = sum(r['p_total']['retorno'] * r['alocacao'] for r in tier_list) / total_alocacao
+            p_6m_tier = sum(r['p_6m']['retorno'] * r['alocacao'] for r in tier_list) / total_alocacao
+            p_90d_tier = sum(r['p_90d']['retorno'] * r['alocacao'] for r in tier_list) / total_alocacao
+            p_30d_tier = sum(r['p_30d']['retorno'] * r['alocacao'] for r in tier_list) / total_alocacao
+            
+            capital_total_tier = 100 * (1 + p_total_tier/100)
+            capital_6m_tier = 100 * (1 + p_6m_tier/100)
+            capital_90d_tier = 100 * (1 + p_90d_tier/100)
+            capital_30d_tier = 100 * (1 + p_30d_tier/100)
+            
+            msg += f"📊 *{tier_name}*\n"
+            msg += f"• Desde início: R$ {capital_total_tier:.2f} ({p_total_tier:+.1f}%)\n"
+            msg += f"• 6 meses: R$ {capital_6m_tier:.2f} ({p_6m_tier:+.1f}%)\n"
+            msg += f"• 90 dias: R$ {capital_90d_tier:.2f} ({p_90d_tier:+.1f}%)\n"
+            msg += f"• 30 dias: R$ {capital_30d_tier:.2f} ({p_30d_tier:+.1f}%)\n\n"
+    
+    # Performance total (todas as 8 criptos)
+    total_alocacao = sum(r['alocacao'] for r in resultados)
+    p_total_geral = sum(r['p_total']['retorno'] * r['alocacao'] for r in resultados) / total_alocacao
+    p_6m_geral = sum(r['p_6m']['retorno'] * r['alocacao'] for r in resultados) / total_alocacao
+    p_90d_geral = sum(r['p_90d']['retorno'] * r['alocacao'] for r in resultados) / total_alocacao
+    p_30d_geral = sum(r['p_30d']['retorno'] * r['alocacao'] for r in resultados) / total_alocacao
+    
+    capital_total_geral = 100 * (1 + p_total_geral/100)
+    capital_6m_geral = 100 * (1 + p_6m_geral/100)
+    capital_90d_geral = 100 * (1 + p_90d_geral/100)
+    capital_30d_geral = 100 * (1 + p_30d_geral/100)
+    
+    msg += "🏆 *TOTAL GERAL (8 CRIPTOS)*\n"
+    msg += f"• Desde início: R$ {capital_total_geral:.2f} ({p_total_geral:+.1f}%)\n"
+    msg += f"• 6 meses: R$ {capital_6m_geral:.2f} ({p_6m_geral:+.1f}%)\n"
+    msg += f"• 90 dias: R$ {capital_90d_geral:.2f} ({p_90d_geral:+.1f}%)\n"
+    msg += f"• 30 dias: R$ {capital_30d_geral:.2f} ({p_30d_geral:+.1f}%)\n\n"
+    
+    msg += "━━━━━━━━━━━━━━━━━━━━━━━━━━━━\n\n"
+    
     msg += "📚 *Lógica da Estratégia:*\n"
     msg += "🟢 Verde = COMPRA\n"
     msg += "🔴 Virar vermelho = ZERA + VENDE\n"
