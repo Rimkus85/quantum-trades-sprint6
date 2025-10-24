@@ -1,0 +1,42 @@
+name: Análise Diária de Criptomoedas
+
+on:
+  schedule:
+    # Executar diariamente às 21:00 horário de Brasília (00:00 UTC)
+    - cron: '0 0 * * *'
+  workflow_dispatch: # Permite execução manual
+
+jobs:
+  analisar-criptos:
+    runs-on: ubuntu-latest
+    
+    steps:
+    - name: Checkout do código
+      uses: actions/checkout@v3
+    
+    - name: Configurar Python 3.11
+      uses: actions/setup-python@v4
+      with:
+        python-version: '3.11'
+    
+    - name: Instalar dependências
+      run: |
+        pip install yfinance python-dotenv requests
+    
+    - name: Criar arquivo .env com secrets do bot
+      run: |
+        cat > backend/quantum-trades-backend/.env << EOF
+        TELEGRAM_BOT_TOKEN=${{ secrets.TELEGRAM_BOT_TOKEN }}
+        TELEGRAM_CHAT_ID=${{ secrets.TELEGRAM_CHAT_ID }}
+        EOF
+    
+    - name: Executar análise de criptomoedas com bot
+      run: |
+        cd backend/quantum-trades-backend
+        python3 analisador_cripto_hilo_bot.py
+    
+    - name: Verificar resultado
+      if: always()
+      run: |
+        echo "Análise concluída!"
+        echo "Verifique o Telegram para a mensagem."
