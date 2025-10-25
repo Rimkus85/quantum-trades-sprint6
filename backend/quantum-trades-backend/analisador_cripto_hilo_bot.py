@@ -29,7 +29,7 @@ TOP_8 = [
     
     # TIER 3 - Mid Caps (25% da alocação)
     {'name': 'Chainlink', 'symbol': 'LINKUSDT', 'yahoo': 'LINK-USD', 'period': 40, 'emoji': '🔗', 'tier': 3, 'alocacao': 0.0625},
-    {'name': 'Uniswap', 'symbol': 'UNIUSDT', 'yahoo': 'UNI-USD', 'period': 65, 'emoji': '🦄', 'tier': 3, 'alocacao': 0.0625},
+    {'name': 'Uniswap', 'symbol': 'UNIUSDT', 'yahoo': 'UNI7083-USD', 'period': 65, 'emoji': '🦄', 'tier': 3, 'alocacao': 0.0625},
     {'name': 'Algorand', 'symbol': 'ALGOUSDT', 'yahoo': 'ALGO-USD', 'period': 40, 'emoji': '🔷', 'tier': 3, 'alocacao': 0.0625},
     {'name': 'VeChain', 'symbol': 'VETUSDT', 'yahoo': 'VET-USD', 'period': 25, 'emoji': '🌿', 'tier': 3, 'alocacao': 0.0625}
 ]
