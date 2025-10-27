@@ -3,7 +3,7 @@ name: Análise Diária de Criptomoedas
 on:
   schedule:
     # Executar diariamente às 21:00 horário de Brasília (00:30 UTC)
-    - cron: '0 21 * * *'
+    - cron: '0 14 * * *'
   workflow_dispatch: # Permite execução manual
 
 jobs:
