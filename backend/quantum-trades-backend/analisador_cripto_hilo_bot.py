@@ -99,15 +99,32 @@ def detectar_mudanca_tendencia(df):
     """
     Detecta mudança de tendência (virada de sinal)
     Retorna: (mudou, direcao) onde direcao é 'COMPRA' ou 'VENDA'
+    
+    Lógica: Ignora estados neutros (0) e compara apenas verde (1) vs vermelho (-1)
+    Mudou = quando passa de verde para vermelho ou vice-versa
     """
     if len(df) < 2:
         return False, None
     
     estado_atual = df['hilo_state'].iloc[-1]
-    estado_anterior = df['hilo_state'].iloc[-2]
     
-    # Mudança de tendência = estado diferente
-    if estado_atual != estado_anterior:
+    # Buscar o último estado não-neutro anterior
+    estado_anterior_nao_neutro = None
+    for i in range(len(df) - 2, -1, -1):
+        if df['hilo_state'].iloc[i] != 0:  # Ignora neutros
+            estado_anterior_nao_neutro = df['hilo_state'].iloc[i]
+            break
+    
+    # Se não encontrou estado anterior válido, não há mudança
+    if estado_anterior_nao_neutro is None:
+        return False, None
+    
+    # Se atual é neutro, não é mudança
+    if estado_atual == 0:
+        return False, None
+    
+    # Mudança real: de verde para vermelho ou vice-versa
+    if estado_atual != estado_anterior_nao_neutro:
         if estado_atual == 1:  # Virou verde
             return True, 'COMPRA'
         elif estado_atual == -1:  # Virou vermelho
