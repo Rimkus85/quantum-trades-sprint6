@@ -1,0 +1,44 @@
+name: Otimização Quinzenal de Portfólio
+
+on:
+  schedule:
+    # Executar a cada 15 dias às 22:00 horário de Brasília (01:00 UTC)
+    # Dias 1 e 16 de cada mês
+    - cron: '0 1 1,16 * *'
+  workflow_dispatch: # Permite execução manual
+
+jobs:
+  otimizar-portfolio:
+    runs-on: ubuntu-latest
+    
+    steps:
+    - name: Checkout do código
+      uses: actions/checkout@v3
+    
+    - name: Configurar Python 3.11
+      uses: actions/setup-python@v4
+      with:
+        python-version: '3.11'
+    
+    - name: Instalar dependências
+      run: |
+        pip install yfinance python-dotenv requests numpy pandas
+    
+    - name: Criar arquivo .env com secrets do bot
+      run: |
+        cat > backend/quantum-trades-backend/.env << EOF
+        TELEGRAM_BOT_TOKEN=${{ secrets.TELEGRAM_BOT_TOKEN }}
+        TELEGRAM_CHAT_ID=${{ secrets.TELEGRAM_CHAT_ID }}
+        EOF
+    
+    - name: Executar otimização quinzenal
+      run: |
+        cd backend/quantum-trades-backend
+        python3 otimizador_quinzenal.py
+    
+    - name: Verificar resultado
+      if: always()
+      run: |
+        echo "Otimização concluída!"
+        echo "Verifique o Telegram para o relatório."
+
