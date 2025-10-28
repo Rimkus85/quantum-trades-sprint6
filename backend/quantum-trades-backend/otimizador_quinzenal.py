@@ -21,7 +21,7 @@ load_dotenv()
 
 # Configuração das TOP 8 criptomoedas atuais
 PORTFOLIO_ATUAL = [
-    {'name': 'Bitcoin', 'symbol': 'BTCUSDT', 'yahoo': 'BTC-USD', 'period': 40, 'emoji': '🥇', 'tier': 1, 'alocacao': 0.25},
+    {'name': 'Bitcoin', 'symbol': 'BTCUSDT', 'yahoo': 'BTC-USD', 'period': 3, 'emoji': '🥇', 'tier': 1, 'alocacao': 0.25},
     {'name': 'Ethereum', 'symbol': 'ETHUSDT', 'yahoo': 'ETH-USD', 'period': 50, 'emoji': '🥈', 'tier': 1, 'alocacao': 0.25},
     {'name': 'Binance Coin', 'symbol': 'BNBUSDT', 'yahoo': 'BNB-USD', 'period': 70, 'emoji': '🟡', 'tier': 2, 'alocacao': 0.125},
     {'name': 'Solana', 'symbol': 'SOLUSDT', 'yahoo': 'SOL-USD', 'period': 45, 'emoji': '🟣', 'tier': 2, 'alocacao': 0.125},
@@ -62,20 +62,59 @@ PESOS = {
 
 def buscar_dados_yahoo(yahoo_symbol: str, period: str = '1y') -> pd.DataFrame:
     """
-    Busca dados históricos do Yahoo Finance
+    Busca dados históricos do Yahoo Finance com validações de segurança
+    
+    Validações aplicadas:
+    - Preço entre $0.01 e $100,000
+    - Volume médio > 100,000
+    - Volatilidade < 300%
+    - Mínimo 300 dias de dados
     """
     try:
         ticker = yf.Ticker(yahoo_symbol)
         df = ticker.history(period=period)
         
         if df.empty:
+            print(f"   ⚠️ {yahoo_symbol}: Sem dados disponíveis")
             return None
         
         df.columns = [c.lower() for c in df.columns]
+        
+        # VALIDAÇÃO 1: Quantidade mínima de dados
+        if len(df) < 300:
+            print(f"   ⚠️ {yahoo_symbol}: Dados insuficientes ({len(df)} dias < 300)")
+            return None
+        
+        # VALIDAÇÃO 2: Preço razoável
+        preco_atual = df['close'].iloc[-1]
+        if preco_atual < 0.01 or preco_atual > 100000:
+            print(f"   ⚠️ {yahoo_symbol}: Preço suspeito (${preco_atual:.4f})")
+            return None
+        
+        # VALIDAÇÃO 3: Volume mínimo
+        volume_medio = df['volume'].mean()
+        if volume_medio < 100000:
+            print(f"   ⚠️ {yahoo_symbol}: Volume muito baixo ({volume_medio:,.0f})")
+            return None
+        
+        # VALIDAÇÃO 4: Volatilidade razoável
+        returns = df['close'].pct_change().dropna()
+        volatilidade = returns.std() * np.sqrt(365) * 100
+        if volatilidade > 300:
+            print(f"   ⚠️ {yahoo_symbol}: Volatilidade extrema ({volatilidade:.1f}%)")
+            return None
+        
+        # VALIDAÇÃO 5: Sem valores NaN excessivos
+        nan_pct = df.isnull().sum().sum() / (len(df) * len(df.columns)) * 100
+        if nan_pct > 10:
+            print(f"   ⚠️ {yahoo_symbol}: Muitos valores faltantes ({nan_pct:.1f}%)")
+            return None
+        
+        # Dados válidos!
         return df
         
     except Exception as e:
-        print(f"   ❌ Erro ao buscar {yahoo_symbol}: {e}")
+        print(f"   ❌ Erro ao buscar {yahoo_symbol}: {str(e)[:100]}")
         return None
 
 def calcular_chilo(df: pd.DataFrame, period: int) -> pd.DataFrame:

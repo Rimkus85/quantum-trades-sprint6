@@ -20,7 +20,7 @@ load_dotenv()
 # Configuração das TOP 8 criptomoedas com períodos otimizados
 TOP_8 = [
     # TIER 1 - Blue Chips (50% da alocação)
-    {'name': 'Bitcoin', 'symbol': 'BTCUSDT', 'yahoo': 'BTC-USD', 'period': 40, 'emoji': '🥇', 'tier': 1, 'alocacao': 0.25},
+    {'name': 'Bitcoin', 'symbol': 'BTCUSDT', 'yahoo': 'BTC-USD', 'period': 3, 'emoji': '🥇', 'tier': 1, 'alocacao': 0.25},
     {'name': 'Ethereum', 'symbol': 'ETHUSDT', 'yahoo': 'ETH-USD', 'period': 50, 'emoji': '🥈', 'tier': 1, 'alocacao': 0.25},
     
     # TIER 2 - Large Caps (25% da alocação)
