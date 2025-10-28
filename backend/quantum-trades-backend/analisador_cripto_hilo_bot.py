@@ -21,11 +21,11 @@ load_dotenv()
 TOP_8 = [
     # TIER 1 - Blue Chips (50% da alocação)
     {'name': 'Bitcoin', 'symbol': 'BTCUSDT', 'yahoo': 'BTC-USD', 'period': 3, 'emoji': '🥇', 'tier': 1, 'alocacao': 0.25},
-    {'name': 'Ethereum', 'symbol': 'ETHUSDT', 'yahoo': 'ETH-USD', 'period': 50, 'emoji': '🥈', 'tier': 1, 'alocacao': 0.25},
+    {'name': 'Ethereum', 'symbol': 'ETHUSDT', 'yahoo': 'ETH-USD', 'period': 45, 'emoji': '🥈', 'tier': 1, 'alocacao': 0.25},
     
     # TIER 2 - Large Caps (25% da alocação)
     {'name': 'Binance Coin', 'symbol': 'BNBUSDT', 'yahoo': 'BNB-USD', 'period': 70, 'emoji': '🟡', 'tier': 2, 'alocacao': 0.125},
-    {'name': 'Solana', 'symbol': 'SOLUSDT', 'yahoo': 'SOL-USD', 'period': 45, 'emoji': '🟣', 'tier': 2, 'alocacao': 0.125},
+    {'name': 'Solana', 'symbol': 'SOLUSDT', 'yahoo': 'SOL-USD', 'period': 7, 'emoji': '🟣', 'tier': 2, 'alocacao': 0.125},
     
     # TIER 3 - Mid Caps (25% da alocação)
     {'name': 'Chainlink', 'symbol': 'LINKUSDT', 'yahoo': 'LINK-USD', 'period': 40, 'emoji': '🔗', 'tier': 3, 'alocacao': 0.0625},

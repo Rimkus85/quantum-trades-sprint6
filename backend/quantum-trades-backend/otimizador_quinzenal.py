@@ -22,9 +22,9 @@ load_dotenv()
 # Configuração das TOP 8 criptomoedas atuais
 PORTFOLIO_ATUAL = [
     {'name': 'Bitcoin', 'symbol': 'BTCUSDT', 'yahoo': 'BTC-USD', 'period': 3, 'emoji': '🥇', 'tier': 1, 'alocacao': 0.25},
-    {'name': 'Ethereum', 'symbol': 'ETHUSDT', 'yahoo': 'ETH-USD', 'period': 50, 'emoji': '🥈', 'tier': 1, 'alocacao': 0.25},
+    {'name': 'Ethereum', 'symbol': 'ETHUSDT', 'yahoo': 'ETH-USD', 'period': 45, 'emoji': '🥈', 'tier': 1, 'alocacao': 0.25},
     {'name': 'Binance Coin', 'symbol': 'BNBUSDT', 'yahoo': 'BNB-USD', 'period': 70, 'emoji': '🟡', 'tier': 2, 'alocacao': 0.125},
-    {'name': 'Solana', 'symbol': 'SOLUSDT', 'yahoo': 'SOL-USD', 'period': 45, 'emoji': '🟣', 'tier': 2, 'alocacao': 0.125},
+    {'name': 'Solana', 'symbol': 'SOLUSDT', 'yahoo': 'SOL-USD', 'period': 7, 'emoji': '🟣', 'tier': 2, 'alocacao': 0.125},
     {'name': 'Chainlink', 'symbol': 'LINKUSDT', 'yahoo': 'LINK-USD', 'period': 40, 'emoji': '🔗', 'tier': 3, 'alocacao': 0.0625},
     {'name': 'Uniswap', 'symbol': 'UNIUSDT', 'yahoo': 'UNI7083-USD', 'period': 65, 'emoji': '🦄', 'tier': 3, 'alocacao': 0.0625},
     {'name': 'Algorand', 'symbol': 'ALGOUSDT', 'yahoo': 'ALGO-USD', 'period': 40, 'emoji': '🔷', 'tier': 3, 'alocacao': 0.0625},
@@ -160,7 +160,12 @@ def calcular_metricas(df: pd.DataFrame) -> Dict:
     - taxa_acerto: % de sinais corretos
     - sharpe: Sharpe Ratio
     - retorno: Retorno total %
+    - num_trades: Número de trades
+    - custo_total: Custo total em taxas
+    - retorno_liquido: Retorno após taxas
     """
+    # Taxas Binance Futuros USDⓈ-M (Usuário Regular)
+    TAXA_TAKER = 0.0005  # 0.05% por operação
     if len(df) < 10:
         return None
     
@@ -200,17 +205,39 @@ def calcular_metricas(df: pd.DataFrame) -> Dict:
     # Buy & Hold para comparação
     retorno_bh = (df['close'].iloc[-1] / df['close'].iloc[0] - 1) * 100
     
+    # NOVO: Calcular custos operacionais
+    # Detectar mudanças de tendência (trades)
+    df.loc[:, 'mudanca_sinal'] = df['hilo_state'].diff().abs()
+    num_trades = (df['mudanca_sinal'] > 0).sum()
+    
+    # Calcular custos
+    custo_total = num_trades * TAXA_TAKER
+    custo_pct = custo_total * 100
+    
+    # Retorno líquido (após taxas)
+    retorno_liquido = retorno_total - custo_total
+    retorno_liquido_pct = retorno_liquido * 100
+    
+    # Custo anual estimado
+    dias_total = len(df)
+    custo_anual = (num_trades / dias_total) * 365 * TAXA_TAKER * 100 if dias_total > 0 else 0
+    
     return {
         'taxa_acerto': taxa_acerto,
         'sharpe': sharpe,
         'retorno': retorno_pct,
         'retorno_bh': retorno_bh,
-        'superacao_bh': retorno_pct - retorno_bh
+        'superacao_bh': retorno_pct - retorno_bh,
+        'num_trades': num_trades,
+        'custo_total': custo_pct,
+        'retorno_liquido': retorno_liquido_pct,
+        'custo_anual': custo_anual
     }
 
 def calcular_score(metricas: Dict) -> float:
     """
     Calcula score ponderado (0-100)
+    ATUALIZADO: Usa retorno líquido (após taxas) ao invés de retorno bruto
     """
     if not metricas:
         return 0
@@ -218,7 +245,11 @@ def calcular_score(metricas: Dict) -> float:
     # Normalizar métricas
     score_acerto = min(metricas['taxa_acerto'] / 70 * 100, 100)  # 70% = 100 pontos
     score_sharpe = min(metricas['sharpe'] / 1.5 * 100, 100)  # Sharpe 1.5 = 100 pontos
-    score_retorno = min(max(metricas['superacao_bh'] / 20 * 100, 0), 100)  # +20% vs BH = 100 pontos
+    
+    # NOVO: Usar retorno líquido ao invés de superação de BH
+    # Retorno líquido já considera custos operacionais
+    retorno_liquido_vs_bh = metricas['retorno_liquido'] - metricas['retorno_bh']
+    score_retorno = min(max(retorno_liquido_vs_bh / 20 * 100, 0), 100)  # +20% vs BH = 100 pontos
     
     # Score ponderado
     score = (
