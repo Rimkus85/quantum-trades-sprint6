@@ -379,7 +379,9 @@ Magnus Wealth - {hoje}
         
         # Verificar se há candidata muito superior
         melhor_candidata = top5[0] if top5 else None
-        pior_portfolio = min(otimizacoes, key=lambda x: x['score_atual'] if x else 0)
+        # Filtrar apenas otimizações com métricas válidas
+        otimizacoes_validas = [o for o in otimizacoes if o and o.get('metricas_atual')]
+        pior_portfolio = min(otimizacoes_validas, key=lambda x: x['score_atual']) if otimizacoes_validas else None
         
         if melhor_candidata and pior_portfolio and melhor_candidata['score'] > pior_portfolio['score_atual'] * 1.2:
             # Recomendar substituição
