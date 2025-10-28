@@ -413,6 +413,14 @@ Magnus Wealth - {hoje}
             if opt['metricas_otimo']:
                 msg += f"   Taxa acerto: {opt['metricas_otimo']['taxa_acerto']:.1f}%\n"
                 msg += f"   Sharpe: {opt['metricas_otimo']['sharpe']:.2f}\n"
+                # NOVO: Métricas de custos
+                msg += f"   \ud83d\udcb0 Retorno bruto: {opt['metricas_otimo']['retorno']:+.1f}%\n"
+                msg += f"   \ud83d\udcb8 Retorno líquido: {opt['metricas_otimo']['retorno_liquido']:+.1f}%\n"
+                msg += f"   \ud83d\udd04 Trades: {opt['metricas_otimo']['num_trades']} ({opt['metricas_otimo']['custo_total']:.2f}% em taxas)\n"
+                msg += f"   \ud83d\udcc5 Custo anual estimado: {opt['metricas_otimo']['custo_anual']:.2f}%\n"
+                # Alerta se custo anual > 3%
+                if opt['metricas_otimo']['custo_anual'] > 3.0:
+                    msg += f"   ⚠️ **ALERTA:** Custo anual elevado!\n"
             msg += "\n"
     else:
         msg += "⏸️ **SEM ATUALIZAÇÕES NECESSÁRIAS**\n"
@@ -440,7 +448,9 @@ Magnus Wealth - {hoje}
             msg += f"{i}. {cand['emoji']} **{cand['name']}** - Score: {cand['score']:.1f}/100\n"
             msg += f"   • Taxa acerto: {cand['metricas']['taxa_acerto']:.1f}%\n"
             msg += f"   • Sharpe: {cand['metricas']['sharpe']:.2f}\n"
-            msg += f"   • Retorno 90d: {cand['metricas']['retorno']:+.1f}%\n"
+            msg += f"   • Retorno bruto: {cand['metricas']['retorno']:+.1f}%\n"
+            msg += f"   • Retorno líquido: {cand['metricas']['retorno_liquido']:+.1f}%\n"
+            msg += f"   • Trades: {cand['metricas']['num_trades']} ({cand['metricas']['custo_anual']:.2f}% anual)\n"
             msg += f"   • Período ótimo: {cand['periodo_otimo']}\n\n"
         
         # Recomendação
