@@ -501,7 +501,8 @@ if __name__ == '__main__':
     
     # Salvar relatório em arquivo
     timestamp = datetime.now().strftime('%Y%m%d_%H%M%S')
-    filename = f"/home/ubuntu/relatorio_otimizacao_{timestamp}.md"
+    # Usar diretório atual ao invés de /home/ubuntu (compatível com GitHub Actions)
+    filename = f"relatorio_otimizacao_{timestamp}.md"
     with open(filename, 'w', encoding='utf-8') as f:
         f.write(relatorio)
     print(f"✓ Relatório salvo em: {filename}")
