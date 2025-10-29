@@ -2,8 +2,24 @@ name: Análise Diária de Criptomoedas
 
 on:
   schedule:
-    # Executar diariamente às 21:00 horário de Brasília (00:30 UTC)
-    - cron: '03 01 * * *'
+    # ESTRATÉGIA: Múltiplos horários para garantir execução às 21:05 GMT-3
+    # Sistema de lock previne execuções duplicadas
+    
+    # Horário principal: 00:05 UTC = 21:05 GMT-3
+    - cron: '5 0 * * *'
+    
+    # Backup 1: 00:04 UTC = 21:04 GMT-3 (caso principal atrase)
+    - cron: '4 0 * * *'
+    
+    # Backup 2: 00:06 UTC = 21:06 GMT-3 (caso principal atrase)
+    - cron: '6 0 * * *'
+    
+    # Backup 3: 23:55 UTC = 20:55 GMT-3 (10min antes, caso todos atrasem)
+    - cron: '55 23 * * *'
+    
+    # Backup 4: 00:15 UTC = 21:15 GMT-3 (10min depois, caso todos falhem)
+    - cron: '15 0 * * *'
+    
   workflow_dispatch: # Permite execução manual
 
 jobs:
@@ -21,7 +37,7 @@ jobs:
     
     - name: Instalar dependências
       run: |
-        pip install yfinance python-dotenv requests
+        pip install yfinance python-dotenv requests pytz
     
     - name: Criar arquivo .env com secrets do bot
       run: |
@@ -30,13 +46,26 @@ jobs:
         TELEGRAM_CHAT_ID=${{ secrets.TELEGRAM_CHAT_ID }}
         EOF
     
-    - name: Executar análise de criptomoedas com bot
+    - name: Executar análise com sistema de lock
       run: |
         cd backend/quantum-trades-backend
-        python3 analisador_cripto_hilo_bot.py
+        chmod +x executar_analise_diaria.py
+        python3 executar_analise_diaria.py
+    
+    - name: Upload de logs de execução
+      if: always()
+      uses: actions/upload-artifact@v3
+      with:
+        name: logs-execucao-${{ github.run_number }}
+        path: backend/quantum-trades-backend/logs/
+        retention-days: 30
     
     - name: Verificar resultado
       if: always()
       run: |
+        echo "========================================="
         echo "Análise concluída!"
-        echo "Verifique o Telegram para a mensagem."
+        echo "Verifique:"
+        echo "1. Telegram para a mensagem"
+        echo "2. Artifacts para logs detalhados"
+        echo "========================================="
