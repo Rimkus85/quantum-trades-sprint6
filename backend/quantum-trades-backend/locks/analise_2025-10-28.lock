@@ -1,0 +1,11 @@
+{
+  "data": "2025-10-28",
+  "horario_utc": "2025-10-29 02:50:06 UTC",
+  "horario_br": "2025-10-28 23:50:06 -03",
+  "timestamp_utc": 1761706206.191619,
+  "timestamp_br": 1761706206.191619,
+  "status": "error",
+  "mensagem": "Erro na execu\u00e7\u00e3o da an\u00e1lise",
+  "horario_alvo": "21:05 GMT-3",
+  "diferenca_minutos": 1605.1
+}
