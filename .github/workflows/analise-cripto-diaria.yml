@@ -54,7 +54,7 @@ jobs:
     
     - name: Upload de logs de execução
       if: always()
-      uses: actions/upload-artifact@v3
+      uses: actions/upload-artifact@v4
       with:
         name: logs-execucao-${{ github.run_number }}
         path: backend/quantum-trades-backend/logs/
