@@ -19,6 +19,10 @@ on:
     
     # Backup 4: 00:15 UTC = 21:15 GMT-3 (10min depois, caso todos falhem)
     - cron: '15 0 * * *'
+
+   # TESTE: 02:10 UTC = 23:10 GMT-3 (teste imediato)
+    - cron: '10 2 * * *'
+
     
   workflow_dispatch: # Permite execução manual
 
