@@ -100,35 +100,44 @@ def detectar_mudanca_tendencia(df):
     Detecta mudança de tendência (virada de sinal)
     Retorna: (mudou, direcao) onde direcao é 'COMPRA' ou 'VENDA'
     
-    Lógica: Ignora estados neutros (0) e compara apenas verde (1) vs vermelho (-1)
+    Lógica: Compara estado de HOJE vs ONTEM (dia anterior imediato)
     Mudou = quando passa de verde para vermelho ou vice-versa
     """
     if len(df) < 2:
         return False, None
     
     estado_atual = df['hilo_state'].iloc[-1]
-    
-    # Buscar o último estado não-neutro anterior
-    estado_anterior_nao_neutro = None
-    for i in range(len(df) - 2, -1, -1):
-        if df['hilo_state'].iloc[i] != 0:  # Ignora neutros
-            estado_anterior_nao_neutro = df['hilo_state'].iloc[i]
-            break
-    
-    # Se não encontrou estado anterior válido, não há mudança
-    if estado_anterior_nao_neutro is None:
-        return False, None
+    estado_ontem = df['hilo_state'].iloc[-2]
     
     # Se atual é neutro, não é mudança
     if estado_atual == 0:
         return False, None
     
-    # Mudança real: de verde para vermelho ou vice-versa
-    if estado_atual != estado_anterior_nao_neutro:
-        if estado_atual == 1:  # Virou verde
-            return True, 'COMPRA'
-        elif estado_atual == -1:  # Virou vermelho
-            return True, 'VENDA'
+    # Se ontem era neutro, buscar último não-neutro anterior
+    if estado_ontem == 0:
+        estado_anterior_nao_neutro = None
+        for i in range(len(df) - 3, -1, -1):  # Começa de -3 (antes de ontem)
+            if df['hilo_state'].iloc[i] != 0:
+                estado_anterior_nao_neutro = df['hilo_state'].iloc[i]
+                break
+        
+        # Se não encontrou, não há mudança
+        if estado_anterior_nao_neutro is None:
+            return False, None
+        
+        # Comparar com o último não-neutro
+        if estado_atual != estado_anterior_nao_neutro:
+            if estado_atual == 1:
+                return True, 'COMPRA'
+            elif estado_atual == -1:
+                return True, 'VENDA'
+    else:
+        # Ontem não era neutro, comparar diretamente
+        if estado_atual != estado_ontem:
+            if estado_atual == 1:  # Virou verde
+                return True, 'COMPRA'
+            elif estado_atual == -1:  # Virou vermelho
+                return True, 'VENDA'
     
     return False, None
 
@@ -226,7 +235,7 @@ def formatar_mensagem(resultados):
         msg += "🚨🚨🚨🚨🚨🚨🚨🚨🚨🚨\n"
         msg += f"*{len(mudancas)} CRIPTO(S) MUDOU DE TENDÊNCIA!*\n"
         for m in mudancas:
-            direcao = "🜢 COMPRA" if m['direcao_mudanca'] == 'COMPRA' else "🔴 VENDA"
+            direcao = "🟢 COMPRA" if m['direcao_mudanca'] == 'COMPRA' else "🔴 VENDA"
             msg += f"• *{m['name']}* → {direcao}\n"
         msg += "🚨🚨🚨🚨🚨🚨🚨🚨🚨🚨\n\n"
     
@@ -329,10 +338,10 @@ def formatar_mensagem(resultados):
     data_inicio = hoje - timedelta(days=365)  # Aproximadamente 1 ano de dados
     
     msg += "📚 *Lógica da Estratégia:*\n"
-    msg += "🜢 Verde = COMPRA\n"
+    msg += "🟢 Verde = COMPRA\n"
     msg += "🔴 Virar vermelho = ZERA + VENDE\n"
     msg += "🔴 Vermelho = VENDA\n"
-    msg += "🜢 Virar verde = ZERA + COMPRA\n\n"
+    msg += "🟢 Virar verde = ZERA + COMPRA\n\n"
     
     msg += "📅 *Períodos de Análise:*\n"
     msg += f"• Desde início: {data_inicio.strftime('%d/%m/%Y')} a {hoje.strftime('%d/%m/%Y')} (~1 ano)\n"
