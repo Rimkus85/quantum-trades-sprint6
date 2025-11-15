@@ -1,4 +1,4 @@
-name: Otimização Quinzenal de Portfólio
+name: Otimização Quinzenal de Portfólio v9.0
 
 on:
   schedule:
@@ -22,7 +22,7 @@ jobs:
     
     - name: Instalar dependências
       run: |
-        pip install yfinance python-dotenv requests numpy pandas
+        pip install yfinance python-dotenv requests numpy pandas scikit-learn joblib pytz
     
     - name: Criar arquivo .env com secrets do bot
       run: |
@@ -31,13 +31,23 @@ jobs:
         TELEGRAM_CHAT_ID=${{ secrets.TELEGRAM_CHAT_ID }}
         EOF
     
-    - name: Executar otimização quinzenal
+    - name: Executar otimização quinzenal v9
       run: |
         cd backend/quantum-trades-backend
-        python3 otimizador_quinzenal.py
+        python3 otimizador_quinzenal_v9.py
+    
+    - name: Commit mudanças no portfolio
+      if: success()
+      run: |
+        git config --global user.name 'Magnus Bot'
+        git config --global user.email 'bot@magnuswealth.com'
+        git add backend/quantum-trades-backend/portfolio_config.json
+        git diff --staged --quiet || git commit -m "🔄 Atualização automática do portfólio - $(date +'%Y-%m-%d')"
+        git push || echo "Nenhuma mudança para commitar"
     
     - name: Verificar resultado
       if: always()
       run: |
-        echo "Otimização concluída!"
+        echo "Otimização v9 concluída!"
         echo "Verifique o Telegram para o relatório."
+        echo "Portfolio atualizado em portfolio_config.json"
