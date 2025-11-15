@@ -1,46 +1,27 @@
+# Dados sensíveis
+.env
+usuarios_magnus.json
+posicoes_abertas.json
+historico_ordens.json
+
+# Dados ML
+ml_data_8anos/
+ml_models/
+
+# Logs
+logs/
+*.log
+
 # Python
 __pycache__/
-*.py[cod]
-*$py.class
-*.so
+*.pyc
+*.pyo
+*.pyd
 .Python
-env/
-venv/
-ENV/
-build/
-develop-eggs/
-dist/
-downloads/
-eggs/
-.eggs/
-lib/
-lib64/
-parts/
-sdist/
-var/
-wheels/
-*.egg-info/
-.installed.cfg
-*.egg
-
-# Telegram
-*.session
-*.session-journal
-
-# Environment
-.env
-.env.local
+*.so
 
 # IDE
 .vscode/
 .idea/
 *.swp
 *.swo
-*~
-
-# Logs
-*.log
-
-# Data files
-*.json
-!.env.example

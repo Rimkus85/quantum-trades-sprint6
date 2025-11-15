@@ -1,0 +1,21 @@
+{
+  "execucao_ativa": false,
+  "modo_teste": true,
+  "capital_inicial": 1000.0,
+  "percentual_por_operacao": 0.1,
+  "criterios": {
+    "criterio_1_ativo": true,
+    "criterio_2_ativo": true,
+    "criterio_3_ativo": true
+  },
+  "ml": {
+    "threshold_probabilidade": 0.7,
+    "min_timeframes_alinhados": 5
+  },
+  "stop_loss": {
+    "percentual": 0.25,
+    "ativo": true
+  },
+  "horario_verificacao_diario": "21:00:01",
+  "intervalo_verificacao_minutos": 15
+}

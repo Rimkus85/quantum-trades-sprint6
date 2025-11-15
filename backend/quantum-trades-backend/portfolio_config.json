@@ -1,0 +1,121 @@
+{
+  "versao": "1.0.0",
+  "ultima_atualizacao": "2025-11-13T18:30:00",
+  "proxima_otimizacao": "2025-11-28T22:00:00",
+  "criptomoedas": [
+    {
+      "name": "Bitcoin",
+      "symbol": "BTCUSDT",
+      "yahoo": "BTC-USD",
+      "period_chilo": 3,
+      "emoji": "🥇",
+      "tier": 1,
+      "alocacao": 0.25,
+      "ativa": true,
+      "data_adicao": "2024-01-01",
+      "motivo_adicao": "Blue chip - Líder de mercado"
+    },
+    {
+      "name": "Ethereum",
+      "symbol": "ETHUSDT",
+      "yahoo": "ETH-USD",
+      "period_chilo": 45,
+      "emoji": "🥈",
+      "tier": 1,
+      "alocacao": 0.25,
+      "ativa": true,
+      "data_adicao": "2024-01-01",
+      "motivo_adicao": "Blue chip - Smart contracts"
+    },
+    {
+      "name": "Binance Coin",
+      "symbol": "BNBUSDT",
+      "yahoo": "BNB-USD",
+      "period_chilo": 70,
+      "emoji": "🟡",
+      "tier": 2,
+      "alocacao": 0.125,
+      "ativa": true,
+      "data_adicao": "2024-01-01",
+      "motivo_adicao": "Large cap - Exchange token"
+    },
+    {
+      "name": "Solana",
+      "symbol": "SOLUSDT",
+      "yahoo": "SOL-USD",
+      "period_chilo": 7,
+      "emoji": "🟣",
+      "tier": 2,
+      "alocacao": 0.125,
+      "ativa": true,
+      "data_adicao": "2024-01-01",
+      "motivo_adicao": "Large cap - High performance"
+    },
+    {
+      "name": "Chainlink",
+      "symbol": "LINKUSDT",
+      "yahoo": "LINK-USD",
+      "period_chilo": 40,
+      "emoji": "🔗",
+      "tier": 3,
+      "alocacao": 0.0625,
+      "ativa": true,
+      "data_adicao": "2024-01-01",
+      "motivo_adicao": "Mid cap - Oracle líder"
+    },
+    {
+      "name": "Uniswap",
+      "symbol": "UNIUSDT",
+      "yahoo": "UNI7083-USD",
+      "period_chilo": 65,
+      "emoji": "🦄",
+      "tier": 3,
+      "alocacao": 0.0625,
+      "ativa": true,
+      "data_adicao": "2024-01-01",
+      "motivo_adicao": "Mid cap - DEX líder"
+    },
+    {
+      "name": "Algorand",
+      "symbol": "ALGOUSDT",
+      "yahoo": "ALGO-USD",
+      "period_chilo": 40,
+      "emoji": "🔷",
+      "tier": 3,
+      "alocacao": 0.0625,
+      "ativa": true,
+      "data_adicao": "2024-01-01",
+      "motivo_adicao": "Mid cap - Pure PoS"
+    },
+    {
+      "name": "VeChain",
+      "symbol": "VETUSDT",
+      "yahoo": "VET-USD",
+      "period_chilo": 25,
+      "emoji": "🌿",
+      "tier": 3,
+      "alocacao": 0.0625,
+      "ativa": true,
+      "data_adicao": "2024-01-01",
+      "motivo_adicao": "Mid cap - Supply chain"
+    }
+  ],
+  "historico_mudancas": [
+    {
+      "data": "2025-11-13T18:30:00",
+      "tipo": "inicializacao",
+      "descricao": "Configuração inicial do portfólio",
+      "criptos_adicionadas": [],
+      "criptos_removidas": [],
+      "periodos_atualizados": []
+    }
+  ],
+  "configuracoes": {
+    "max_criptomoedas": 10,
+    "min_criptomoedas": 5,
+    "score_minimo_entrada": 65.0,
+    "score_minimo_permanencia": 55.0,
+    "taxa_acerto_minima": 55.0,
+    "sharpe_minimo": 0.5
+  }
+}
