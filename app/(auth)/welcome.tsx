@@ -1,5 +1,5 @@
 import React from "react";
-import { View, Text, StyleSheet } from "react-native";
+import { View, Text, StyleSheet, ScrollView } from "react-native";
 import { router } from "expo-router";
 import { ScreenContainer } from "@/components/screen-container";
 import { Button } from "@/components/ui/button";
@@ -12,42 +12,41 @@ export default function WelcomeScreen() {
 
   return (
     <ScreenContainer edges={["top", "bottom", "left", "right"]}>
-      <View style={styles.container}>
-        {/* Logo Section */}
+      <ScrollView 
+        style={styles.scrollView}
+        contentContainerStyle={styles.scrollContent}
+        showsVerticalScrollIndicator={false}
+      >
+        {/* Logo Section - O logo PNG já contém o texto "QUANTUM TRADES" */}
         <View style={styles.logoSection}>
-          <Logo size="xl" />
+          <Logo size="lg" />
         </View>
 
-        {/* Content Section */}
-        <View style={styles.contentSection}>
-          <Text style={[styles.title, { color: colors.foreground }]}>
-            Bem-vindo ao{"\n"}
-            <Text style={{ color: colors.primary }}>Quantum Trades</Text>
-          </Text>
-          
+        {/* Subtitle Section */}
+        <View style={styles.subtitleSection}>
           <Text style={[styles.subtitle, { color: colors.muted }]}>
             Automatize suas estratégias de investimento com nossa IA avançada. 
             Trading 24/7, gestão de risco inteligente e acesso a múltiplos mercados.
           </Text>
+        </View>
 
-          {/* Features */}
-          <View style={styles.features}>
-            <FeatureItem
-              icon="🤖"
-              title="IA Avançada"
-              description="Análise preditiva de mercado"
-            />
-            <FeatureItem
-              icon="⏰"
-              title="24/7 Autônomo"
-              description="Opera enquanto você descansa"
-            />
-            <FeatureItem
-              icon="🌍"
-              title="Multi-Mercados"
-              description="B3, NYSE, NASDAQ, Crypto"
-            />
-          </View>
+        {/* Features */}
+        <View style={styles.features}>
+          <FeatureItem
+            icon="🤖"
+            title="IA Avançada"
+            description="Análise preditiva de mercado"
+          />
+          <FeatureItem
+            icon="⏰"
+            title="24/7 Autônomo"
+            description="Opera enquanto você descansa"
+          />
+          <FeatureItem
+            icon="🌍"
+            title="Multi-Mercados"
+            description="B3, NYSE, NASDAQ, Crypto"
+          />
         </View>
 
         {/* Buttons Section */}
@@ -73,7 +72,7 @@ export default function WelcomeScreen() {
         <Text style={[styles.footer, { color: colors.muted }]}>
           Ao continuar, você concorda com nossos Termos de Uso e Política de Privacidade
         </Text>
-      </View>
+      </ScrollView>
     </ScreenContainer>
   );
 }
@@ -93,35 +92,30 @@ function FeatureItem({ icon, title, description }: { icon: string; title: string
 }
 
 const styles = StyleSheet.create({
-  container: {
+  scrollView: {
     flex: 1,
+  },
+  scrollContent: {
+    flexGrow: 1,
     paddingHorizontal: 24,
-    justifyContent: "space-between",
+    paddingTop: 40,
+    paddingBottom: 24,
   },
   logoSection: {
     alignItems: "center",
-    paddingTop: 40,
+    marginBottom: 24,
   },
-  contentSection: {
-    flex: 1,
-    justifyContent: "center",
-    paddingVertical: 20,
-  },
-  title: {
-    fontSize: 32,
-    fontWeight: "700",
-    textAlign: "center",
-    marginBottom: 16,
-    lineHeight: 40,
+  subtitleSection: {
+    marginBottom: 32,
   },
   subtitle: {
     fontSize: 16,
     textAlign: "center",
     lineHeight: 24,
-    marginBottom: 32,
   },
   features: {
-    gap: 16,
+    gap: 12,
+    marginBottom: 32,
   },
   featureItem: {
     flexDirection: "row",
@@ -147,11 +141,10 @@ const styles = StyleSheet.create({
   },
   buttonsSection: {
     gap: 12,
-    paddingBottom: 16,
+    marginBottom: 16,
   },
   footer: {
     fontSize: 12,
     textAlign: "center",
-    paddingBottom: 16,
   },
 });

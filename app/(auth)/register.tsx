@@ -4,7 +4,7 @@ import { router } from "expo-router";
 import { ScreenContainer } from "@/components/screen-container";
 import { Button } from "@/components/ui/button";
 import { Input, PasswordInput, CPFInput } from "@/components/ui/input";
-import { Select } from "@/components/ui/select";
+import { MultiSelect } from "@/components/ui/multi-select";
 import { Logo } from "@/components/ui/logo";
 import { useColors } from "@/hooks/use-colors";
 import { useLocalAuth } from "@/lib/auth-context";
@@ -19,6 +19,8 @@ const BROKERS = [
   { label: "Nubank Investimentos", value: "nubank" },
   { label: "Binance", value: "binance" },
   { label: "Mercado Bitcoin", value: "mercadobitcoin" },
+  { label: "Foxbit", value: "foxbit" },
+  { label: "NovaDAX", value: "novadax" },
   { label: "Outra", value: "other" },
 ];
 
@@ -30,7 +32,7 @@ export default function RegisterScreen() {
     name: "",
     email: "",
     cpf: "",
-    broker: "",
+    brokers: [] as string[],
     password: "",
     confirmPassword: "",
   });
@@ -59,8 +61,8 @@ export default function RegisterScreen() {
       newErrors.cpf = "CPF inválido";
     }
 
-    if (!formData.broker) {
-      newErrors.broker = "Selecione uma corretora";
+    if (formData.brokers.length === 0) {
+      newErrors.brokers = "Selecione pelo menos uma corretora";
     }
 
     if (!formData.password) {
@@ -90,7 +92,7 @@ export default function RegisterScreen() {
         name: formData.name.trim(),
         email: formData.email.trim().toLowerCase(),
         cpf: formData.cpf,
-        broker: formData.broker,
+        broker: formData.brokers.join(","), // Múltiplas corretoras separadas por vírgula
         password: formData.password,
       });
 
@@ -106,7 +108,7 @@ export default function RegisterScreen() {
     }
   };
 
-  const updateField = (field: string, value: string) => {
+  const updateField = (field: string, value: string | string[]) => {
     setFormData(prev => ({ ...prev, [field]: value }));
     if (errors[field]) {
       setErrors(prev => ({ ...prev, [field]: "" }));
@@ -183,13 +185,13 @@ export default function RegisterScreen() {
               leftIcon="badge"
             />
 
-            <Select
-              label="Corretora principal"
-              placeholder="Selecione sua corretora"
-              value={formData.broker}
+            <MultiSelect
+              label="Corretoras"
+              placeholder="Selecione suas corretoras"
               options={BROKERS}
-              onValueChange={(value) => updateField("broker", value)}
-              error={errors.broker}
+              selectedValues={formData.brokers}
+              onSelectionChange={(values) => updateField("brokers", values)}
+              error={errors.brokers}
             />
 
             <PasswordInput
@@ -327,7 +329,7 @@ const styles = StyleSheet.create({
     fontSize: 14,
   },
   form: {
-    gap: 16,
+    gap: 8,
   },
   requirements: {
     marginTop: 8,

@@ -46,3 +46,5 @@
 
 ## Correções
 - [x] Corrigir logo: usar PNG cortado com texto e remover texto duplicado do componente
+- [x] Corrigir sobreposição de texto na tela Welcome (remover texto duplicado sobre o logo)
+- [x] Alterar seleção de corretora para permitir múltiplas seleções
