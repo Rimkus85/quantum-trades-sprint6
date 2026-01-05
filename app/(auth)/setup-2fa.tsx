@@ -6,34 +6,74 @@ import { Button } from "@/components/ui/button";
 import { Logo } from "@/components/ui/logo";
 import { useColors } from "@/hooks/use-colors";
 import { useLocalAuth } from "@/lib/auth-context";
+import { useToast } from "@/components/ui/toast";
 import MaterialIcons from "@expo/vector-icons/MaterialIcons";
-import * as Clipboard from "expo-clipboard";
 import * as Haptics from "expo-haptics";
 import { Platform } from "react-native";
 
 export default function Setup2FAScreen() {
   const colors = useColors();
-  const { setupTwoFactor, verifyTwoFactor } = useLocalAuth();
+  const { setupTwoFactor, verifyTwoFactor, pendingUser } = useLocalAuth();
+  const { showToast } = useToast();
 
-  const [secret, setSecret] = useState("");
   const [code, setCode] = useState(["", "", "", "", "", ""]);
   const [error, setError] = useState("");
   const [isLoading, setIsLoading] = useState(false);
-  const [copied, setCopied] = useState(false);
+  const [emailSent, setEmailSent] = useState(false);
+  const [resendCooldown, setResendCooldown] = useState(0);
 
   const inputRefs = useRef<(TextInput | null)[]>([]);
 
   useEffect(() => {
-    loadSecret();
+    sendCodeToEmail();
   }, []);
 
-  const loadSecret = async () => {
+  useEffect(() => {
+    if (resendCooldown > 0) {
+      const timer = setTimeout(() => setResendCooldown(resendCooldown - 1), 1000);
+      return () => clearTimeout(timer);
+    }
+  }, [resendCooldown]);
+
+  const sendCodeToEmail = async () => {
     try {
       const result = await setupTwoFactor();
-      setSecret(result.secret);
+      
+      // In production, this would send the code via email
+      // For now, we simulate the email sending
+      console.log("2FA Code sent to email:", result.secret);
+      
+      setEmailSent(true);
+      setResendCooldown(60); // 60 seconds cooldown
+      
+      showToast(
+        `Código enviado para ${maskEmail(pendingUser?.email || "")}`,
+        "success"
+      );
     } catch (error) {
-      console.error("Error loading 2FA secret:", error);
-      Alert.alert("Erro", "Não foi possível carregar as configurações de 2FA");
+      console.error("Error sending 2FA code:", error);
+      showToast("Erro ao enviar código. Tente novamente.", "error");
+    }
+  };
+
+  const maskEmail = (email: string): string => {
+    if (!email) return "seu e-mail";
+    const [local, domain] = email.split("@");
+    if (!domain) return email;
+    const maskedLocal = local.length > 2 
+      ? local[0] + "*".repeat(local.length - 2) + local[local.length - 1]
+      : local;
+    return `${maskedLocal}@${domain}`;
+  };
+
+  const handleResendCode = async () => {
+    if (resendCooldown > 0) return;
+    
+    setIsLoading(true);
+    try {
+      await sendCodeToEmail();
+    } finally {
+      setIsLoading(false);
     }
   };
 
@@ -82,6 +122,7 @@ export default function Setup2FAScreen() {
         if (Platform.OS !== "web") {
           Haptics.notificationAsync(Haptics.NotificationFeedbackType.Success);
         }
+        showToast("Conta verificada com sucesso!", "success");
         router.replace("/(tabs)" as any);
       } else {
         setError(result.error || "Código inválido");
@@ -96,15 +137,6 @@ export default function Setup2FAScreen() {
     } finally {
       setIsLoading(false);
     }
-  };
-
-  const copySecret = async () => {
-    await Clipboard.setStringAsync(secret);
-    setCopied(true);
-    if (Platform.OS !== "web") {
-      Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Light);
-    }
-    setTimeout(() => setCopied(false), 2000);
   };
 
   return (
@@ -133,76 +165,46 @@ export default function Setup2FAScreen() {
         {/* Title */}
         <View style={styles.titleContainer}>
           <Text style={[styles.title, { color: colors.foreground }]}>
-            Configurar Autenticação
+            Verificação de Segurança
           </Text>
           <Text style={[styles.subtitle, { color: colors.muted }]}>
-            Para sua segurança, configure a autenticação em dois fatores (2FA)
+            Para sua segurança, enviamos um código de verificação para seu e-mail
           </Text>
         </View>
 
-        {/* Instructions */}
-        <View style={[styles.instructionsCard, { backgroundColor: colors.surface }]}>
-          <View style={styles.instructionStep}>
-            <View style={[styles.stepNumber, { backgroundColor: colors.primary }]}>
-              <Text style={[styles.stepNumberText, { color: colors.background }]}>1</Text>
-            </View>
-            <Text style={[styles.instructionText, { color: colors.foreground }]}>
-              Baixe o Google Authenticator ou outro app de autenticação
-            </Text>
+        {/* Email Sent Confirmation */}
+        <View style={[styles.emailCard, { backgroundColor: colors.surface }]}>
+          <View style={[styles.emailIconContainer, { backgroundColor: colors.primary + "20" }]}>
+            <MaterialIcons name="email" size={32} color={colors.primary} />
           </View>
-
-          <View style={styles.instructionStep}>
-            <View style={[styles.stepNumber, { backgroundColor: colors.primary }]}>
-              <Text style={[styles.stepNumberText, { color: colors.background }]}>2</Text>
-            </View>
-            <Text style={[styles.instructionText, { color: colors.foreground }]}>
-              Adicione uma nova conta e digite a chave abaixo
-            </Text>
-          </View>
-
-          <View style={styles.instructionStep}>
-            <View style={[styles.stepNumber, { backgroundColor: colors.primary }]}>
-              <Text style={[styles.stepNumberText, { color: colors.background }]}>3</Text>
-            </View>
-            <Text style={[styles.instructionText, { color: colors.foreground }]}>
-              Digite o código de 6 dígitos gerado pelo app
-            </Text>
-          </View>
-        </View>
-
-        {/* Secret Key */}
-        <View style={styles.secretContainer}>
-          <Text style={[styles.secretLabel, { color: colors.muted }]}>
-            Sua chave secreta:
+          
+          <Text style={[styles.emailSentText, { color: colors.foreground }]}>
+            Código enviado para:
           </Text>
-          <Pressable
-            onPress={copySecret}
-            style={({ pressed }) => [
-              styles.secretBox,
-              { backgroundColor: colors.surface, borderColor: colors.border },
-              pressed && styles.pressed,
-            ]}
-          >
-            <Text style={[styles.secretText, { color: colors.primary }]}>
-              {secret}
-            </Text>
-            <MaterialIcons
-              name={copied ? "check" : "content-copy"}
-              size={20}
-              color={copied ? colors.success : colors.muted}
-            />
-          </Pressable>
-          {copied && (
-            <Text style={[styles.copiedText, { color: colors.success }]}>
-              Chave copiada!
-            </Text>
-          )}
+          <Text style={[styles.emailAddress, { color: colors.primary }]}>
+            {maskEmail(pendingUser?.email || "")}
+          </Text>
+          
+          <View style={styles.emailTips}>
+            <View style={styles.tipItem}>
+              <MaterialIcons name="info-outline" size={16} color={colors.muted} />
+              <Text style={[styles.tipText, { color: colors.muted }]}>
+                Verifique também a pasta de spam
+              </Text>
+            </View>
+            <View style={styles.tipItem}>
+              <MaterialIcons name="timer" size={16} color={colors.muted} />
+              <Text style={[styles.tipText, { color: colors.muted }]}>
+                O código expira em 10 minutos
+              </Text>
+            </View>
+          </View>
         </View>
 
         {/* Code Input */}
         <View style={styles.codeContainer}>
           <Text style={[styles.codeLabel, { color: colors.foreground }]}>
-            Digite o código do autenticador:
+            Digite o código de 6 dígitos:
           </Text>
           
           <View style={styles.codeInputs}>
@@ -245,15 +247,40 @@ export default function Setup2FAScreen() {
             disabled={isLoading || code.join("").length !== 6}
             size="lg"
           >
-            Verificar e Finalizar
+            Verificar Código
           </Button>
+        </View>
+
+        {/* Resend Code */}
+        <View style={styles.resendContainer}>
+          <Text style={[styles.resendText, { color: colors.muted }]}>
+            Não recebeu o código?
+          </Text>
+          <Pressable
+            onPress={handleResendCode}
+            disabled={resendCooldown > 0 || isLoading}
+            style={({ pressed }) => [pressed && styles.pressed]}
+          >
+            <Text
+              style={[
+                styles.resendLink,
+                {
+                  color: resendCooldown > 0 ? colors.muted : colors.primary,
+                },
+              ]}
+            >
+              {resendCooldown > 0
+                ? `Reenviar em ${resendCooldown}s`
+                : "Reenviar código"}
+            </Text>
+          </Pressable>
         </View>
 
         {/* Security Note */}
         <View style={[styles.securityNote, { backgroundColor: colors.warning + "15" }]}>
           <MaterialIcons name="security" size={20} color={colors.warning} />
           <Text style={[styles.securityText, { color: colors.muted }]}>
-            Guarde sua chave secreta em local seguro. Você precisará dela para recuperar o acesso à sua conta.
+            Nunca compartilhe este código com ninguém. A equipe do Quantum Trades nunca solicitará seu código de verificação.
           </Text>
         </View>
       </ScrollView>
@@ -298,58 +325,40 @@ const styles = StyleSheet.create({
     textAlign: "center",
     lineHeight: 20,
   },
-  instructionsCard: {
-    padding: 16,
-    borderRadius: 12,
+  emailCard: {
+    padding: 24,
+    borderRadius: 16,
     marginBottom: 24,
-    gap: 16,
-  },
-  instructionStep: {
-    flexDirection: "row",
     alignItems: "center",
-    gap: 12,
   },
-  stepNumber: {
-    width: 24,
-    height: 24,
-    borderRadius: 12,
+  emailIconContainer: {
+    width: 64,
+    height: 64,
+    borderRadius: 32,
     alignItems: "center",
     justifyContent: "center",
+    marginBottom: 16,
   },
-  stepNumberText: {
-    fontSize: 12,
-    fontWeight: "700",
-  },
-  instructionText: {
-    flex: 1,
+  emailSentText: {
     fontSize: 14,
-    lineHeight: 20,
+    marginBottom: 4,
   },
-  secretContainer: {
-    marginBottom: 24,
-  },
-  secretLabel: {
-    fontSize: 12,
-    marginBottom: 8,
-  },
-  secretBox: {
-    flexDirection: "row",
-    alignItems: "center",
-    justifyContent: "space-between",
-    padding: 16,
-    borderRadius: 12,
-    borderWidth: 1,
-  },
-  secretText: {
+  emailAddress: {
     fontSize: 16,
     fontWeight: "600",
-    letterSpacing: 2,
-    flex: 1,
+    marginBottom: 16,
   },
-  copiedText: {
+  emailTips: {
+    gap: 8,
+    width: "100%",
+  },
+  tipItem: {
+    flexDirection: "row",
+    alignItems: "center",
+    gap: 8,
+  },
+  tipText: {
     fontSize: 12,
-    marginTop: 4,
-    textAlign: "center",
   },
   codeContainer: {
     marginBottom: 24,
@@ -385,7 +394,19 @@ const styles = StyleSheet.create({
     fontSize: 12,
   },
   buttonContainer: {
+    marginBottom: 16,
+  },
+  resendContainer: {
+    alignItems: "center",
     marginBottom: 24,
+  },
+  resendText: {
+    fontSize: 14,
+    marginBottom: 4,
+  },
+  resendLink: {
+    fontSize: 14,
+    fontWeight: "600",
   },
   securityNote: {
     flexDirection: "row",

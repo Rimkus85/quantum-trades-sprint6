@@ -36,6 +36,7 @@ interface AuthContextType extends AuthState {
   verifyResetCode: (email: string, code: string) => Promise<{ success: boolean; error?: string }>;
   resetPassword: (email: string, code: string, newPassword: string) => Promise<{ success: boolean; error?: string }>;
   updateProfile: (data: Partial<UserProfile>) => Promise<void>;
+  pendingUser: { email: string; name: string } | null;
 }
 
 export interface RegisterData {
@@ -468,6 +469,29 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
     }
   }, [state.user]);
 
+  // Get pending user info for 2FA screen
+  const [pendingUserInfo, setPendingUserInfo] = useState<{ email: string; name: string } | null>(null);
+
+  // Update pending user when registration starts
+  useEffect(() => {
+    const loadPendingUser = async () => {
+      try {
+        const pendingJson = await AsyncStorage.getItem(STORAGE_KEYS.PENDING_REGISTRATION);
+        if (pendingJson) {
+          const pending = JSON.parse(pendingJson);
+          setPendingUserInfo({ email: pending.email, name: pending.name });
+        } else {
+          setPendingUserInfo(null);
+        }
+      } catch (e) {
+        console.error("Error loading pending user:", e);
+      }
+    };
+    if (state.requiresTwoFactor) {
+      loadPendingUser();
+    }
+  }, [state.requiresTwoFactor]);
+
   const value: AuthContextType = {
     ...state,
     register,
@@ -480,6 +504,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
     verifyResetCode,
     resetPassword,
     updateProfile,
+    pendingUser: pendingUserInfo,
   };
 
   return (

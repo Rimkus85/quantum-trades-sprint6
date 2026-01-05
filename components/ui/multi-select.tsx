@@ -7,10 +7,12 @@ import {
   FlatList,
   StyleSheet,
   Platform,
+  TextInput,
 } from "react-native";
 import MaterialIcons from "@expo/vector-icons/MaterialIcons";
 import { useColors } from "@/hooks/use-colors";
 import * as Haptics from "expo-haptics";
+import { validateBroker } from "@/lib/validators";
 
 export interface MultiSelectOption {
   value: string;
@@ -24,6 +26,10 @@ interface MultiSelectProps {
   selectedValues: string[];
   onSelectionChange: (values: string[]) => void;
   error?: string;
+  allowCustom?: boolean;
+  customValue?: string;
+  onCustomValueChange?: (value: string) => void;
+  customError?: string;
 }
 
 export function MultiSelect({
@@ -33,13 +39,27 @@ export function MultiSelect({
   selectedValues,
   onSelectionChange,
   error,
+  allowCustom = false,
+  customValue = "",
+  onCustomValueChange,
+  customError,
 }: MultiSelectProps) {
   const colors = useColors();
   const [isOpen, setIsOpen] = useState(false);
+  const [localCustomValue, setLocalCustomValue] = useState(customValue);
+  const [localCustomError, setLocalCustomError] = useState("");
+  const [suggestion, setSuggestion] = useState("");
+
+  const hasOtherSelected = selectedValues.includes("other");
 
   const selectedLabels = options
-    .filter((opt) => selectedValues.includes(opt.value))
+    .filter((opt) => selectedValues.includes(opt.value) && opt.value !== "other")
     .map((opt) => opt.label);
+
+  // Add custom broker name if "other" is selected
+  if (hasOtherSelected && customValue) {
+    selectedLabels.push(customValue);
+  }
 
   const displayText = selectedLabels.length > 0
     ? selectedLabels.length <= 2
@@ -54,6 +74,13 @@ export function MultiSelect({
     
     if (selectedValues.includes(value)) {
       onSelectionChange(selectedValues.filter((v) => v !== value));
+      // Clear custom value if "other" is deselected
+      if (value === "other") {
+        setLocalCustomValue("");
+        setLocalCustomError("");
+        setSuggestion("");
+        onCustomValueChange?.("");
+      }
     } else {
       onSelectionChange([...selectedValues, value]);
     }
@@ -70,6 +97,42 @@ export function MultiSelect({
     setIsOpen(false);
   };
 
+  const handleCustomValueChange = (value: string) => {
+    setLocalCustomValue(value);
+    setLocalCustomError("");
+    setSuggestion("");
+    onCustomValueChange?.(value);
+  };
+
+  const handleValidateCustomBroker = () => {
+    if (!localCustomValue.trim()) {
+      setLocalCustomError("Digite o nome da corretora");
+      return;
+    }
+
+    const result = validateBroker(localCustomValue);
+    if (!result.valid) {
+      setLocalCustomError(result.error || "Corretora não encontrada");
+      if (result.suggestion) {
+        setSuggestion(result.suggestion);
+      }
+    } else {
+      setLocalCustomError("");
+      setSuggestion("");
+      onCustomValueChange?.(localCustomValue);
+    }
+  };
+
+  const handleUseSuggestion = () => {
+    if (suggestion) {
+      const brokerName = suggestion.replace("Você quis dizer: ", "").replace("?", "");
+      setLocalCustomValue(brokerName);
+      setLocalCustomError("");
+      setSuggestion("");
+      onCustomValueChange?.(brokerName);
+    }
+  };
+
   return (
     <View style={styles.container}>
       {label && (
@@ -82,7 +145,7 @@ export function MultiSelect({
           styles.selector,
           {
             backgroundColor: colors.surface,
-            borderColor: error ? colors.error : colors.border,
+            borderColor: error || customError ? colors.error : colors.border,
           },
           pressed && styles.pressed,
         ]}
@@ -109,6 +172,26 @@ export function MultiSelect({
       {selectedValues.length > 0 && (
         <View style={styles.chipsContainer}>
           {selectedValues.map((value) => {
+            if (value === "other") {
+              if (!customValue) return null;
+              return (
+                <Pressable
+                  key="custom"
+                  onPress={() => toggleOption("other")}
+                  style={({ pressed }) => [
+                    styles.chip,
+                    { backgroundColor: colors.primary + "30" },
+                    pressed && styles.pressed,
+                  ]}
+                >
+                  <Text style={[styles.chipText, { color: colors.primary }]}>
+                    {customValue}
+                  </Text>
+                  <MaterialIcons name="close" size={16} color={colors.primary} />
+                </Pressable>
+              );
+            }
+            
             const option = options.find((o) => o.value === value);
             if (!option) return null;
             
@@ -132,8 +215,56 @@ export function MultiSelect({
         </View>
       )}
 
+      {/* Custom broker input field (shown when "other" is selected) */}
+      {hasOtherSelected && (
+        <View style={styles.customInputContainer}>
+          <TextInput
+            style={[
+              styles.customInput,
+              {
+                backgroundColor: colors.surface,
+                borderColor: localCustomError ? colors.error : colors.border,
+                color: colors.foreground,
+              },
+            ]}
+            placeholder="Digite o nome da corretora"
+            placeholderTextColor={colors.muted}
+            value={localCustomValue}
+            onChangeText={handleCustomValueChange}
+            onBlur={handleValidateCustomBroker}
+            autoCapitalize="words"
+          />
+          {localCustomError && (
+            <View style={styles.customErrorContainer}>
+              <MaterialIcons name="error-outline" size={14} color={colors.error} />
+              <Text style={[styles.customErrorText, { color: colors.error }]}>
+                {localCustomError}
+              </Text>
+            </View>
+          )}
+          {suggestion && (
+            <Pressable
+              onPress={handleUseSuggestion}
+              style={({ pressed }) => [
+                styles.suggestionButton,
+                { backgroundColor: colors.primary + "20" },
+                pressed && styles.pressed,
+              ]}
+            >
+              <MaterialIcons name="lightbulb" size={16} color={colors.primary} />
+              <Text style={[styles.suggestionText, { color: colors.primary }]}>
+                {suggestion}
+              </Text>
+            </Pressable>
+          )}
+        </View>
+      )}
+
       {error && (
         <Text style={[styles.errorText, { color: colors.error }]}>{error}</Text>
+      )}
+      {customError && !error && (
+        <Text style={[styles.errorText, { color: colors.error }]}>{customError}</Text>
       )}
 
       {/* Modal for selection */}
@@ -169,6 +300,7 @@ export function MultiSelect({
               style={styles.optionsList}
               renderItem={({ item }) => {
                 const isSelected = selectedValues.includes(item.value);
+                const isOther = item.value === "other";
                 
                 return (
                   <Pressable
@@ -197,14 +329,21 @@ export function MultiSelect({
                         <MaterialIcons name="check" size={16} color="#0A192F" />
                       )}
                     </View>
-                    <Text
-                      style={[
-                        styles.optionText,
-                        { color: isSelected ? colors.primary : colors.foreground },
-                      ]}
-                    >
-                      {item.label}
-                    </Text>
+                    <View style={styles.optionContent}>
+                      <Text
+                        style={[
+                          styles.optionText,
+                          { color: isSelected ? colors.primary : colors.foreground },
+                        ]}
+                      >
+                        {item.label}
+                      </Text>
+                      {isOther && (
+                        <Text style={[styles.optionHint, { color: colors.muted }]}>
+                          Digite o nome da corretora
+                        </Text>
+                      )}
+                    </View>
                   </Pressable>
                 );
               }}
@@ -274,6 +413,38 @@ const styles = StyleSheet.create({
     fontSize: 14,
     fontWeight: "500",
   },
+  customInputContainer: {
+    marginTop: 12,
+  },
+  customInput: {
+    paddingHorizontal: 16,
+    paddingVertical: 12,
+    borderRadius: 12,
+    borderWidth: 1,
+    fontSize: 16,
+  },
+  customErrorContainer: {
+    flexDirection: "row",
+    alignItems: "center",
+    gap: 4,
+    marginTop: 6,
+  },
+  customErrorText: {
+    fontSize: 12,
+  },
+  suggestionButton: {
+    flexDirection: "row",
+    alignItems: "center",
+    gap: 6,
+    paddingHorizontal: 12,
+    paddingVertical: 8,
+    borderRadius: 8,
+    marginTop: 8,
+  },
+  suggestionText: {
+    fontSize: 14,
+    fontWeight: "500",
+  },
   errorText: {
     fontSize: 12,
     marginTop: 4,
@@ -331,9 +502,15 @@ const styles = StyleSheet.create({
     alignItems: "center",
     justifyContent: "center",
   },
+  optionContent: {
+    flex: 1,
+  },
   optionText: {
     fontSize: 16,
-    flex: 1,
+  },
+  optionHint: {
+    fontSize: 12,
+    marginTop: 2,
   },
   modalFooter: {
     padding: 16,

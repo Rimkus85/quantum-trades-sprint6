@@ -9,24 +9,14 @@ import { Logo } from "@/components/ui/logo";
 import { useColors } from "@/hooks/use-colors";
 import { useLocalAuth } from "@/lib/auth-context";
 import { useToast } from "@/components/ui/toast";
+import { validateCPF, validateBroker, getBrokerOptions } from "@/lib/validators";
 import MaterialIcons from "@expo/vector-icons/MaterialIcons";
 
-const BROKERS = [
-  { label: "XP Investimentos", value: "xp" },
-  { label: "BTG Pactual", value: "btg" },
-  { label: "Clear Corretora", value: "clear" },
-  { label: "Rico Investimentos", value: "rico" },
-  { label: "Inter Invest", value: "inter" },
-  { label: "Nubank Investimentos", value: "nubank" },
-  { label: "Binance", value: "binance" },
-  { label: "Mercado Bitcoin", value: "mercadobitcoin" },
-  { label: "Foxbit", value: "foxbit" },
-  { label: "NovaDAX", value: "novadax" },
-  { label: "Outra", value: "other" },
-];
+// Use broker options from validators
+const BROKERS = getBrokerOptions();
 
 // Field order for scroll positioning
-const FIELD_ORDER = ["name", "email", "cpf", "brokers", "password", "confirmPassword"];
+const FIELD_ORDER = ["name", "email", "cpf", "brokers", "customBroker", "password", "confirmPassword"];
 
 export default function RegisterScreen() {
   const colors = useColors();
@@ -40,6 +30,7 @@ export default function RegisterScreen() {
     email: "",
     cpf: "",
     brokers: [] as string[],
+    customBroker: "",
     password: "",
     confirmPassword: "",
   });
@@ -57,28 +48,48 @@ export default function RegisterScreen() {
   const validateForm = () => {
     const newErrors: Record<string, string> = {};
 
+    // Validate name
     if (!formData.name.trim()) {
       newErrors.name = "Nome é obrigatório";
     } else if (formData.name.trim().split(" ").length < 2) {
       newErrors.name = "Digite seu nome completo";
     }
 
+    // Validate email
     if (!formData.email.trim()) {
       newErrors.email = "E-mail é obrigatório";
     } else if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(formData.email)) {
       newErrors.email = "E-mail inválido";
     }
 
+    // Validate CPF with mathematical validation
     if (!formData.cpf) {
       newErrors.cpf = "CPF é obrigatório";
-    } else if (!/^\d{3}\.\d{3}\.\d{3}-\d{2}$/.test(formData.cpf)) {
-      newErrors.cpf = "CPF inválido";
+    } else {
+      const cpfValidation = validateCPF(formData.cpf);
+      if (!cpfValidation.valid) {
+        newErrors.cpf = cpfValidation.error || "CPF inválido";
+      }
     }
 
+    // Validate brokers
     if (formData.brokers.length === 0) {
       newErrors.brokers = "Selecione pelo menos uma corretora";
     }
 
+    // Validate custom broker if "other" is selected
+    if (formData.brokers.includes("other")) {
+      if (!formData.customBroker.trim()) {
+        newErrors.customBroker = "Digite o nome da corretora";
+      } else {
+        const brokerValidation = validateBroker(formData.customBroker);
+        if (!brokerValidation.valid) {
+          newErrors.customBroker = brokerValidation.error || "Corretora não encontrada";
+        }
+      }
+    }
+
+    // Validate password
     if (!formData.password) {
       newErrors.password = "Senha é obrigatória";
     } else if (formData.password.length < 8) {
@@ -89,6 +100,7 @@ export default function RegisterScreen() {
       newErrors.password = "Deve conter número";
     }
 
+    // Validate password confirmation
     if (formData.password !== formData.confirmPassword) {
       newErrors.confirmPassword = "Senhas não conferem";
     }
@@ -117,11 +129,16 @@ export default function RegisterScreen() {
 
     setIsLoading(true);
     try {
+      // Build broker list (replace "other" with custom broker name)
+      const brokerList = formData.brokers.map(b => 
+        b === "other" ? formData.customBroker : b
+      );
+
       const result = await register({
         name: formData.name.trim(),
         email: formData.email.trim().toLowerCase(),
         cpf: formData.cpf,
-        broker: formData.brokers.join(","),
+        broker: brokerList.join(","),
         password: formData.password,
       });
 
@@ -222,6 +239,9 @@ export default function RegisterScreen() {
                 error={errors.cpf}
                 leftIcon="badge"
               />
+              <Text style={[styles.fieldHint, { color: colors.muted }]}>
+                Validação matemática dos dígitos verificadores
+              </Text>
             </View>
 
             <View onLayout={(e) => handleFieldLayout("brokers", e.nativeEvent.layout.y)}>
@@ -232,6 +252,10 @@ export default function RegisterScreen() {
                 selectedValues={formData.brokers}
                 onSelectionChange={(values) => updateField("brokers", values)}
                 error={errors.brokers}
+                allowCustom={true}
+                customValue={formData.customBroker}
+                onCustomValueChange={(value) => updateField("customBroker", value)}
+                customError={errors.customBroker}
               />
             </View>
 
@@ -363,6 +387,12 @@ const styles = StyleSheet.create({
   },
   form: {
     gap: 8,
+  },
+  fieldHint: {
+    fontSize: 11,
+    marginTop: -12,
+    marginBottom: 8,
+    marginLeft: 4,
   },
   requirements: {
     marginTop: 8,

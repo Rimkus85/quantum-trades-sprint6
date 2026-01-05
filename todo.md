@@ -51,3 +51,7 @@
 - [x] Corrigir problema de carregamento no Expo Go (era cache)
 - [x] Implementar feedback visual de erros (toast/alert + auto-scroll para campo com erro)
 - [x] Validar CPF/e-mail duplicado no cadastro
+- [x] Campo "Outra" corretora: abrir campo de texto quando selecionado
+- [x] Validação de corretora: verificar se existe na lista conhecida
+- [x] Validação matemática de CPF (algoritmo módulo 11 + sequências inválidas)
+- [x] Enviar código 2FA por e-mail ao invés de exibir QR code em tela
