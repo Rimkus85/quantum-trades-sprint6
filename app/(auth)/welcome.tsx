@@ -15,7 +15,7 @@ export default function WelcomeScreen() {
       <View style={styles.container}>
         {/* Logo Section */}
         <View style={styles.logoSection}>
-          <Logo size="xl" showText />
+          <Logo size="xl" />
         </View>
 
         {/* Content Section */}

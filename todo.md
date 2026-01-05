@@ -43,3 +43,6 @@
 - [x] Testes de geração TOTP
 - [x] Testes de recuperação de senha
 - [x] Testes de segurança (hash de senha)
+
+## Correções
+- [x] Corrigir logo: usar PNG cortado com texto e remover texto duplicado do componente

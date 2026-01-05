@@ -25,7 +25,7 @@ export default function DashboardScreen() {
       >
         {/* Header */}
         <View style={styles.header}>
-          <Logo size="sm" showText={false} />
+          <Logo size="sm" />
           <View style={styles.headerRight}>
             <Pressable
               onPress={handleLogout}

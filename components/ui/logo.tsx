@@ -1,52 +1,37 @@
 import React from "react";
-import { View, Text, StyleSheet } from "react-native";
+import { View, StyleSheet } from "react-native";
 import { Image } from "expo-image";
 
 interface LogoProps {
-  size?: "sm" | "md" | "lg" | "xl";
-  showText?: boolean;
+  size?: "xs" | "sm" | "md" | "lg" | "xl";
 }
 
 const SIZES = {
-  sm: { image: 40, fontSize: 14, subtitleSize: 10 },
-  md: { image: 60, fontSize: 18, subtitleSize: 12 },
-  lg: { image: 80, fontSize: 24, subtitleSize: 14 },
-  xl: { image: 120, fontSize: 32, subtitleSize: 16 },
+  xs: { width: 80, height: 60 },
+  sm: { width: 120, height: 90 },
+  md: { width: 180, height: 135 },
+  lg: { width: 240, height: 180 },
+  xl: { width: 320, height: 240 },
 };
 
-export function Logo({ size = "md", showText = true }: LogoProps) {
+/**
+ * Logo component that displays the Quantum Trades logo.
+ * The PNG already contains the "QUANTUM TRADES" text, so no additional text is rendered.
+ */
+export function Logo({ size = "md" }: LogoProps) {
   const dimensions = SIZES[size];
 
   return (
     <View style={styles.container}>
       <Image
-        source={require("@/assets/images/logo_final.png")}
+        source={require("@/assets/images/logo.png")}
         style={{
-          width: dimensions.image,
-          height: dimensions.image,
+          width: dimensions.width,
+          height: dimensions.height,
         }}
         contentFit="contain"
+        transition={200}
       />
-      {showText && (
-        <View style={styles.textContainer}>
-          <Text
-            style={[
-              styles.title,
-              { fontSize: dimensions.fontSize },
-            ]}
-          >
-            QUANTUM
-          </Text>
-          <Text
-            style={[
-              styles.subtitle,
-              { fontSize: dimensions.subtitleSize },
-            ]}
-          >
-            TRADES
-          </Text>
-        </View>
-      )}
     </View>
   );
 }
@@ -54,20 +39,6 @@ export function Logo({ size = "md", showText = true }: LogoProps) {
 const styles = StyleSheet.create({
   container: {
     alignItems: "center",
-  },
-  textContainer: {
-    alignItems: "center",
-    marginTop: 8,
-  },
-  title: {
-    color: "#FFD700",
-    fontWeight: "700",
-    letterSpacing: 2,
-  },
-  subtitle: {
-    color: "#FFD700",
-    fontWeight: "400",
-    letterSpacing: 4,
-    marginTop: 2,
+    justifyContent: "center",
   },
 });

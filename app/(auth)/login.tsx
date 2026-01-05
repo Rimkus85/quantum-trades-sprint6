@@ -140,7 +140,7 @@ export default function LoginScreen() {
           >
             {/* Logo */}
             <View style={styles.logoContainer}>
-              <Logo size="md" showText={false} />
+              <Logo size="md" />
             </View>
 
             {/* Title */}
@@ -227,7 +227,7 @@ export default function LoginScreen() {
         >
           {/* Logo */}
           <View style={styles.logoContainer}>
-            <Logo size="lg" showText />
+            <Logo size="lg" />
           </View>
 
           {/* Error Message */}

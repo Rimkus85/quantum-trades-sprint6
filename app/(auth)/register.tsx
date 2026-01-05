@@ -139,7 +139,7 @@ export default function RegisterScreen() {
         >
           {/* Logo */}
           <View style={styles.logoContainer}>
-            <Logo size="sm" showText={false} />
+            <Logo size="sm" />
           </View>
 
           {/* Error Message */}

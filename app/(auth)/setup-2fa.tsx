@@ -127,7 +127,7 @@ export default function Setup2FAScreen() {
 
         {/* Logo */}
         <View style={styles.logoContainer}>
-          <Logo size="sm" showText={false} />
+          <Logo size="sm" />
         </View>
 
         {/* Title */}

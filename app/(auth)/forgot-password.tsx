@@ -423,7 +423,7 @@ export default function ForgotPasswordScreen() {
         >
           {/* Logo */}
           <View style={styles.logoContainer}>
-            <Logo size="sm" showText={false} />
+            <Logo size="sm" />
           </View>
 
           {step === "email" && renderEmailStep()}
