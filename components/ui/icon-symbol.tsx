@@ -18,6 +18,17 @@ const MAPPING = {
   "paperplane.fill": "send",
   "chevron.left.forwardslash.chevron.right": "code",
   "chevron.right": "chevron-right",
+  // Quantum Trades icons
+  "chart.line.uptrend.xyaxis": "show-chart",
+  "dollarsign.circle.fill": "attach-money",
+  "gearshape.fill": "settings",
+  "person.fill": "person",
+  "bell.fill": "notifications",
+  "rectangle.stack.fill": "dashboard",
+  "chart.bar.fill": "bar-chart",
+  "arrow.triangle.swap": "swap-horiz",
+  "lock.shield.fill": "security",
+  "cpu.fill": "smart-toy",
 } as IconMapping;
 
 /**
