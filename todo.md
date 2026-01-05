@@ -48,3 +48,6 @@
 - [x] Corrigir logo: usar PNG cortado com texto e remover texto duplicado do componente
 - [x] Corrigir sobreposição de texto na tela Welcome (remover texto duplicado sobre o logo)
 - [x] Alterar seleção de corretora para permitir múltiplas seleções
+- [x] Corrigir problema de carregamento no Expo Go (era cache)
+- [x] Implementar feedback visual de erros (toast/alert + auto-scroll para campo com erro)
+- [x] Validar CPF/e-mail duplicado no cadastro

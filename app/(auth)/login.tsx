@@ -9,10 +9,12 @@ import { useColors } from "@/hooks/use-colors";
 import { useLocalAuth } from "@/lib/auth-context";
 import MaterialIcons from "@expo/vector-icons/MaterialIcons";
 import * as Haptics from "expo-haptics";
+import { useToast } from "@/components/ui/toast";
 
 export default function LoginScreen() {
   const colors = useColors();
   const { login, verifyLoginTwoFactor, requiresTwoFactor } = useLocalAuth();
+  const { showToast } = useToast();
 
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
@@ -44,12 +46,14 @@ export default function LoginScreen() {
         setTimeout(() => inputRefs.current[0]?.focus(), 100);
       } else if (!result.success) {
         setError(result.error || "Erro ao fazer login");
+        showToast(result.error || "Erro ao fazer login", "error");
         if (Platform.OS !== "web") {
           Haptics.notificationAsync(Haptics.NotificationFeedbackType.Error);
         }
       }
     } catch (error) {
       setError("Erro ao fazer login. Tente novamente.");
+      showToast("Erro ao fazer login. Tente novamente.", "error");
     } finally {
       setIsLoading(false);
     }
@@ -100,6 +104,7 @@ export default function LoginScreen() {
         router.replace("/(tabs)" as any);
       } else {
         setError(result.error || "Código inválido");
+        showToast(result.error || "Código inválido", "error");
         setTwoFactorCode(["", "", "", "", "", ""]);
         inputRefs.current[0]?.focus();
         if (Platform.OS !== "web") {

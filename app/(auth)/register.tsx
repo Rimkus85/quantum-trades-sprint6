@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useState, useRef } from "react";
 import { View, Text, ScrollView, Pressable, StyleSheet, KeyboardAvoidingView, Platform } from "react-native";
 import { router } from "expo-router";
 import { ScreenContainer } from "@/components/screen-container";
@@ -8,6 +8,7 @@ import { MultiSelect } from "@/components/ui/multi-select";
 import { Logo } from "@/components/ui/logo";
 import { useColors } from "@/hooks/use-colors";
 import { useLocalAuth } from "@/lib/auth-context";
+import { useToast } from "@/components/ui/toast";
 import MaterialIcons from "@expo/vector-icons/MaterialIcons";
 
 const BROKERS = [
@@ -24,9 +25,15 @@ const BROKERS = [
   { label: "Outra", value: "other" },
 ];
 
+// Field order for scroll positioning
+const FIELD_ORDER = ["name", "email", "cpf", "brokers", "password", "confirmPassword"];
+
 export default function RegisterScreen() {
   const colors = useColors();
   const { register } = useLocalAuth();
+  const { showToast } = useToast();
+  const scrollViewRef = useRef<ScrollView>(null);
+  const fieldPositions = useRef<Record<string, number>>({});
 
   const [formData, setFormData] = useState({
     name: "",
@@ -39,6 +46,13 @@ export default function RegisterScreen() {
 
   const [errors, setErrors] = useState<Record<string, string>>({});
   const [isLoading, setIsLoading] = useState(false);
+
+  const scrollToField = (fieldName: string) => {
+    const position = fieldPositions.current[fieldName];
+    if (position !== undefined && scrollViewRef.current) {
+      scrollViewRef.current.scrollTo({ y: Math.max(0, position - 100), animated: true });
+    }
+  };
 
   const validateForm = () => {
     const newErrors: Record<string, string> = {};
@@ -80,7 +94,22 @@ export default function RegisterScreen() {
     }
 
     setErrors(newErrors);
-    return Object.keys(newErrors).length === 0;
+    
+    // If there are errors, show toast and scroll to first error
+    if (Object.keys(newErrors).length > 0) {
+      const firstErrorField = FIELD_ORDER.find(field => newErrors[field]);
+      if (firstErrorField) {
+        const errorMessage = newErrors[firstErrorField];
+        showToast(errorMessage, "error", {
+          label: "Ver",
+          onPress: () => scrollToField(firstErrorField),
+        });
+        scrollToField(firstErrorField);
+      }
+      return false;
+    }
+    
+    return true;
   };
 
   const handleSubmit = async () => {
@@ -92,17 +121,24 @@ export default function RegisterScreen() {
         name: formData.name.trim(),
         email: formData.email.trim().toLowerCase(),
         cpf: formData.cpf,
-        broker: formData.brokers.join(","), // Múltiplas corretoras separadas por vírgula
+        broker: formData.brokers.join(","),
         password: formData.password,
       });
 
       if (result.success && result.requiresTwoFactor) {
+        showToast("Conta criada! Configure o 2FA para continuar.", "success");
         router.push("/setup-2fa" as any);
       } else if (!result.success) {
-        setErrors({ general: result.error || "Erro ao criar conta" });
+        // Handle specific field errors (e.g., duplicate email/CPF)
+        const fieldError = (result as any).field;
+        if (fieldError) {
+          setErrors({ [fieldError]: result.error || "Erro" });
+          scrollToField(fieldError);
+        }
+        showToast(result.error || "Erro ao criar conta", "error");
       }
     } catch (error) {
-      setErrors({ general: "Erro ao criar conta. Tente novamente." });
+      showToast("Erro ao criar conta. Tente novamente.", "error");
     } finally {
       setIsLoading(false);
     }
@@ -113,6 +149,10 @@ export default function RegisterScreen() {
     if (errors[field]) {
       setErrors(prev => ({ ...prev, [field]: "" }));
     }
+  };
+
+  const handleFieldLayout = (fieldName: string, y: number) => {
+    fieldPositions.current[fieldName] = y;
   };
 
   return (
@@ -134,6 +174,7 @@ export default function RegisterScreen() {
         </View>
 
         <ScrollView
+          ref={scrollViewRef}
           style={styles.scrollView}
           contentContainerStyle={styles.scrollContent}
           showsVerticalScrollIndicator={false}
@@ -144,75 +185,79 @@ export default function RegisterScreen() {
             <Logo size="sm" />
           </View>
 
-          {/* Error Message */}
-          {errors.general && (
-            <View style={[styles.errorBanner, { backgroundColor: colors.error + "20" }]}>
-              <MaterialIcons name="error-outline" size={20} color={colors.error} />
-              <Text style={[styles.errorText, { color: colors.error }]}>{errors.general}</Text>
-            </View>
-          )}
-
           {/* Form */}
           <View style={styles.form}>
-            <Input
-              label="Nome completo"
-              placeholder="Digite seu nome completo"
-              value={formData.name}
-              onChangeText={(value) => updateField("name", value)}
-              error={errors.name}
-              leftIcon="person"
-              autoCapitalize="words"
-              autoComplete="name"
-            />
+            <View onLayout={(e) => handleFieldLayout("name", e.nativeEvent.layout.y)}>
+              <Input
+                label="Nome completo"
+                placeholder="Digite seu nome completo"
+                value={formData.name}
+                onChangeText={(value) => updateField("name", value)}
+                error={errors.name}
+                leftIcon="person"
+                autoCapitalize="words"
+                autoComplete="name"
+              />
+            </View>
 
-            <Input
-              label="E-mail"
-              placeholder="seu@email.com"
-              value={formData.email}
-              onChangeText={(value) => updateField("email", value)}
-              error={errors.email}
-              leftIcon="email"
-              keyboardType="email-address"
-              autoCapitalize="none"
-              autoComplete="email"
-            />
+            <View onLayout={(e) => handleFieldLayout("email", e.nativeEvent.layout.y)}>
+              <Input
+                label="E-mail"
+                placeholder="seu@email.com"
+                value={formData.email}
+                onChangeText={(value) => updateField("email", value)}
+                error={errors.email}
+                leftIcon="email"
+                keyboardType="email-address"
+                autoCapitalize="none"
+                autoComplete="email"
+              />
+            </View>
 
-            <CPFInput
-              label="CPF"
-              value={formData.cpf}
-              onChangeText={(value) => updateField("cpf", value)}
-              error={errors.cpf}
-              leftIcon="badge"
-            />
+            <View onLayout={(e) => handleFieldLayout("cpf", e.nativeEvent.layout.y)}>
+              <CPFInput
+                label="CPF"
+                value={formData.cpf}
+                onChangeText={(value) => updateField("cpf", value)}
+                error={errors.cpf}
+                leftIcon="badge"
+              />
+            </View>
 
-            <MultiSelect
-              label="Corretoras"
-              placeholder="Selecione suas corretoras"
-              options={BROKERS}
-              selectedValues={formData.brokers}
-              onSelectionChange={(values) => updateField("brokers", values)}
-              error={errors.brokers}
-            />
+            <View onLayout={(e) => handleFieldLayout("brokers", e.nativeEvent.layout.y)}>
+              <MultiSelect
+                label="Corretoras"
+                placeholder="Selecione suas corretoras"
+                options={BROKERS}
+                selectedValues={formData.brokers}
+                onSelectionChange={(values) => updateField("brokers", values)}
+                error={errors.brokers}
+              />
+            </View>
 
-            <PasswordInput
-              label="Senha"
-              placeholder="Mínimo 8 caracteres"
-              value={formData.password}
-              onChangeText={(value) => updateField("password", value)}
-              error={errors.password}
-              leftIcon="lock"
-              autoComplete="new-password"
-            />
+            <View onLayout={(e) => handleFieldLayout("password", e.nativeEvent.layout.y)}>
+              <PasswordInput
+                label="Senha"
+                placeholder="Mínimo 8 caracteres"
+                value={formData.password}
+                onChangeText={(value) => updateField("password", value)}
+                error={errors.password}
+                leftIcon="lock"
+                autoComplete="new-password"
+              />
+            </View>
 
-            <PasswordInput
-              label="Confirmar senha"
-              placeholder="Digite a senha novamente"
-              value={formData.confirmPassword}
-              onChangeText={(value) => updateField("confirmPassword", value)}
-              error={errors.confirmPassword}
-              leftIcon="lock"
-              autoComplete="new-password"
-            />
+            <View onLayout={(e) => handleFieldLayout("confirmPassword", e.nativeEvent.layout.y)}>
+              <PasswordInput
+                label="Confirmar senha"
+                placeholder="Digite a senha novamente"
+                value={formData.confirmPassword}
+                onChangeText={(value) => updateField("confirmPassword", value)}
+                error={errors.confirmPassword}
+                leftIcon="lock"
+                autoComplete="new-password"
+              />
+            </View>
 
             {/* Password Requirements */}
             <View style={styles.requirements}>
@@ -315,18 +360,6 @@ const styles = StyleSheet.create({
   logoContainer: {
     alignItems: "center",
     marginBottom: 24,
-  },
-  errorBanner: {
-    flexDirection: "row",
-    alignItems: "center",
-    padding: 12,
-    borderRadius: 8,
-    marginBottom: 16,
-    gap: 8,
-  },
-  errorText: {
-    flex: 1,
-    fontSize: 14,
   },
   form: {
     gap: 8,

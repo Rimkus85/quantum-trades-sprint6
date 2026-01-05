@@ -143,11 +143,16 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
         return { success: false, error: "Senha deve conter pelo menos um número" };
       }
 
-      // Check if user already exists
+      // Check if user already exists (email or CPF)
       const existingUsers = await AsyncStorage.getItem("@quantum_trades_users") || "[]";
-      const users = JSON.parse(existingUsers) as Array<{ email: string }>;
+      const users = JSON.parse(existingUsers) as Array<{ email: string; cpf: string }>;
+      
       if (users.some(u => u.email === data.email)) {
-        return { success: false, error: "E-mail já cadastrado" };
+        return { success: false, error: "E-mail já cadastrado", field: "email" };
+      }
+      
+      if (users.some(u => u.cpf === data.cpf)) {
+        return { success: false, error: "CPF já cadastrado", field: "cpf" };
       }
 
       // Generate 2FA secret
