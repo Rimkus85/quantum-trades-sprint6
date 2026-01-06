@@ -6,6 +6,8 @@ export interface UserProfile {
   id: string;
   name: string;
   email: string;
+  phone: string;
+  telegram: string;
   cpf: string;
   broker: string;
   riskProfile?: "conservador" | "moderado" | "agressivo";
@@ -42,6 +44,8 @@ interface AuthContextType extends AuthState {
 export interface RegisterData {
   name: string;
   email: string;
+  phone: string;
+  telegram: string;
   cpf: string;
   broker: string;
   password: string;
@@ -223,6 +227,8 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
         id: pending.id,
         name: pending.name,
         email: pending.email,
+        phone: pending.phone || "",
+        telegram: pending.telegram || "",
         cpf: pending.cpf,
         broker: pending.broker,
         twoFactorEnabled: true,
@@ -305,6 +311,8 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
         id: pending.id,
         name: pending.name,
         email: pending.email,
+        phone: pending.phone || "",
+        telegram: pending.telegram || "",
         cpf: pending.cpf,
         broker: pending.broker,
         riskProfile: pending.riskProfile,

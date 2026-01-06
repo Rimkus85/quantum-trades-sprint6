@@ -57,3 +57,5 @@
 - [x] Enviar código 2FA por e-mail ao invés de exibir QR code em tela
 - [x] Remover mensagem "Validação matemática de dígitos" do campo CPF
 - [x] Adicionar checkbox "Não tenho conta em nenhuma corretora" que desabilita seleção de corretoras
+- [x] Adicionar campo de celular com máscara brasileira (XX) XXXXX-XXXX
+- [x] Adicionar campo de usuário do Telegram com checkboxes "Mesmo do celular" e "Não tenho Telegram"

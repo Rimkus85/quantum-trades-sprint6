@@ -135,6 +135,53 @@ export const CPFInput = forwardRef<TextInput, CPFInputProps>(
 
 CPFInput.displayName = "CPFInput";
 
+// Phone Input with Brazilian mask
+interface PhoneInputProps extends Omit<InputProps, "value" | "onChangeText"> {
+  value: string;
+  onChangeText: (value: string) => void;
+}
+
+export const PhoneInput = forwardRef<TextInput, PhoneInputProps>(
+  ({ value, onChangeText, ...props }, ref) => {
+    const formatPhone = (text: string) => {
+      // Remove non-digits
+      const digits = text.replace(/\D/g, "").slice(0, 11);
+      
+      // Apply mask (XX) XXXXX-XXXX
+      let formatted = digits;
+      if (digits.length > 0) {
+        formatted = "(" + digits;
+      }
+      if (digits.length > 2) {
+        formatted = "(" + digits.slice(0, 2) + ") " + digits.slice(2);
+      }
+      if (digits.length > 7) {
+        formatted = "(" + digits.slice(0, 2) + ") " + digits.slice(2, 7) + "-" + digits.slice(7);
+      }
+      
+      return formatted;
+    };
+
+    const handleChange = (text: string) => {
+      onChangeText(formatPhone(text));
+    };
+
+    return (
+      <Input
+        ref={ref}
+        value={value}
+        onChangeText={handleChange}
+        keyboardType="phone-pad"
+        maxLength={15}
+        placeholder="(XX) XXXXX-XXXX"
+        {...props}
+      />
+    );
+  }
+);
+
+PhoneInput.displayName = "PhoneInput";
+
 const styles = StyleSheet.create({
   leftIcon: {
     marginRight: 12,

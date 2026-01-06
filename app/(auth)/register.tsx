@@ -1,9 +1,9 @@
 import React, { useState, useRef } from "react";
-import { View, Text, ScrollView, Pressable, StyleSheet, KeyboardAvoidingView, Platform, Switch } from "react-native";
+import { View, Text, ScrollView, Pressable, StyleSheet, KeyboardAvoidingView, Platform } from "react-native";
 import { router } from "expo-router";
 import { ScreenContainer } from "@/components/screen-container";
 import { Button } from "@/components/ui/button";
-import { Input, PasswordInput, CPFInput } from "@/components/ui/input";
+import { Input, PasswordInput, CPFInput, PhoneInput } from "@/components/ui/input";
 import { MultiSelect } from "@/components/ui/multi-select";
 import { Logo } from "@/components/ui/logo";
 import { useColors } from "@/hooks/use-colors";
@@ -16,7 +16,7 @@ import MaterialIcons from "@expo/vector-icons/MaterialIcons";
 const BROKERS = getBrokerOptions();
 
 // Field order for scroll positioning
-const FIELD_ORDER = ["name", "email", "cpf", "brokers", "customBroker", "password", "confirmPassword"];
+const FIELD_ORDER = ["name", "email", "phone", "telegram", "cpf", "brokers", "customBroker", "password", "confirmPassword"];
 
 export default function RegisterScreen() {
   const colors = useColors();
@@ -28,6 +28,8 @@ export default function RegisterScreen() {
   const [formData, setFormData] = useState({
     name: "",
     email: "",
+    phone: "",
+    telegram: "",
     cpf: "",
     brokers: [] as string[],
     customBroker: "",
@@ -36,6 +38,8 @@ export default function RegisterScreen() {
   });
 
   const [noBrokerAccount, setNoBrokerAccount] = useState(false);
+  const [telegramSameAsPhone, setTelegramSameAsPhone] = useState(false);
+  const [noTelegram, setNoTelegram] = useState(false);
   const [errors, setErrors] = useState<Record<string, string>>({});
   const [isLoading, setIsLoading] = useState(false);
 
@@ -49,9 +53,39 @@ export default function RegisterScreen() {
   const handleNoBrokerToggle = (value: boolean) => {
     setNoBrokerAccount(value);
     if (value) {
-      // Clear broker selection when toggling on
       setFormData(prev => ({ ...prev, brokers: [], customBroker: "" }));
       setErrors(prev => ({ ...prev, brokers: "", customBroker: "" }));
+    }
+  };
+
+  const handleTelegramSameAsPhone = (value: boolean) => {
+    setTelegramSameAsPhone(value);
+    if (value) {
+      setNoTelegram(false);
+      // Extract just the digits from phone for telegram
+      const phoneDigits = formData.phone.replace(/\D/g, "");
+      setFormData(prev => ({ ...prev, telegram: phoneDigits ? `+55${phoneDigits}` : "" }));
+      setErrors(prev => ({ ...prev, telegram: "" }));
+    } else {
+      setFormData(prev => ({ ...prev, telegram: "" }));
+    }
+  };
+
+  const handleNoTelegram = (value: boolean) => {
+    setNoTelegram(value);
+    if (value) {
+      setTelegramSameAsPhone(false);
+      setFormData(prev => ({ ...prev, telegram: "" }));
+      setErrors(prev => ({ ...prev, telegram: "" }));
+    }
+  };
+
+  // Update telegram when phone changes and "same as phone" is checked
+  const handlePhoneChange = (value: string) => {
+    updateField("phone", value);
+    if (telegramSameAsPhone) {
+      const phoneDigits = value.replace(/\D/g, "");
+      setFormData(prev => ({ ...prev, telegram: phoneDigits ? `+55${phoneDigits}` : "" }));
     }
   };
 
@@ -72,6 +106,23 @@ export default function RegisterScreen() {
       newErrors.email = "E-mail inválido";
     }
 
+    // Validate phone
+    const phoneDigits = formData.phone.replace(/\D/g, "");
+    if (!formData.phone) {
+      newErrors.phone = "Celular é obrigatório";
+    } else if (phoneDigits.length < 10 || phoneDigits.length > 11) {
+      newErrors.phone = "Celular inválido";
+    }
+
+    // Validate telegram (only if user has telegram)
+    if (!noTelegram && !telegramSameAsPhone) {
+      if (!formData.telegram.trim()) {
+        newErrors.telegram = "Usuário do Telegram é obrigatório";
+      } else if (!formData.telegram.startsWith("@") && !formData.telegram.startsWith("+")) {
+        newErrors.telegram = "Use @usuario ou número com +55";
+      }
+    }
+
     // Validate CPF with mathematical validation
     if (!formData.cpf) {
       newErrors.cpf = "CPF é obrigatório";
@@ -88,7 +139,6 @@ export default function RegisterScreen() {
         newErrors.brokers = "Selecione pelo menos uma corretora";
       }
 
-      // Validate custom broker if "other" is selected
       if (formData.brokers.includes("other")) {
         if (!formData.customBroker.trim()) {
           newErrors.customBroker = "Digite o nome da corretora";
@@ -119,7 +169,6 @@ export default function RegisterScreen() {
 
     setErrors(newErrors);
     
-    // If there are errors, show toast and scroll to first error
     if (Object.keys(newErrors).length > 0) {
       const firstErrorField = FIELD_ORDER.find(field => newErrors[field]);
       if (firstErrorField) {
@@ -141,7 +190,6 @@ export default function RegisterScreen() {
 
     setIsLoading(true);
     try {
-      // Build broker list (replace "other" with custom broker name)
       let brokerValue = "";
       if (!noBrokerAccount) {
         const brokerList = formData.brokers.map(b => 
@@ -152,10 +200,23 @@ export default function RegisterScreen() {
         brokerValue = "Nenhuma";
       }
 
+      // Determine telegram value
+      let telegramValue = "";
+      if (noTelegram) {
+        telegramValue = "Não possui";
+      } else if (telegramSameAsPhone) {
+        const phoneDigits = formData.phone.replace(/\D/g, "");
+        telegramValue = `+55${phoneDigits}`;
+      } else {
+        telegramValue = formData.telegram;
+      }
+
       const result = await register({
         name: formData.name.trim(),
         email: formData.email.trim().toLowerCase(),
         cpf: formData.cpf,
+        phone: formData.phone,
+        telegram: telegramValue,
         broker: brokerValue,
         password: formData.password,
       });
@@ -164,7 +225,6 @@ export default function RegisterScreen() {
         showToast("Conta criada! Configure o 2FA para continuar.", "success");
         router.push("/setup-2fa" as any);
       } else if (!result.success) {
-        // Handle specific field errors (e.g., duplicate email/CPF)
         const fieldError = (result as any).field;
         if (fieldError) {
           setErrors({ [fieldError]: result.error || "Erro" });
@@ -249,6 +309,82 @@ export default function RegisterScreen() {
               />
             </View>
 
+            <View onLayout={(e) => handleFieldLayout("phone", e.nativeEvent.layout.y)}>
+              <PhoneInput
+                label="Celular"
+                value={formData.phone}
+                onChangeText={handlePhoneChange}
+                error={errors.phone}
+                leftIcon="phone"
+              />
+            </View>
+
+            {/* Telegram Section */}
+            <View onLayout={(e) => handleFieldLayout("telegram", e.nativeEvent.layout.y)}>
+              <Text style={[styles.fieldLabel, { color: colors.muted }]}>Telegram</Text>
+              
+              {/* Telegram Checkboxes */}
+              <View style={[styles.telegramOptions, { backgroundColor: colors.surface }]}>
+                <Pressable
+                  onPress={() => handleTelegramSameAsPhone(!telegramSameAsPhone)}
+                  style={styles.checkboxRow}
+                >
+                  <View style={[
+                    styles.checkbox,
+                    { borderColor: telegramSameAsPhone ? colors.primary : colors.border },
+                    telegramSameAsPhone && { backgroundColor: colors.primary }
+                  ]}>
+                    {telegramSameAsPhone && (
+                      <MaterialIcons name="check" size={14} color={colors.background} />
+                    )}
+                  </View>
+                  <Text style={[styles.checkboxText, { color: colors.foreground }]}>
+                    Mesmo número do celular
+                  </Text>
+                </Pressable>
+
+                <Pressable
+                  onPress={() => handleNoTelegram(!noTelegram)}
+                  style={styles.checkboxRow}
+                >
+                  <View style={[
+                    styles.checkbox,
+                    { borderColor: noTelegram ? colors.primary : colors.border },
+                    noTelegram && { backgroundColor: colors.primary }
+                  ]}>
+                    {noTelegram && (
+                      <MaterialIcons name="check" size={14} color={colors.background} />
+                    )}
+                  </View>
+                  <Text style={[styles.checkboxText, { color: colors.foreground }]}>
+                    Não tenho Telegram
+                  </Text>
+                </Pressable>
+              </View>
+
+              {/* Telegram Input - only show if neither checkbox is selected */}
+              {!telegramSameAsPhone && !noTelegram && (
+                <Input
+                  placeholder="@usuario ou +5511999999999"
+                  value={formData.telegram}
+                  onChangeText={(value) => updateField("telegram", value)}
+                  error={errors.telegram}
+                  leftIcon="send"
+                  autoCapitalize="none"
+                />
+              )}
+
+              {/* Show selected telegram value */}
+              {telegramSameAsPhone && formData.phone && (
+                <View style={[styles.telegramPreview, { backgroundColor: colors.surface }]}>
+                  <MaterialIcons name="send" size={18} color={colors.muted} />
+                  <Text style={[styles.telegramPreviewText, { color: colors.foreground }]}>
+                    +55{formData.phone.replace(/\D/g, "")}
+                  </Text>
+                </View>
+              )}
+            </View>
+
             <View onLayout={(e) => handleFieldLayout("cpf", e.nativeEvent.layout.y)}>
               <CPFInput
                 label="CPF"
@@ -271,7 +407,7 @@ export default function RegisterScreen() {
                   noBrokerAccount && { backgroundColor: colors.primary }
                 ]}>
                   {noBrokerAccount && (
-                    <MaterialIcons name="check" size={16} color={colors.background} />
+                    <MaterialIcons name="check" size={14} color={colors.background} />
                   )}
                 </View>
                 <Text style={[styles.checkboxLabel, { color: colors.foreground }]}>
@@ -285,7 +421,7 @@ export default function RegisterScreen() {
               )}
             </View>
 
-            {/* Broker Selection - Only show if user has broker account */}
+            {/* Broker Selection */}
             {!noBrokerAccount && (
               <View onLayout={(e) => handleFieldLayout("brokers", e.nativeEvent.layout.y)}>
                 <MultiSelect
@@ -432,6 +568,35 @@ const styles = StyleSheet.create({
   form: {
     gap: 8,
   },
+  fieldLabel: {
+    fontSize: 14,
+    fontWeight: "500",
+    marginBottom: 8,
+  },
+  telegramOptions: {
+    padding: 12,
+    borderRadius: 12,
+    marginBottom: 8,
+    gap: 12,
+  },
+  checkboxRow: {
+    flexDirection: "row",
+    alignItems: "center",
+    gap: 10,
+  },
+  checkboxText: {
+    fontSize: 14,
+  },
+  telegramPreview: {
+    flexDirection: "row",
+    alignItems: "center",
+    gap: 12,
+    padding: 16,
+    borderRadius: 12,
+  },
+  telegramPreviewText: {
+    fontSize: 16,
+  },
   checkboxContainer: {
     padding: 16,
     borderRadius: 12,
@@ -443,8 +608,8 @@ const styles = StyleSheet.create({
     gap: 12,
   },
   checkbox: {
-    width: 24,
-    height: 24,
+    width: 22,
+    height: 22,
     borderRadius: 6,
     borderWidth: 2,
     alignItems: "center",
@@ -458,7 +623,7 @@ const styles = StyleSheet.create({
   checkboxHint: {
     fontSize: 12,
     marginTop: 8,
-    marginLeft: 36,
+    marginLeft: 34,
   },
   requirements: {
     marginTop: 8,
