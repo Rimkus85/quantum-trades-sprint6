@@ -123,7 +123,8 @@ export default function Setup2FAScreen() {
           Haptics.notificationAsync(Haptics.NotificationFeedbackType.Success);
         }
         showToast("Conta verificada com sucesso!", "success");
-        router.replace("/(tabs)" as any);
+        // Após verificação, ir para onboarding (perfil de risco)
+        router.replace("/(onboarding)/risk-profile" as any);
       } else {
         setError(result.error || "Código inválido");
         setCode(["", "", "", "", "", ""]);

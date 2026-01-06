@@ -14,9 +14,16 @@ export interface UserProfile {
   twoFactorEnabled: boolean;
   twoFactorSecret?: string;
   createdAt: string;
+  // Onboarding
   termsAccepted?: boolean;
   privacyAccepted?: boolean;
   riskPolicyAccepted?: boolean;
+  onboardingCompleted?: boolean;
+  // Subscription
+  selectedPlan?: string;
+  subscriptionStatus?: "trial" | "active" | "expired" | "cancelled";
+  trialStartDate?: string;
+  trialEndDate?: string;
 }
 
 export interface AuthState {
