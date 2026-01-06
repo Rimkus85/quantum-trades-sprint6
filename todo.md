@@ -60,3 +60,15 @@
 - [x] Adicionar campo de celular com máscara brasileira (XX) XXXXX-XXXX
 - [x] Adicionar campo de usuário do Telegram com checkboxes "Mesmo do celular" e "Não tenho Telegram"
 - [x] Implementar validação de e-mail via código de verificação antes de finalizar cadastro
+
+## Débito Técnico - Infraestrutura de E-mail
+- [x] Criar serviço de e-mail no backend com nodemailer
+- [x] Configurar variáveis de ambiente para SMTP (remetente pendente - débito técnico)
+- [x] Criar templates de e-mail (verificação, 2FA, recuperação de senha, boas-vindas)
+- [x] Integrar frontend com API de envio de e-mail (rotas tRPC criadas)
+
+## Sprint 2 - Dashboard e Portfólio
+- [ ] QT-05: Dashboard principal com visão geral do portfólio
+- [ ] QT-06: Listagem de operações recentes
+- [ ] QT-07: Gráfico de evolução patrimonial
+- [ ] QT-08: Indicadores de performance (retorno, win rate, operações)
