@@ -55,3 +55,5 @@
 - [x] Validação de corretora: verificar se existe na lista conhecida
 - [x] Validação matemática de CPF (algoritmo módulo 11 + sequências inválidas)
 - [x] Enviar código 2FA por e-mail ao invés de exibir QR code em tela
+- [x] Remover mensagem "Validação matemática de dígitos" do campo CPF
+- [x] Adicionar checkbox "Não tenho conta em nenhuma corretora" que desabilita seleção de corretoras

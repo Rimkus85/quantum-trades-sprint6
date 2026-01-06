@@ -1,5 +1,5 @@
 import React, { useState, useRef } from "react";
-import { View, Text, ScrollView, Pressable, StyleSheet, KeyboardAvoidingView, Platform } from "react-native";
+import { View, Text, ScrollView, Pressable, StyleSheet, KeyboardAvoidingView, Platform, Switch } from "react-native";
 import { router } from "expo-router";
 import { ScreenContainer } from "@/components/screen-container";
 import { Button } from "@/components/ui/button";
@@ -35,6 +35,7 @@ export default function RegisterScreen() {
     confirmPassword: "",
   });
 
+  const [noBrokerAccount, setNoBrokerAccount] = useState(false);
   const [errors, setErrors] = useState<Record<string, string>>({});
   const [isLoading, setIsLoading] = useState(false);
 
@@ -42,6 +43,15 @@ export default function RegisterScreen() {
     const position = fieldPositions.current[fieldName];
     if (position !== undefined && scrollViewRef.current) {
       scrollViewRef.current.scrollTo({ y: Math.max(0, position - 100), animated: true });
+    }
+  };
+
+  const handleNoBrokerToggle = (value: boolean) => {
+    setNoBrokerAccount(value);
+    if (value) {
+      // Clear broker selection when toggling on
+      setFormData(prev => ({ ...prev, brokers: [], customBroker: "" }));
+      setErrors(prev => ({ ...prev, brokers: "", customBroker: "" }));
     }
   };
 
@@ -72,19 +82,21 @@ export default function RegisterScreen() {
       }
     }
 
-    // Validate brokers
-    if (formData.brokers.length === 0) {
-      newErrors.brokers = "Selecione pelo menos uma corretora";
-    }
+    // Validate brokers (only if user has broker account)
+    if (!noBrokerAccount) {
+      if (formData.brokers.length === 0) {
+        newErrors.brokers = "Selecione pelo menos uma corretora";
+      }
 
-    // Validate custom broker if "other" is selected
-    if (formData.brokers.includes("other")) {
-      if (!formData.customBroker.trim()) {
-        newErrors.customBroker = "Digite o nome da corretora";
-      } else {
-        const brokerValidation = validateBroker(formData.customBroker);
-        if (!brokerValidation.valid) {
-          newErrors.customBroker = brokerValidation.error || "Corretora não encontrada";
+      // Validate custom broker if "other" is selected
+      if (formData.brokers.includes("other")) {
+        if (!formData.customBroker.trim()) {
+          newErrors.customBroker = "Digite o nome da corretora";
+        } else {
+          const brokerValidation = validateBroker(formData.customBroker);
+          if (!brokerValidation.valid) {
+            newErrors.customBroker = brokerValidation.error || "Corretora não encontrada";
+          }
         }
       }
     }
@@ -130,15 +142,21 @@ export default function RegisterScreen() {
     setIsLoading(true);
     try {
       // Build broker list (replace "other" with custom broker name)
-      const brokerList = formData.brokers.map(b => 
-        b === "other" ? formData.customBroker : b
-      );
+      let brokerValue = "";
+      if (!noBrokerAccount) {
+        const brokerList = formData.brokers.map(b => 
+          b === "other" ? formData.customBroker : b
+        );
+        brokerValue = brokerList.join(",");
+      } else {
+        brokerValue = "Nenhuma";
+      }
 
       const result = await register({
         name: formData.name.trim(),
         email: formData.email.trim().toLowerCase(),
         cpf: formData.cpf,
-        broker: brokerList.join(","),
+        broker: brokerValue,
         password: formData.password,
       });
 
@@ -239,25 +257,51 @@ export default function RegisterScreen() {
                 error={errors.cpf}
                 leftIcon="badge"
               />
-              <Text style={[styles.fieldHint, { color: colors.muted }]}>
-                Validação matemática dos dígitos verificadores
-              </Text>
             </View>
 
-            <View onLayout={(e) => handleFieldLayout("brokers", e.nativeEvent.layout.y)}>
-              <MultiSelect
-                label="Corretoras"
-                placeholder="Selecione suas corretoras"
-                options={BROKERS}
-                selectedValues={formData.brokers}
-                onSelectionChange={(values) => updateField("brokers", values)}
-                error={errors.brokers}
-                allowCustom={true}
-                customValue={formData.customBroker}
-                onCustomValueChange={(value) => updateField("customBroker", value)}
-                customError={errors.customBroker}
-              />
+            {/* No Broker Account Checkbox */}
+            <View style={[styles.checkboxContainer, { backgroundColor: colors.surface }]}>
+              <Pressable
+                onPress={() => handleNoBrokerToggle(!noBrokerAccount)}
+                style={styles.checkboxPressable}
+              >
+                <View style={[
+                  styles.checkbox,
+                  { borderColor: noBrokerAccount ? colors.primary : colors.border },
+                  noBrokerAccount && { backgroundColor: colors.primary }
+                ]}>
+                  {noBrokerAccount && (
+                    <MaterialIcons name="check" size={16} color={colors.background} />
+                  )}
+                </View>
+                <Text style={[styles.checkboxLabel, { color: colors.foreground }]}>
+                  Não tenho conta em nenhuma corretora
+                </Text>
+              </Pressable>
+              {noBrokerAccount && (
+                <Text style={[styles.checkboxHint, { color: colors.muted }]}>
+                  Você poderá vincular uma corretora posteriormente nas configurações
+                </Text>
+              )}
             </View>
+
+            {/* Broker Selection - Only show if user has broker account */}
+            {!noBrokerAccount && (
+              <View onLayout={(e) => handleFieldLayout("brokers", e.nativeEvent.layout.y)}>
+                <MultiSelect
+                  label="Corretoras"
+                  placeholder="Selecione suas corretoras"
+                  options={BROKERS}
+                  selectedValues={formData.brokers}
+                  onSelectionChange={(values) => updateField("brokers", values)}
+                  error={errors.brokers}
+                  allowCustom={true}
+                  customValue={formData.customBroker}
+                  onCustomValueChange={(value) => updateField("customBroker", value)}
+                  customError={errors.customBroker}
+                />
+              </View>
+            )}
 
             <View onLayout={(e) => handleFieldLayout("password", e.nativeEvent.layout.y)}>
               <PasswordInput
@@ -388,11 +432,33 @@ const styles = StyleSheet.create({
   form: {
     gap: 8,
   },
-  fieldHint: {
-    fontSize: 11,
-    marginTop: -12,
-    marginBottom: 8,
-    marginLeft: 4,
+  checkboxContainer: {
+    padding: 16,
+    borderRadius: 12,
+    marginVertical: 8,
+  },
+  checkboxPressable: {
+    flexDirection: "row",
+    alignItems: "center",
+    gap: 12,
+  },
+  checkbox: {
+    width: 24,
+    height: 24,
+    borderRadius: 6,
+    borderWidth: 2,
+    alignItems: "center",
+    justifyContent: "center",
+  },
+  checkboxLabel: {
+    fontSize: 14,
+    fontWeight: "500",
+    flex: 1,
+  },
+  checkboxHint: {
+    fontSize: 12,
+    marginTop: 8,
+    marginLeft: 36,
   },
   requirements: {
     marginTop: 8,
@@ -415,11 +481,12 @@ const styles = StyleSheet.create({
   },
   buttonContainer: {
     marginTop: 24,
+    marginBottom: 16,
   },
   loginLink: {
     flexDirection: "row",
     justifyContent: "center",
-    marginTop: 16,
+    alignItems: "center",
   },
   loginText: {
     fontSize: 14,
