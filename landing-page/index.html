@@ -1,0 +1,2074 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    
+    <!-- SEO Meta Tags -->
+    <title>Quantum Trades - Trading Automatizado com Inteligência Artificial</title>
+    <meta name="description" content="Automatize suas operações na Bolsa de Valores com Inteligência Artificial. Quantum Trades analisa o mercado 24/7 e executa operações com precisão.">
+    <meta name="keywords" content="trading automatizado, inteligência artificial, bolsa de valores, investimentos, B3, ações, robô trader, IA">
+    <meta name="author" content="RimkusSoftware">
+    <meta name="robots" content="index, follow">
+    
+    <!-- Open Graph / Facebook -->
+    <meta property="og:type" content="website">
+    <meta property="og:url" content="https://quantumtrades.com.br/">
+    <meta property="og:title" content="Quantum Trades - Trading Automatizado com IA">
+    <meta property="og:description" content="Automatize suas operações na Bolsa de Valores com Inteligência Artificial avançada.">
+    <meta property="og:image" content="assets/og-image.png">
+    
+    <!-- Twitter -->
+    <meta property="twitter:card" content="summary_large_image">
+    <meta property="twitter:url" content="https://quantumtrades.com.br/">
+    <meta property="twitter:title" content="Quantum Trades - Trading Automatizado com IA">
+    <meta property="twitter:description" content="Automatize suas operações na Bolsa de Valores com Inteligência Artificial avançada.">
+    
+    <!-- Favicon -->
+    <link rel="icon" type="image/png" href="assets/logo.png">
+    
+    <!-- Google Fonts - Montserrat -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+    
+    <!-- Font Awesome -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
+    
+    <style>
+        /* ==================== CSS Variables ==================== */
+        :root {
+            --bg-primary: #0A192F;
+            --bg-secondary: #112240;
+            --bg-card: #1E3A5F;
+            --gold: #FFD700;
+            --gold-light: #FFE55C;
+            --gold-dark: #D4AF37;
+            --white: #FFFFFF;
+            --gray-100: #F8F9FA;
+            --gray-300: #CCD6F6;
+            --gray-400: #8892B0;
+            --gray-600: #495670;
+            --success: #28A745;
+            --danger: #DC3545;
+            --warning: #FFC107;
+            
+            --font-primary: 'Montserrat', sans-serif;
+            --shadow-gold: 0 0 30px rgba(255, 215, 0, 0.3);
+            --shadow-card: 0 10px 40px rgba(0, 0, 0, 0.3);
+            --transition: all 0.3s ease;
+        }
+
+        /* ==================== Reset & Base ==================== */
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        html {
+            scroll-behavior: smooth;
+        }
+
+        body {
+            font-family: var(--font-primary);
+            background-color: var(--bg-primary);
+            color: var(--white);
+            line-height: 1.6;
+            overflow-x: hidden;
+        }
+
+        a {
+            text-decoration: none;
+            color: inherit;
+        }
+
+        ul {
+            list-style: none;
+        }
+
+        img {
+            max-width: 100%;
+            height: auto;
+        }
+
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 0 20px;
+        }
+
+        /* ==================== Typography ==================== */
+        h1, h2, h3, h4, h5, h6 {
+            font-weight: 700;
+            line-height: 1.2;
+        }
+
+        h1 { font-size: clamp(2.5rem, 5vw, 4rem); }
+        h2 { font-size: clamp(2rem, 4vw, 3rem); }
+        h3 { font-size: clamp(1.5rem, 3vw, 2rem); }
+
+        .text-gold { color: var(--gold); }
+        .text-gray { color: var(--gray-400); }
+
+        /* ==================== Buttons ==================== */
+        .btn {
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            gap: 10px;
+            padding: 16px 32px;
+            font-family: var(--font-primary);
+            font-size: 1rem;
+            font-weight: 600;
+            border-radius: 8px;
+            cursor: pointer;
+            transition: var(--transition);
+            border: none;
+        }
+
+        .btn-primary {
+            background: linear-gradient(135deg, var(--gold), var(--gold-dark));
+            color: var(--bg-primary);
+        }
+
+        .btn-primary:hover {
+            transform: translateY(-3px);
+            box-shadow: var(--shadow-gold);
+        }
+
+        .btn-secondary {
+            background: transparent;
+            border: 2px solid var(--gold);
+            color: var(--gold);
+        }
+
+        .btn-secondary:hover {
+            background: var(--gold);
+            color: var(--bg-primary);
+        }
+
+        .btn-lg {
+            padding: 20px 48px;
+            font-size: 1.1rem;
+        }
+
+        /* ==================== Navigation ==================== */
+        .navbar {
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            z-index: 1000;
+            padding: 15px 0;
+            transition: var(--transition);
+        }
+
+        .navbar.scrolled {
+            background: rgba(10, 25, 47, 0.95);
+            backdrop-filter: blur(10px);
+            box-shadow: 0 2px 20px rgba(0, 0, 0, 0.3);
+        }
+
+        .navbar .container {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+        }
+
+        .navbar-logo img {
+            height: 50px;
+        }
+
+        .navbar-menu {
+            display: flex;
+            align-items: center;
+            gap: 40px;
+        }
+
+        .navbar-links {
+            display: flex;
+            gap: 30px;
+        }
+
+        .navbar-links a {
+            font-weight: 500;
+            color: var(--gray-300);
+            transition: var(--transition);
+        }
+
+        .navbar-links a:hover {
+            color: var(--gold);
+        }
+
+        .navbar-toggle {
+            display: none;
+            background: none;
+            border: none;
+            color: var(--white);
+            font-size: 1.5rem;
+            cursor: pointer;
+        }
+
+        /* ==================== Hero Section ==================== */
+        .hero {
+            min-height: 100vh;
+            display: flex;
+            align-items: center;
+            position: relative;
+            overflow: hidden;
+            padding-top: 80px;
+        }
+
+        .hero::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: 
+                radial-gradient(ellipse at 20% 50%, rgba(255, 215, 0, 0.1) 0%, transparent 50%),
+                radial-gradient(ellipse at 80% 20%, rgba(255, 215, 0, 0.05) 0%, transparent 40%),
+                radial-gradient(ellipse at 60% 80%, rgba(30, 58, 95, 0.5) 0%, transparent 50%);
+            pointer-events: none;
+        }
+
+        .hero-content {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 60px;
+            align-items: center;
+            position: relative;
+            z-index: 1;
+        }
+
+        .hero-text h1 {
+            margin-bottom: 20px;
+        }
+
+        .hero-text h1 span {
+            background: linear-gradient(135deg, var(--gold), var(--gold-light));
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+        }
+
+        .hero-text p {
+            font-size: 1.2rem;
+            color: var(--gray-300);
+            margin-bottom: 30px;
+            max-width: 500px;
+        }
+
+        .hero-buttons {
+            display: flex;
+            gap: 20px;
+            flex-wrap: wrap;
+        }
+
+        .hero-visual {
+            position: relative;
+        }
+
+        .hero-chart {
+            background: var(--bg-secondary);
+            border-radius: 20px;
+            padding: 30px;
+            box-shadow: var(--shadow-card);
+            border: 1px solid rgba(255, 215, 0, 0.1);
+        }
+
+        .hero-chart-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 20px;
+        }
+
+        .hero-chart-title {
+            font-size: 1.2rem;
+            font-weight: 600;
+        }
+
+        .hero-chart-badge {
+            background: rgba(40, 167, 69, 0.2);
+            color: var(--success);
+            padding: 5px 15px;
+            border-radius: 20px;
+            font-size: 0.9rem;
+            font-weight: 600;
+        }
+
+        .hero-chart-graph {
+            height: 200px;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .chart-line {
+            position: absolute;
+            bottom: 0;
+            left: 0;
+            right: 0;
+            height: 100%;
+        }
+
+        .chart-line svg {
+            width: 100%;
+            height: 100%;
+        }
+
+        .hero-stats {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 15px;
+            margin-top: 20px;
+        }
+
+        .hero-stat {
+            text-align: center;
+            padding: 15px;
+            background: rgba(255, 215, 0, 0.05);
+            border-radius: 10px;
+        }
+
+        .hero-stat-value {
+            font-size: 1.5rem;
+            font-weight: 700;
+            color: var(--gold);
+        }
+
+        .hero-stat-label {
+            font-size: 0.8rem;
+            color: var(--gray-400);
+        }
+
+        /* Floating Elements */
+        .floating-element {
+            position: absolute;
+            animation: float 6s ease-in-out infinite;
+        }
+
+        .floating-element:nth-child(1) {
+            top: 10%;
+            right: 10%;
+            animation-delay: 0s;
+        }
+
+        .floating-element:nth-child(2) {
+            bottom: 20%;
+            left: 5%;
+            animation-delay: 2s;
+        }
+
+        @keyframes float {
+            0%, 100% { transform: translateY(0); }
+            50% { transform: translateY(-20px); }
+        }
+
+        /* ==================== Section Styles ==================== */
+        section {
+            padding: 100px 0;
+        }
+
+        .section-header {
+            text-align: center;
+            margin-bottom: 60px;
+        }
+
+        .section-header h2 {
+            margin-bottom: 15px;
+        }
+
+        .section-header p {
+            color: var(--gray-400);
+            max-width: 600px;
+            margin: 0 auto;
+        }
+
+        /* ==================== How It Works ==================== */
+        .how-it-works {
+            background: var(--bg-secondary);
+        }
+
+        .steps-grid {
+            display: grid;
+            grid-template-columns: repeat(4, 1fr);
+            gap: 30px;
+        }
+
+        .step-card {
+            text-align: center;
+            padding: 40px 25px;
+            background: var(--bg-primary);
+            border-radius: 16px;
+            position: relative;
+            transition: var(--transition);
+        }
+
+        .step-card:hover {
+            transform: translateY(-10px);
+            box-shadow: var(--shadow-gold);
+        }
+
+        .step-number {
+            position: absolute;
+            top: -20px;
+            left: 50%;
+            transform: translateX(-50%);
+            width: 40px;
+            height: 40px;
+            background: linear-gradient(135deg, var(--gold), var(--gold-dark));
+            color: var(--bg-primary);
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-weight: 700;
+            font-size: 1.1rem;
+        }
+
+        .step-icon {
+            width: 80px;
+            height: 80px;
+            margin: 20px auto;
+            background: rgba(255, 215, 0, 0.1);
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .step-icon i {
+            font-size: 2rem;
+            color: var(--gold);
+        }
+
+        .step-card h3 {
+            font-size: 1.2rem;
+            margin-bottom: 10px;
+        }
+
+        .step-card p {
+            color: var(--gray-400);
+            font-size: 0.95rem;
+        }
+
+        /* ==================== Results Section ==================== */
+        .results {
+            position: relative;
+            overflow: hidden;
+        }
+
+        .results::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: radial-gradient(ellipse at center, rgba(255, 215, 0, 0.05) 0%, transparent 70%);
+        }
+
+        .results-content {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 60px;
+            align-items: center;
+            position: relative;
+            z-index: 1;
+        }
+
+        .results-chart {
+            background: var(--bg-secondary);
+            border-radius: 20px;
+            padding: 30px;
+            box-shadow: var(--shadow-card);
+        }
+
+        .results-chart-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 30px;
+        }
+
+        .results-performance {
+            display: grid;
+            grid-template-columns: repeat(2, 1fr);
+            gap: 20px;
+        }
+
+        .performance-card {
+            background: rgba(255, 215, 0, 0.05);
+            padding: 20px;
+            border-radius: 12px;
+            text-align: center;
+        }
+
+        .performance-value {
+            font-size: 2rem;
+            font-weight: 700;
+            color: var(--gold);
+        }
+
+        .performance-value.positive {
+            color: var(--success);
+        }
+
+        .performance-label {
+            color: var(--gray-400);
+            font-size: 0.9rem;
+            margin-top: 5px;
+        }
+
+        .results-info h2 {
+            margin-bottom: 20px;
+        }
+
+        .results-info p {
+            color: var(--gray-300);
+            margin-bottom: 20px;
+        }
+
+        .results-features {
+            margin: 30px 0;
+        }
+
+        .results-feature {
+            display: flex;
+            align-items: center;
+            gap: 15px;
+            margin-bottom: 15px;
+        }
+
+        .results-feature i {
+            color: var(--success);
+            font-size: 1.2rem;
+        }
+
+        .disclaimer {
+            background: rgba(255, 193, 7, 0.1);
+            border-left: 4px solid var(--warning);
+            padding: 15px 20px;
+            border-radius: 0 8px 8px 0;
+            font-size: 0.85rem;
+            color: var(--gray-300);
+        }
+
+        /* ==================== Plans Section ==================== */
+        .plans {
+            background: var(--bg-secondary);
+        }
+
+        .plans-grid {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 30px;
+        }
+
+        .plan-card {
+            background: var(--bg-primary);
+            border-radius: 20px;
+            padding: 40px 30px;
+            position: relative;
+            transition: var(--transition);
+            border: 2px solid transparent;
+        }
+
+        .plan-card:hover {
+            transform: translateY(-10px);
+        }
+
+        .plan-card.featured {
+            border-color: var(--gold);
+            transform: scale(1.05);
+        }
+
+        .plan-card.featured:hover {
+            transform: scale(1.05) translateY(-10px);
+        }
+
+        .plan-badge {
+            position: absolute;
+            top: -15px;
+            left: 50%;
+            transform: translateX(-50%);
+            background: linear-gradient(135deg, var(--gold), var(--gold-dark));
+            color: var(--bg-primary);
+            padding: 8px 25px;
+            border-radius: 20px;
+            font-size: 0.85rem;
+            font-weight: 700;
+        }
+
+        .plan-header {
+            text-align: center;
+            padding-bottom: 25px;
+            border-bottom: 1px solid var(--gray-600);
+            margin-bottom: 25px;
+        }
+
+        .plan-name {
+            font-size: 1.5rem;
+            font-weight: 700;
+            margin-bottom: 10px;
+        }
+
+        .plan-price {
+            font-size: 3rem;
+            font-weight: 800;
+            color: var(--gold);
+        }
+
+        .plan-price span {
+            font-size: 1rem;
+            font-weight: 400;
+            color: var(--gray-400);
+        }
+
+        .plan-features {
+            margin-bottom: 30px;
+        }
+
+        .plan-feature {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            padding: 12px 0;
+            border-bottom: 1px solid rgba(255, 255, 255, 0.05);
+        }
+
+        .plan-feature:last-child {
+            border-bottom: none;
+        }
+
+        .plan-feature i {
+            color: var(--success);
+        }
+
+        .plan-feature.disabled {
+            color: var(--gray-600);
+        }
+
+        .plan-feature.disabled i {
+            color: var(--gray-600);
+        }
+
+        .plan-card .btn {
+            width: 100%;
+        }
+
+        /* ==================== Registration Form ==================== */
+        .registration {
+            position: relative;
+        }
+
+        .registration::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: 
+                radial-gradient(ellipse at 30% 30%, rgba(255, 215, 0, 0.08) 0%, transparent 50%),
+                radial-gradient(ellipse at 70% 70%, rgba(255, 215, 0, 0.05) 0%, transparent 50%);
+        }
+
+        .registration-content {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 60px;
+            align-items: center;
+            position: relative;
+            z-index: 1;
+        }
+
+        .registration-info h2 {
+            margin-bottom: 20px;
+        }
+
+        .registration-info p {
+            color: var(--gray-300);
+            margin-bottom: 30px;
+        }
+
+        .registration-benefits {
+            margin-top: 30px;
+        }
+
+        .benefit-item {
+            display: flex;
+            align-items: flex-start;
+            gap: 15px;
+            margin-bottom: 20px;
+        }
+
+        .benefit-icon {
+            width: 50px;
+            height: 50px;
+            background: rgba(255, 215, 0, 0.1);
+            border-radius: 12px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            flex-shrink: 0;
+        }
+
+        .benefit-icon i {
+            color: var(--gold);
+            font-size: 1.3rem;
+        }
+
+        .benefit-text h4 {
+            font-size: 1.1rem;
+            margin-bottom: 5px;
+        }
+
+        .benefit-text p {
+            color: var(--gray-400);
+            font-size: 0.9rem;
+            margin: 0;
+        }
+
+        .registration-form-wrapper {
+            background: var(--bg-secondary);
+            border-radius: 20px;
+            padding: 40px;
+            box-shadow: var(--shadow-card);
+            border: 1px solid rgba(255, 215, 0, 0.1);
+        }
+
+        .form-title {
+            text-align: center;
+            margin-bottom: 30px;
+        }
+
+        .form-title h3 {
+            margin-bottom: 10px;
+        }
+
+        .form-title p {
+            color: var(--gray-400);
+        }
+
+        .form-group {
+            margin-bottom: 20px;
+        }
+
+        .form-label {
+            display: block;
+            margin-bottom: 8px;
+            font-weight: 500;
+            color: var(--gray-300);
+        }
+
+        .form-input {
+            width: 100%;
+            padding: 15px 20px;
+            background: var(--bg-primary);
+            border: 2px solid var(--gray-600);
+            border-radius: 10px;
+            color: var(--white);
+            font-family: var(--font-primary);
+            font-size: 1rem;
+            transition: var(--transition);
+        }
+
+        .form-input:focus {
+            outline: none;
+            border-color: var(--gold);
+            box-shadow: 0 0 0 3px rgba(255, 215, 0, 0.1);
+        }
+
+        .form-input::placeholder {
+            color: var(--gray-600);
+        }
+
+        .brokers-grid {
+            display: grid;
+            grid-template-columns: repeat(2, 1fr);
+            gap: 10px;
+        }
+
+        .broker-checkbox {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            padding: 12px 15px;
+            background: var(--bg-primary);
+            border: 2px solid var(--gray-600);
+            border-radius: 8px;
+            cursor: pointer;
+            transition: var(--transition);
+        }
+
+        .broker-checkbox:hover {
+            border-color: var(--gold);
+        }
+
+        .broker-checkbox input {
+            display: none;
+        }
+
+        .broker-checkbox input:checked + .broker-checkmark {
+            background: var(--gold);
+            border-color: var(--gold);
+        }
+
+        .broker-checkbox input:checked + .broker-checkmark::after {
+            display: block;
+        }
+
+        .broker-checkmark {
+            width: 20px;
+            height: 20px;
+            border: 2px solid var(--gray-600);
+            border-radius: 4px;
+            position: relative;
+            flex-shrink: 0;
+            transition: var(--transition);
+        }
+
+        .broker-checkmark::after {
+            content: '✓';
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            color: var(--bg-primary);
+            font-size: 12px;
+            font-weight: 700;
+            display: none;
+        }
+
+        .broker-checkbox.no-account {
+            grid-column: span 2;
+            background: rgba(255, 193, 7, 0.1);
+            border-color: var(--warning);
+        }
+
+        .form-submit {
+            width: 100%;
+            margin-top: 20px;
+        }
+
+        /* QR Code Modal */
+        .qr-modal {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: rgba(10, 25, 47, 0.95);
+            z-index: 2000;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .qr-modal.active {
+            display: flex;
+        }
+
+        .qr-modal-content {
+            background: var(--bg-secondary);
+            border-radius: 20px;
+            padding: 50px;
+            text-align: center;
+            max-width: 450px;
+            border: 1px solid rgba(255, 215, 0, 0.2);
+        }
+
+        .qr-modal-content h3 {
+            margin-bottom: 20px;
+        }
+
+        .qr-code-placeholder {
+            width: 200px;
+            height: 200px;
+            background: var(--white);
+            margin: 30px auto;
+            border-radius: 10px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .qr-instructions {
+            color: var(--gray-300);
+            margin-bottom: 30px;
+        }
+
+        .qr-instructions ol {
+            text-align: left;
+            padding-left: 20px;
+        }
+
+        .qr-instructions li {
+            margin-bottom: 10px;
+        }
+
+        /* ==================== FAQ Section ==================== */
+        .faq {
+            background: var(--bg-secondary);
+        }
+
+        .faq-grid {
+            max-width: 800px;
+            margin: 0 auto;
+        }
+
+        .faq-item {
+            background: var(--bg-primary);
+            border-radius: 12px;
+            margin-bottom: 15px;
+            overflow: hidden;
+        }
+
+        .faq-question {
+            width: 100%;
+            padding: 20px 25px;
+            background: none;
+            border: none;
+            color: var(--white);
+            font-family: var(--font-primary);
+            font-size: 1.1rem;
+            font-weight: 600;
+            text-align: left;
+            cursor: pointer;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            transition: var(--transition);
+        }
+
+        .faq-question:hover {
+            color: var(--gold);
+        }
+
+        .faq-question i {
+            transition: var(--transition);
+        }
+
+        .faq-item.active .faq-question i {
+            transform: rotate(180deg);
+        }
+
+        .faq-answer {
+            max-height: 0;
+            overflow: hidden;
+            transition: max-height 0.3s ease;
+        }
+
+        .faq-item.active .faq-answer {
+            max-height: 500px;
+        }
+
+        .faq-answer-content {
+            padding: 0 25px 20px;
+            color: var(--gray-300);
+            line-height: 1.8;
+        }
+
+        /* ==================== Footer ==================== */
+        .footer {
+            background: var(--bg-primary);
+            border-top: 1px solid var(--gray-600);
+            padding: 60px 0 30px;
+        }
+
+        .footer-content {
+            display: grid;
+            grid-template-columns: 2fr 1fr 1fr 1fr;
+            gap: 40px;
+            margin-bottom: 40px;
+        }
+
+        .footer-brand img {
+            height: 60px;
+            margin-bottom: 20px;
+        }
+
+        .footer-brand p {
+            color: var(--gray-400);
+            margin-bottom: 20px;
+        }
+
+        .footer-social {
+            display: flex;
+            gap: 15px;
+        }
+
+        .footer-social a {
+            width: 40px;
+            height: 40px;
+            background: var(--bg-secondary);
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: var(--gray-300);
+            transition: var(--transition);
+        }
+
+        .footer-social a:hover {
+            background: var(--gold);
+            color: var(--bg-primary);
+        }
+
+        .footer-links h4 {
+            font-size: 1.1rem;
+            margin-bottom: 20px;
+            color: var(--gold);
+        }
+
+        .footer-links ul li {
+            margin-bottom: 12px;
+        }
+
+        .footer-links ul li a {
+            color: var(--gray-400);
+            transition: var(--transition);
+        }
+
+        .footer-links ul li a:hover {
+            color: var(--gold);
+        }
+
+        .footer-bottom {
+            text-align: center;
+            padding-top: 30px;
+            border-top: 1px solid var(--gray-600);
+            color: var(--gray-400);
+            font-size: 0.9rem;
+        }
+
+        /* ==================== Responsive ==================== */
+        @media (max-width: 1024px) {
+            .hero-content {
+                grid-template-columns: 1fr;
+                text-align: center;
+            }
+
+            .hero-text p {
+                margin: 0 auto 30px;
+            }
+
+            .hero-buttons {
+                justify-content: center;
+            }
+
+            .hero-visual {
+                max-width: 500px;
+                margin: 0 auto;
+            }
+
+            .steps-grid {
+                grid-template-columns: repeat(2, 1fr);
+            }
+
+            .results-content {
+                grid-template-columns: 1fr;
+            }
+
+            .results-info {
+                order: -1;
+                text-align: center;
+            }
+
+            .plans-grid {
+                grid-template-columns: 1fr;
+                max-width: 400px;
+                margin: 0 auto;
+            }
+
+            .plan-card.featured {
+                transform: none;
+            }
+
+            .registration-content {
+                grid-template-columns: 1fr;
+            }
+
+            .registration-info {
+                text-align: center;
+            }
+
+            .footer-content {
+                grid-template-columns: repeat(2, 1fr);
+            }
+        }
+
+        @media (max-width: 768px) {
+            .navbar-menu {
+                display: none;
+                position: absolute;
+                top: 100%;
+                left: 0;
+                right: 0;
+                background: var(--bg-secondary);
+                flex-direction: column;
+                padding: 20px;
+                gap: 20px;
+            }
+
+            .navbar-menu.active {
+                display: flex;
+            }
+
+            .navbar-links {
+                flex-direction: column;
+                text-align: center;
+            }
+
+            .navbar-toggle {
+                display: block;
+            }
+
+            .steps-grid {
+                grid-template-columns: 1fr;
+            }
+
+            .brokers-grid {
+                grid-template-columns: 1fr;
+            }
+
+            .broker-checkbox.no-account {
+                grid-column: span 1;
+            }
+
+            .footer-content {
+                grid-template-columns: 1fr;
+                text-align: center;
+            }
+
+            .footer-social {
+                justify-content: center;
+            }
+        }
+
+        @media (max-width: 480px) {
+            .btn-lg {
+                padding: 16px 32px;
+                font-size: 1rem;
+            }
+
+            .hero-stats {
+                grid-template-columns: 1fr;
+            }
+
+            .results-performance {
+                grid-template-columns: 1fr;
+            }
+
+            .registration-form-wrapper {
+                padding: 25px;
+            }
+        }
+
+        /* ==================== Animations ==================== */
+        @keyframes fadeInUp {
+            from {
+                opacity: 0;
+                transform: translateY(30px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        .animate-fade-in-up {
+            animation: fadeInUp 0.6s ease forwards;
+        }
+
+        .delay-1 { animation-delay: 0.1s; }
+        .delay-2 { animation-delay: 0.2s; }
+        .delay-3 { animation-delay: 0.3s; }
+        .delay-4 { animation-delay: 0.4s; }
+
+        /* Neon Glow Effects */
+        .neon-glow {
+            text-shadow: 0 0 10px rgba(255, 215, 0, 0.5),
+                         0 0 20px rgba(255, 215, 0, 0.3),
+                         0 0 30px rgba(255, 215, 0, 0.2);
+        }
+
+        .card-neon {
+            box-shadow: 0 0 20px rgba(255, 215, 0, 0.1),
+                        inset 0 0 20px rgba(255, 215, 0, 0.05);
+        }
+    </style>
+</head>
+<body>
+    <!-- Navigation -->
+    <nav class="navbar" id="navbar">
+        <div class="container">
+            <a href="#" class="navbar-logo">
+                <img src="assets/logo.png" alt="Quantum Trades">
+            </a>
+            <div class="navbar-menu" id="navbarMenu">
+                <ul class="navbar-links">
+                    <li><a href="#como-funciona">Como Funciona</a></li>
+                    <li><a href="#resultados">Resultados</a></li>
+                    <li><a href="#planos">Planos</a></li>
+                    <li><a href="#faq">FAQ</a></li>
+                </ul>
+                <a href="#cadastro" class="btn btn-primary">Começar Agora</a>
+            </div>
+            <button class="navbar-toggle" id="navbarToggle">
+                <i class="fas fa-bars"></i>
+            </button>
+        </div>
+    </nav>
+
+    <!-- Hero Section -->
+    <section class="hero" id="hero">
+        <div class="container">
+            <div class="hero-content">
+                <div class="hero-text">
+                    <h1 class="animate-fade-in-up">
+                        Trading Automatizado com <span class="neon-glow">Inteligência Artificial</span>
+                    </h1>
+                    <p class="animate-fade-in-up delay-1">
+                        Deixe nossa IA analisar o mercado 24/7 e executar operações com precisão. 
+                        Automatize suas estratégias e maximize seus resultados na Bolsa de Valores.
+                    </p>
+                    <div class="hero-buttons animate-fade-in-up delay-2">
+                        <a href="#cadastro" class="btn btn-primary btn-lg">
+                            <i class="fas fa-rocket"></i>
+                            Começar Gratuitamente
+                        </a>
+                        <a href="#como-funciona" class="btn btn-secondary btn-lg">
+                            <i class="fas fa-play-circle"></i>
+                            Ver Como Funciona
+                        </a>
+                    </div>
+                </div>
+                <div class="hero-visual animate-fade-in-up delay-3">
+                    <div class="hero-chart card-neon">
+                        <div class="hero-chart-header">
+                            <span class="hero-chart-title">Performance da IA</span>
+                            <span class="hero-chart-badge">
+                                <i class="fas fa-arrow-up"></i> +18.7%
+                            </span>
+                        </div>
+                        <div class="hero-chart-graph">
+                            <div class="chart-line">
+                                <svg viewBox="0 0 400 200" preserveAspectRatio="none">
+                                    <defs>
+                                        <linearGradient id="chartGradient" x1="0%" y1="0%" x2="0%" y2="100%">
+                                            <stop offset="0%" style="stop-color:#FFD700;stop-opacity:0.3" />
+                                            <stop offset="100%" style="stop-color:#FFD700;stop-opacity:0" />
+                                        </linearGradient>
+                                    </defs>
+                                    <path d="M0,180 Q50,160 100,140 T200,100 T300,60 T400,30 L400,200 L0,200 Z" fill="url(#chartGradient)"/>
+                                    <path d="M0,180 Q50,160 100,140 T200,100 T300,60 T400,30" fill="none" stroke="#FFD700" stroke-width="3"/>
+                                </svg>
+                            </div>
+                        </div>
+                        <div class="hero-stats">
+                            <div class="hero-stat">
+                                <div class="hero-stat-value">94%</div>
+                                <div class="hero-stat-label">Taxa de Acerto</div>
+                            </div>
+                            <div class="hero-stat">
+                                <div class="hero-stat-value">2.4K</div>
+                                <div class="hero-stat-label">Operações/Mês</div>
+                            </div>
+                            <div class="hero-stat">
+                                <div class="hero-stat-value">24/7</div>
+                                <div class="hero-stat-label">Monitoramento</div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <!-- Floating Elements -->
+        <div class="floating-element" style="top: 15%; right: 5%;">
+            <i class="fas fa-chart-line" style="font-size: 2rem; color: rgba(255, 215, 0, 0.3);"></i>
+        </div>
+        <div class="floating-element" style="bottom: 25%; left: 3%;">
+            <i class="fas fa-coins" style="font-size: 1.5rem; color: rgba(255, 215, 0, 0.2);"></i>
+        </div>
+    </section>
+
+    <!-- How It Works Section -->
+    <section class="how-it-works" id="como-funciona">
+        <div class="container">
+            <div class="section-header">
+                <h2>Como <span class="text-gold">Funciona</span></h2>
+                <p>Em apenas 4 passos simples, você estará operando com nossa IA</p>
+            </div>
+            <div class="steps-grid">
+                <div class="step-card">
+                    <div class="step-number">1</div>
+                    <div class="step-icon">
+                        <i class="fas fa-user-plus"></i>
+                    </div>
+                    <h3>Crie sua Conta</h3>
+                    <p>Cadastro rápido e seguro com autenticação em dois fatores (2FA)</p>
+                </div>
+                <div class="step-card">
+                    <div class="step-number">2</div>
+                    <div class="step-icon">
+                        <i class="fas fa-link"></i>
+                    </div>
+                    <h3>Conecte sua Corretora</h3>
+                    <p>Integração segura com as principais corretoras do Brasil</p>
+                </div>
+                <div class="step-card">
+                    <div class="step-number">3</div>
+                    <div class="step-icon">
+                        <i class="fas fa-sliders-h"></i>
+                    </div>
+                    <h3>Configure sua Estratégia</h3>
+                    <p>Defina seus parâmetros de risco e objetivos de investimento</p>
+                </div>
+                <div class="step-card">
+                    <div class="step-number">4</div>
+                    <div class="step-icon">
+                        <i class="fas fa-robot"></i>
+                    </div>
+                    <h3>Deixe a IA Trabalhar</h3>
+                    <p>Nossa IA analisa e executa operações automaticamente para você</p>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Results Section -->
+    <section class="results" id="resultados">
+        <div class="container">
+            <div class="results-content">
+                <div class="results-chart">
+                    <div class="results-chart-header">
+                        <h3>Performance Histórica</h3>
+                        <span class="hero-chart-badge">
+                            <i class="fas fa-check-circle"></i> Dados Reais
+                        </span>
+                    </div>
+                    <div class="results-performance">
+                        <div class="performance-card">
+                            <div class="performance-value positive">+127%</div>
+                            <div class="performance-label">Retorno Anual (2025)</div>
+                        </div>
+                        <div class="performance-card">
+                            <div class="performance-value">8.4%</div>
+                            <div class="performance-label">Drawdown Máximo</div>
+                        </div>
+                        <div class="performance-card">
+                            <div class="performance-value positive">+18.7%</div>
+                            <div class="performance-label">Média Mensal</div>
+                        </div>
+                        <div class="performance-card">
+                            <div class="performance-value">2.8</div>
+                            <div class="performance-label">Sharpe Ratio</div>
+                        </div>
+                    </div>
+                </div>
+                <div class="results-info">
+                    <h2>Resultados que <span class="text-gold">Impressionam</span></h2>
+                    <p>
+                        Nossa inteligência artificial foi treinada com mais de 10 anos de dados 
+                        históricos do mercado brasileiro, identificando padrões que humanos não conseguem ver.
+                    </p>
+                    <div class="results-features">
+                        <div class="results-feature">
+                            <i class="fas fa-check-circle"></i>
+                            <span>Análise de mais de 500 indicadores técnicos</span>
+                        </div>
+                        <div class="results-feature">
+                            <i class="fas fa-check-circle"></i>
+                            <span>Gestão de risco automatizada com Stop Loss inteligente</span>
+                        </div>
+                        <div class="results-feature">
+                            <i class="fas fa-check-circle"></i>
+                            <span>Operações em múltiplos ativos simultaneamente</span>
+                        </div>
+                        <div class="results-feature">
+                            <i class="fas fa-check-circle"></i>
+                            <span>Relatórios detalhados de performance</span>
+                        </div>
+                    </div>
+                    <div class="disclaimer">
+                        <i class="fas fa-exclamation-triangle"></i>
+                        <strong>Aviso Legal:</strong> Resultados passados não garantem resultados futuros. 
+                        Investimentos em renda variável envolvem riscos. Opere com responsabilidade.
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Plans Section -->
+    <section class="plans" id="planos">
+        <div class="container">
+            <div class="section-header">
+                <h2>Escolha seu <span class="text-gold">Plano</span></h2>
+                <p>Planos flexíveis para todos os perfis de investidor</p>
+            </div>
+            <div class="plans-grid">
+                <!-- Plano Entrada -->
+                <div class="plan-card">
+                    <div class="plan-header">
+                        <h3 class="plan-name">Entrada</h3>
+                        <div class="plan-price">R$ 97<span>/mês</span></div>
+                    </div>
+                    <ul class="plan-features">
+                        <li class="plan-feature">
+                            <i class="fas fa-check"></i>
+                            <span>1 Corretora conectada</span>
+                        </li>
+                        <li class="plan-feature">
+                            <i class="fas fa-check"></i>
+                            <span>Até 5 ativos monitorados</span>
+                        </li>
+                        <li class="plan-feature">
+                            <i class="fas fa-check"></i>
+                            <span>Estratégias básicas</span>
+                        </li>
+                        <li class="plan-feature">
+                            <i class="fas fa-check"></i>
+                            <span>Alertas por e-mail</span>
+                        </li>
+                        <li class="plan-feature disabled">
+                            <i class="fas fa-times"></i>
+                            <span>Alertas por Telegram</span>
+                        </li>
+                        <li class="plan-feature disabled">
+                            <i class="fas fa-times"></i>
+                            <span>Suporte prioritário</span>
+                        </li>
+                    </ul>
+                    <a href="#cadastro" class="btn btn-secondary">Começar Agora</a>
+                </div>
+
+                <!-- Plano Médio (Recomendado) -->
+                <div class="plan-card featured">
+                    <div class="plan-badge">Mais Popular</div>
+                    <div class="plan-header">
+                        <h3 class="plan-name">Profissional</h3>
+                        <div class="plan-price">R$ 197<span>/mês</span></div>
+                    </div>
+                    <ul class="plan-features">
+                        <li class="plan-feature">
+                            <i class="fas fa-check"></i>
+                            <span>3 Corretoras conectadas</span>
+                        </li>
+                        <li class="plan-feature">
+                            <i class="fas fa-check"></i>
+                            <span>Até 20 ativos monitorados</span>
+                        </li>
+                        <li class="plan-feature">
+                            <i class="fas fa-check"></i>
+                            <span>Estratégias avançadas</span>
+                        </li>
+                        <li class="plan-feature">
+                            <i class="fas fa-check"></i>
+                            <span>Alertas por e-mail e Telegram</span>
+                        </li>
+                        <li class="plan-feature">
+                            <i class="fas fa-check"></i>
+                            <span>Relatórios detalhados</span>
+                        </li>
+                        <li class="plan-feature">
+                            <i class="fas fa-check"></i>
+                            <span>Suporte prioritário</span>
+                        </li>
+                    </ul>
+                    <a href="#cadastro" class="btn btn-primary">Começar Agora</a>
+                </div>
+
+                <!-- Plano Top -->
+                <div class="plan-card">
+                    <div class="plan-header">
+                        <h3 class="plan-name">Enterprise</h3>
+                        <div class="plan-price">R$ 497<span>/mês</span></div>
+                    </div>
+                    <ul class="plan-features">
+                        <li class="plan-feature">
+                            <i class="fas fa-check"></i>
+                            <span>Corretoras ilimitadas</span>
+                        </li>
+                        <li class="plan-feature">
+                            <i class="fas fa-check"></i>
+                            <span>Ativos ilimitados</span>
+                        </li>
+                        <li class="plan-feature">
+                            <i class="fas fa-check"></i>
+                            <span>Estratégias personalizadas</span>
+                        </li>
+                        <li class="plan-feature">
+                            <i class="fas fa-check"></i>
+                            <span>Todos os canais de alerta</span>
+                        </li>
+                        <li class="plan-feature">
+                            <i class="fas fa-check"></i>
+                            <span>API de integração</span>
+                        </li>
+                        <li class="plan-feature">
+                            <i class="fas fa-check"></i>
+                            <span>Gerente de conta dedicado</span>
+                        </li>
+                    </ul>
+                    <a href="#cadastro" class="btn btn-secondary">Começar Agora</a>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Registration Section -->
+    <section class="registration" id="cadastro">
+        <div class="container">
+            <div class="registration-content">
+                <div class="registration-info">
+                    <h2>Comece sua Jornada no <span class="text-gold">Trading Automatizado</span></h2>
+                    <p>
+                        Cadastre-se agora e tenha acesso à plataforma de trading mais avançada do Brasil. 
+                        Nossa IA está pronta para trabalhar por você.
+                    </p>
+                    <div class="registration-benefits">
+                        <div class="benefit-item">
+                            <div class="benefit-icon">
+                                <i class="fas fa-shield-alt"></i>
+                            </div>
+                            <div class="benefit-text">
+                                <h4>Segurança Máxima</h4>
+                                <p>Autenticação 2FA obrigatória e criptografia de ponta</p>
+                            </div>
+                        </div>
+                        <div class="benefit-item">
+                            <div class="benefit-icon">
+                                <i class="fas fa-clock"></i>
+                            </div>
+                            <div class="benefit-text">
+                                <h4>Operação 24/7</h4>
+                                <p>Nossa IA nunca dorme, monitorando o mercado constantemente</p>
+                            </div>
+                        </div>
+                        <div class="benefit-item">
+                            <div class="benefit-icon">
+                                <i class="fas fa-headset"></i>
+                            </div>
+                            <div class="benefit-text">
+                                <h4>Suporte Especializado</h4>
+                                <p>Equipe de especialistas prontos para ajudar</p>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <div class="registration-form-wrapper">
+                    <div class="form-title">
+                        <h3>Criar Conta</h3>
+                        <p>Preencha os dados abaixo para começar</p>
+                    </div>
+                    <form id="registrationForm">
+                        <div class="form-group">
+                            <label class="form-label" for="nome">Nome Completo</label>
+                            <input type="text" id="nome" class="form-input" placeholder="Digite seu nome completo" required>
+                        </div>
+                        <div class="form-group">
+                            <label class="form-label" for="cpf">CPF</label>
+                            <input type="text" id="cpf" class="form-input" placeholder="000.000.000-00" maxlength="14" required>
+                        </div>
+                        <div class="form-group">
+                            <label class="form-label" for="email">E-mail</label>
+                            <input type="email" id="email" class="form-input" placeholder="seu@email.com" required>
+                        </div>
+                        <div class="form-group">
+                            <label class="form-label">Corretora(s)</label>
+                            <div class="brokers-grid">
+                                <label class="broker-checkbox">
+                                    <input type="checkbox" name="corretora" value="xp">
+                                    <span class="broker-checkmark"></span>
+                                    <span>XP Investimentos</span>
+                                </label>
+                                <label class="broker-checkbox">
+                                    <input type="checkbox" name="corretora" value="clear">
+                                    <span class="broker-checkmark"></span>
+                                    <span>Clear</span>
+                                </label>
+                                <label class="broker-checkbox">
+                                    <input type="checkbox" name="corretora" value="inter">
+                                    <span class="broker-checkmark"></span>
+                                    <span>Inter</span>
+                                </label>
+                                <label class="broker-checkbox">
+                                    <input type="checkbox" name="corretora" value="rico">
+                                    <span class="broker-checkmark"></span>
+                                    <span>Rico</span>
+                                </label>
+                                <label class="broker-checkbox">
+                                    <input type="checkbox" name="corretora" value="genial">
+                                    <span class="broker-checkmark"></span>
+                                    <span>Genial</span>
+                                </label>
+                                <label class="broker-checkbox">
+                                    <input type="checkbox" name="corretora" value="toro">
+                                    <span class="broker-checkmark"></span>
+                                    <span>Toro</span>
+                                </label>
+                                <label class="broker-checkbox">
+                                    <input type="checkbox" name="corretora" value="nuinvest">
+                                    <span class="broker-checkmark"></span>
+                                    <span>Nu Invest</span>
+                                </label>
+                                <label class="broker-checkbox">
+                                    <input type="checkbox" name="corretora" value="btg">
+                                    <span class="broker-checkmark"></span>
+                                    <span>BTG Pactual</span>
+                                </label>
+                                <label class="broker-checkbox no-account">
+                                    <input type="checkbox" name="corretora" value="none" id="noAccount">
+                                    <span class="broker-checkmark"></span>
+                                    <span>Ainda não tenho conta em corretora</span>
+                                </label>
+                            </div>
+                        </div>
+                        <button type="submit" class="btn btn-primary btn-lg form-submit">
+                            <i class="fas fa-user-plus"></i>
+                            Criar Minha Conta
+                        </button>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- QR Code Modal -->
+    <div class="qr-modal" id="qrModal">
+        <div class="qr-modal-content">
+            <h3>Configure o <span class="text-gold">Google Authenticator</span></h3>
+            <p class="text-gray">Escaneie o QR Code abaixo para configurar a autenticação em dois fatores</p>
+            <div class="qr-code-placeholder" id="qrCodePlaceholder">
+                <i class="fas fa-qrcode" style="font-size: 4rem; color: #0A192F;"></i>
+            </div>
+            <div class="qr-instructions">
+                <ol>
+                    <li>Baixe o app Google Authenticator no seu celular</li>
+                    <li>Abra o app e toque em "+" para adicionar conta</li>
+                    <li>Escaneie o QR Code acima</li>
+                    <li>Guarde o código de backup em local seguro</li>
+                </ol>
+            </div>
+            <button class="btn btn-primary btn-lg" id="continueBtn">
+                <i class="fas fa-arrow-right"></i>
+                Seguir
+            </button>
+        </div>
+    </div>
+
+    <!-- FAQ Section -->
+    <section class="faq" id="faq">
+        <div class="container">
+            <div class="section-header">
+                <h2>Perguntas <span class="text-gold">Frequentes</span></h2>
+                <p>Tire suas dúvidas sobre a plataforma</p>
+            </div>
+            <div class="faq-grid">
+                <div class="faq-item">
+                    <button class="faq-question">
+                        O Quantum Trades é seguro?
+                        <i class="fas fa-chevron-down"></i>
+                    </button>
+                    <div class="faq-answer">
+                        <div class="faq-answer-content">
+                            Sim! A segurança é nossa prioridade. Utilizamos autenticação de dois fatores (2FA) obrigatória, 
+                            criptografia de ponta a ponta, e nunca temos acesso às suas credenciais de corretora. 
+                            Todas as operações são executadas através de APIs oficiais das corretoras.
+                        </div>
+                    </div>
+                </div>
+                <div class="faq-item">
+                    <button class="faq-question">
+                        Quanto posso ganhar com a plataforma?
+                        <i class="fas fa-chevron-down"></i>
+                    </button>
+                    <div class="faq-answer">
+                        <div class="faq-answer-content">
+                            Os resultados variam de acordo com as condições de mercado, capital investido e estratégia escolhida. 
+                            Nossa IA tem apresentado resultados consistentes, mas é importante lembrar que investimentos em 
+                            renda variável envolvem riscos e resultados passados não garantem resultados futuros.
+                        </div>
+                    </div>
+                </div>
+                <div class="faq-item">
+                    <button class="faq-question">
+                        Preciso ter experiência em trading?
+                        <i class="fas fa-chevron-down"></i>
+                    </button>
+                    <div class="faq-answer">
+                        <div class="faq-answer-content">
+                            Não! O Quantum Trades foi desenvolvido para ser acessível tanto para iniciantes quanto para 
+                            traders experientes. Nossa IA cuida de toda a análise técnica e execução das operações. 
+                            Você só precisa definir seus parâmetros de risco e objetivos.
+                        </div>
+                    </div>
+                </div>
+                <div class="faq-item">
+                    <button class="faq-question">
+                        Quais corretoras são compatíveis?
+                        <i class="fas fa-chevron-down"></i>
+                    </button>
+                    <div class="faq-answer">
+                        <div class="faq-answer-content">
+                            Atualmente temos integração com as principais corretoras do Brasil: XP Investimentos, Clear, 
+                            Inter, Rico, Genial, Toro, Nu Invest e BTG Pactual. Estamos constantemente adicionando 
+                            novas integrações.
+                        </div>
+                    </div>
+                </div>
+                <div class="faq-item">
+                    <button class="faq-question">
+                        Posso cancelar a qualquer momento?
+                        <i class="fas fa-chevron-down"></i>
+                    </button>
+                    <div class="faq-answer">
+                        <div class="faq-answer-content">
+                            Sim! Não há fidelidade ou multa por cancelamento. Você pode cancelar sua assinatura a qualquer 
+                            momento diretamente pelo painel de controle. O acesso permanece ativo até o fim do período pago.
+                        </div>
+                    </div>
+                </div>
+                <div class="faq-item">
+                    <button class="faq-question">
+                        Como funciona a gestão de risco?
+                        <i class="fas fa-chevron-down"></i>
+                    </button>
+                    <div class="faq-answer">
+                        <div class="faq-answer-content">
+                            Nossa IA possui um sistema robusto de gestão de risco com Stop Loss automático, 
+                            circuit breakers e limites de exposição. Você define o máximo que aceita perder por operação 
+                            e por dia, e a IA respeita rigorosamente esses limites. A proteção do seu capital é prioridade.
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Footer -->
+    <footer class="footer">
+        <div class="container">
+            <div class="footer-content">
+                <div class="footer-brand">
+                    <img src="assets/logo.png" alt="Quantum Trades">
+                    <p>
+                        Automatize suas estratégias de investimento com inteligência artificial 
+                        e maximize seus resultados na Bolsa de Valores.
+                    </p>
+                    <div class="footer-social">
+                        <a href="#"><i class="fab fa-instagram"></i></a>
+                        <a href="#"><i class="fab fa-youtube"></i></a>
+                        <a href="#"><i class="fab fa-telegram"></i></a>
+                        <a href="#"><i class="fab fa-linkedin"></i></a>
+                    </div>
+                </div>
+                <div class="footer-links">
+                    <h4>Plataforma</h4>
+                    <ul>
+                        <li><a href="#como-funciona">Como Funciona</a></li>
+                        <li><a href="#resultados">Resultados</a></li>
+                        <li><a href="#planos">Planos</a></li>
+                        <li><a href="#faq">FAQ</a></li>
+                    </ul>
+                </div>
+                <div class="footer-links">
+                    <h4>Legal</h4>
+                    <ul>
+                        <li><a href="#">Termos de Uso</a></li>
+                        <li><a href="#">Política de Privacidade</a></li>
+                        <li><a href="#">Aviso de Risco</a></li>
+                    </ul>
+                </div>
+                <div class="footer-links">
+                    <h4>Contato</h4>
+                    <ul>
+                        <li><a href="mailto:contato@quantumtrades.com.br">contato@quantumtrades.com.br</a></li>
+                        <li><a href="#">Suporte</a></li>
+                        <li><a href="#">Central de Ajuda</a></li>
+                    </ul>
+                </div>
+            </div>
+            <div class="footer-bottom">
+                <p>© 2026 Quantum Trades - RimkusSoftware ME. Todos os direitos reservados.</p>
+                <p style="margin-top: 10px; font-size: 0.8rem;">
+                    Investimentos em renda variável envolvem riscos. Resultados passados não garantem resultados futuros.
+                </p>
+            </div>
+        </div>
+    </footer>
+
+    <script>
+        // ==================== Navigation ==================== 
+        const navbar = document.getElementById('navbar');
+        const navbarToggle = document.getElementById('navbarToggle');
+        const navbarMenu = document.getElementById('navbarMenu');
+
+        // Scroll effect
+        window.addEventListener('scroll', () => {
+            if (window.scrollY > 50) {
+                navbar.classList.add('scrolled');
+            } else {
+                navbar.classList.remove('scrolled');
+            }
+        });
+
+        // Mobile menu toggle
+        navbarToggle.addEventListener('click', () => {
+            navbarMenu.classList.toggle('active');
+        });
+
+        // Close menu on link click
+        document.querySelectorAll('.navbar-links a').forEach(link => {
+            link.addEventListener('click', () => {
+                navbarMenu.classList.remove('active');
+            });
+        });
+
+        // ==================== CPF Mask ====================
+        const cpfInput = document.getElementById('cpf');
+        cpfInput.addEventListener('input', (e) => {
+            let value = e.target.value.replace(/\D/g, '');
+            if (value.length > 11) value = value.slice(0, 11);
+            
+            if (value.length > 9) {
+                value = value.replace(/(\d{3})(\d{3})(\d{3})(\d{2})/, '$1.$2.$3-$4');
+            } else if (value.length > 6) {
+                value = value.replace(/(\d{3})(\d{3})(\d{1,3})/, '$1.$2.$3');
+            } else if (value.length > 3) {
+                value = value.replace(/(\d{3})(\d{1,3})/, '$1.$2');
+            }
+            
+            e.target.value = value;
+        });
+
+        // ==================== CPF Validation ====================
+        function validateCPF(cpf) {
+            cpf = cpf.replace(/\D/g, '');
+            if (cpf.length !== 11) return false;
+            if (/^(\d)\1+$/.test(cpf)) return false;
+            
+            let sum = 0;
+            for (let i = 0; i < 9; i++) {
+                sum += parseInt(cpf[i]) * (10 - i);
+            }
+            let rest = (sum * 10) % 11;
+            if (rest === 10) rest = 0;
+            if (rest !== parseInt(cpf[9])) return false;
+            
+            sum = 0;
+            for (let i = 0; i < 10; i++) {
+                sum += parseInt(cpf[i]) * (11 - i);
+            }
+            rest = (sum * 10) % 11;
+            if (rest === 10) rest = 0;
+            if (rest !== parseInt(cpf[10])) return false;
+            
+            return true;
+        }
+
+        // ==================== Broker Checkboxes ====================
+        const noAccountCheckbox = document.getElementById('noAccount');
+        const brokerCheckboxes = document.querySelectorAll('input[name="corretora"]:not(#noAccount)');
+
+        noAccountCheckbox.addEventListener('change', (e) => {
+            if (e.target.checked) {
+                brokerCheckboxes.forEach(cb => {
+                    cb.checked = false;
+                    cb.disabled = true;
+                    cb.closest('.broker-checkbox').style.opacity = '0.5';
+                });
+            } else {
+                brokerCheckboxes.forEach(cb => {
+                    cb.disabled = false;
+                    cb.closest('.broker-checkbox').style.opacity = '1';
+                });
+            }
+        });
+
+        brokerCheckboxes.forEach(cb => {
+            cb.addEventListener('change', () => {
+                if (cb.checked && noAccountCheckbox.checked) {
+                    noAccountCheckbox.checked = false;
+                }
+            });
+        });
+
+        // ==================== Form Submission ====================
+        const registrationForm = document.getElementById('registrationForm');
+        const qrModal = document.getElementById('qrModal');
+        const continueBtn = document.getElementById('continueBtn');
+
+        registrationForm.addEventListener('submit', (e) => {
+            e.preventDefault();
+            
+            const nome = document.getElementById('nome').value.trim();
+            const cpf = document.getElementById('cpf').value;
+            const email = document.getElementById('email').value.trim();
+            
+            // Validações
+            if (nome.length < 3) {
+                alert('Por favor, digite seu nome completo.');
+                return;
+            }
+            
+            if (!validateCPF(cpf)) {
+                alert('CPF inválido. Por favor, verifique.');
+                return;
+            }
+            
+            if (!email.match(/^[^\s@]+@[^\s@]+\.[^\s@]+$/)) {
+                alert('E-mail inválido. Por favor, verifique.');
+                return;
+            }
+            
+            const selectedBrokers = document.querySelectorAll('input[name="corretora"]:checked');
+            if (selectedBrokers.length === 0) {
+                alert('Por favor, selecione pelo menos uma corretora ou marque "Ainda não tenho conta".');
+                return;
+            }
+            
+            // Mostrar modal do QR Code
+            qrModal.classList.add('active');
+            
+            // Gerar QR Code (simulado)
+            const qrPlaceholder = document.getElementById('qrCodePlaceholder');
+            qrPlaceholder.innerHTML = `
+                <svg viewBox="0 0 200 200" width="180" height="180">
+                    <rect fill="#FFFFFF" width="200" height="200"/>
+                    <g fill="#0A192F">
+                        ${generateQRPattern()}
+                    </g>
+                </svg>
+            `;
+        });
+
+        // Gerar padrão de QR Code simulado
+        function generateQRPattern() {
+            let pattern = '';
+            const size = 8;
+            const modules = 25;
+            
+            // Padrões de posição (cantos)
+            const positions = [
+                [0, 0], [0, modules - 7], [modules - 7, 0]
+            ];
+            
+            positions.forEach(([x, y]) => {
+                pattern += `<rect x="${x * size}" y="${y * size}" width="${7 * size}" height="${7 * size}"/>`;
+                pattern += `<rect x="${(x + 1) * size}" y="${(y + 1) * size}" width="${5 * size}" height="${5 * size}" fill="#FFFFFF"/>`;
+                pattern += `<rect x="${(x + 2) * size}" y="${(y + 2) * size}" width="${3 * size}" height="${3 * size}"/>`;
+            });
+            
+            // Padrão aleatório no meio
+            for (let i = 8; i < modules - 8; i++) {
+                for (let j = 0; j < modules; j++) {
+                    if (Math.random() > 0.5) {
+                        pattern += `<rect x="${i * size}" y="${j * size}" width="${size}" height="${size}"/>`;
+                    }
+                }
+            }
+            
+            for (let i = 0; i < 8; i++) {
+                for (let j = 8; j < modules - 8; j++) {
+                    if (Math.random() > 0.5) {
+                        pattern += `<rect x="${i * size}" y="${j * size}" width="${size}" height="${size}"/>`;
+                    }
+                }
+            }
+            
+            for (let i = modules - 8; i < modules; i++) {
+                for (let j = 8; j < modules - 8; j++) {
+                    if (Math.random() > 0.5) {
+                        pattern += `<rect x="${i * size}" y="${j * size}" width="${size}" height="${size}"/>`;
+                    }
+                }
+            }
+            
+            return pattern;
+        }
+
+        continueBtn.addEventListener('click', () => {
+            qrModal.classList.remove('active');
+            alert('Cadastro realizado com sucesso! Você receberá um e-mail com as instruções de acesso.');
+            registrationForm.reset();
+        });
+
+        // Fechar modal clicando fora
+        qrModal.addEventListener('click', (e) => {
+            if (e.target === qrModal) {
+                qrModal.classList.remove('active');
+            }
+        });
+
+        // ==================== FAQ Accordion ====================
+        document.querySelectorAll('.faq-question').forEach(question => {
+            question.addEventListener('click', () => {
+                const item = question.parentElement;
+                const isActive = item.classList.contains('active');
+                
+                // Fechar todos
+                document.querySelectorAll('.faq-item').forEach(i => {
+                    i.classList.remove('active');
+                });
+                
+                // Abrir o clicado se não estava ativo
+                if (!isActive) {
+                    item.classList.add('active');
+                }
+            });
+        });
+
+        // ==================== Smooth Scroll ====================
+        document.querySelectorAll('a[href^="#"]').forEach(anchor => {
+            anchor.addEventListener('click', function(e) {
+                e.preventDefault();
+                const target = document.querySelector(this.getAttribute('href'));
+                if (target) {
+                    const headerOffset = 80;
+                    const elementPosition = target.getBoundingClientRect().top;
+                    const offsetPosition = elementPosition + window.pageYOffset - headerOffset;
+                    
+                    window.scrollTo({
+                        top: offsetPosition,
+                        behavior: 'smooth'
+                    });
+                }
+            });
+        });
+
+        // ==================== Animation on Scroll ====================
+        const observerOptions = {
+            threshold: 0.1,
+            rootMargin: '0px 0px -50px 0px'
+        };
+
+        const observer = new IntersectionObserver((entries) => {
+            entries.forEach(entry => {
+                if (entry.isIntersecting) {
+                    entry.target.classList.add('animate-fade-in-up');
+                }
+            });
+        }, observerOptions);
+
+        document.querySelectorAll('.step-card, .plan-card, .faq-item').forEach(el => {
+            observer.observe(el);
+        });
+    </script>
+
+    <!-- Google Analytics (placeholder) -->
+    <script async src="https://www.googletagmanager.com/gtag/js?id=GA_MEASUREMENT_ID"></script>
+    <script>
+        window.dataLayer = window.dataLayer || [];
+        function gtag(){dataLayer.push(arguments);}
+        gtag('js', new Date());
+        gtag('config', 'GA_MEASUREMENT_ID');
+    </script>
+</body>
+</html>
