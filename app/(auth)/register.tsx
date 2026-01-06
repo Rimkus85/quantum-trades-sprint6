@@ -221,9 +221,9 @@ export default function RegisterScreen() {
         password: formData.password,
       });
 
-      if (result.success && result.requiresTwoFactor) {
-        showToast("Conta criada! Configure o 2FA para continuar.", "success");
-        router.push("/setup-2fa" as any);
+      if (result.success && result.requiresEmailVerification) {
+        showToast("Verifique seu e-mail para continuar.", "success");
+        router.push({ pathname: "/verify-email", params: { email: formData.email.trim().toLowerCase() } } as any);
       } else if (!result.success) {
         const fieldError = (result as any).field;
         if (fieldError) {

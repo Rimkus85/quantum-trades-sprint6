@@ -59,3 +59,4 @@
 - [x] Adicionar checkbox "Não tenho conta em nenhuma corretora" que desabilita seleção de corretoras
 - [x] Adicionar campo de celular com máscara brasileira (XX) XXXXX-XXXX
 - [x] Adicionar campo de usuário do Telegram com checkboxes "Mesmo do celular" e "Não tenho Telegram"
+- [x] Implementar validação de e-mail via código de verificação antes de finalizar cadastro

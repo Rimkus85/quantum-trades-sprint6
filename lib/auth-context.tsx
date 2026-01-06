@@ -28,7 +28,9 @@ export interface AuthState {
 }
 
 interface AuthContextType extends AuthState {
-  register: (data: RegisterData) => Promise<{ success: boolean; error?: string; requiresTwoFactor?: boolean }>;
+  register: (data: RegisterData) => Promise<{ success: boolean; error?: string; requiresEmailVerification?: boolean }>;
+  verifyEmailCode: (email: string, code: string) => Promise<{ success: boolean; error?: string }>;
+  resendEmailCode: (email: string) => Promise<{ success: boolean; error?: string }>;
   setupTwoFactor: () => Promise<{ secret: string; qrCode: string }>;
   verifyTwoFactor: (code: string) => Promise<{ success: boolean; error?: string }>;
   login: (email: string, password: string) => Promise<{ success: boolean; error?: string; requiresTwoFactor?: boolean }>;
@@ -160,8 +162,9 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
         return { success: false, error: "CPF já cadastrado", field: "cpf" };
       }
 
-      // Generate 2FA secret
+      // Generate 2FA secret and email verification code
       const twoFactorSecret = generateTOTPSecret();
+      const emailVerificationCode = Math.floor(100000 + Math.random() * 900000).toString();
 
       // Store pending registration
       const pendingUser = {
@@ -170,21 +173,93 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
         passwordHash: simpleHash(data.password),
         twoFactorSecret,
         twoFactorEnabled: false,
+        emailVerified: false,
+        emailVerificationCode,
+        emailVerificationExpiry: Date.now() + 10 * 60 * 1000, // 10 minutes
         createdAt: new Date().toISOString(),
       };
 
       await AsyncStorage.setItem(STORAGE_KEYS.PENDING_REGISTRATION, JSON.stringify(pendingUser));
 
+      // Simulate sending email (in production, call email API)
+      console.log(`[EMAIL SIMULATION] Verification code for ${data.email}: ${emailVerificationCode}`);
+
       setState(prev => ({
         ...prev,
-        requiresTwoFactor: true,
         pendingEmail: data.email,
       }));
 
-      return { success: true, requiresTwoFactor: true };
+      return { success: true, requiresEmailVerification: true };
     } catch (error) {
       console.error("Registration error:", error);
       return { success: false, error: "Erro ao criar conta. Tente novamente." };
+    }
+  }, []);
+
+  const verifyEmailCode = useCallback(async (email: string, code: string) => {
+    try {
+      const pendingJson = await AsyncStorage.getItem(STORAGE_KEYS.PENDING_REGISTRATION);
+      if (!pendingJson) {
+        return { success: false, error: "Sessão expirada. Faça o cadastro novamente." };
+      }
+
+      const pending = JSON.parse(pendingJson);
+      
+      if (pending.email !== email) {
+        return { success: false, error: "E-mail não corresponde ao cadastro." };
+      }
+
+      if (Date.now() > pending.emailVerificationExpiry) {
+        return { success: false, error: "Código expirado. Solicite um novo código." };
+      }
+
+      if (pending.emailVerificationCode !== code) {
+        return { success: false, error: "Código inválido. Verifique e tente novamente." };
+      }
+
+      // Mark email as verified
+      pending.emailVerified = true;
+      await AsyncStorage.setItem(STORAGE_KEYS.PENDING_REGISTRATION, JSON.stringify(pending));
+
+      setState(prev => ({
+        ...prev,
+        requiresTwoFactor: true,
+      }));
+
+      return { success: true };
+    } catch (error) {
+      console.error("Email verification error:", error);
+      return { success: false, error: "Erro ao verificar código. Tente novamente." };
+    }
+  }, []);
+
+  const resendEmailCode = useCallback(async (email: string) => {
+    try {
+      const pendingJson = await AsyncStorage.getItem(STORAGE_KEYS.PENDING_REGISTRATION);
+      if (!pendingJson) {
+        return { success: false, error: "Sessão expirada. Faça o cadastro novamente." };
+      }
+
+      const pending = JSON.parse(pendingJson);
+      
+      if (pending.email !== email) {
+        return { success: false, error: "E-mail não corresponde ao cadastro." };
+      }
+
+      // Generate new code
+      const newCode = Math.floor(100000 + Math.random() * 900000).toString();
+      pending.emailVerificationCode = newCode;
+      pending.emailVerificationExpiry = Date.now() + 10 * 60 * 1000; // 10 minutes
+
+      await AsyncStorage.setItem(STORAGE_KEYS.PENDING_REGISTRATION, JSON.stringify(pending));
+
+      // Simulate sending email (in production, call email API)
+      console.log(`[EMAIL SIMULATION] New verification code for ${email}: ${newCode}`);
+
+      return { success: true };
+    } catch (error) {
+      console.error("Resend email code error:", error);
+      return { success: false, error: "Erro ao reenviar código. Tente novamente." };
     }
   }, []);
 
@@ -503,6 +578,8 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
   const value: AuthContextType = {
     ...state,
     register,
+    verifyEmailCode,
+    resendEmailCode,
     setupTwoFactor,
     verifyTwoFactor,
     login,
