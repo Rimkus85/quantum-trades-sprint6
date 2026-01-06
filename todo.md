@@ -44,7 +44,7 @@
 - [x] Rotas tRPC para envio de e-mail
 - [ ] **DÉBITO TÉCNICO**: Configurar credenciais SMTP (aguardando contratação de serviço)
 
-## Sprint 2 - Onboarding e Gestão de Planos (EM ANDAMENTO)
+## Sprint 2 - Onboarding e Gestão de Planos (CONCLUÍDA)
 
 ### QT-05: Questionário de Perfil de Risco
 - [x] Tela de questionário com 5 perguntas
@@ -80,37 +80,93 @@
 - [x] Layout de navegação para onboarding
 - [x] Integração do fluxo: Cadastro → 2FA → Perfil de Risco → Termos → Planos → Trial → Dashboard
 - [x] Campos de onboarding no UserProfile (termsAccepted, riskProfile, subscriptionStatus, etc.)
+- [x] Testes de onboarding (27 testes passando)
 
-## Sprint 3 - Dashboard e Portfólio (PRÓXIMA)
+## Sprint 3 - Dashboard e Visualização de Dados (CONCLUÍDA)
 
-### QT-09: Dashboard Principal
-- [ ] Visão geral do portfólio
-- [ ] Saldo total e variação
-- [ ] Gráfico de evolução patrimonial
-- [ ] Indicadores de performance (retorno, win rate)
+### QT-09: Dashboard Principal com Resumo da Carteira
+- [x] Cards de resumo: valor total, retorno, número de trades
+- [x] Dados mockados inicialmente (preparado para integração futura)
+- [x] Indicadores de variação (positivo/negativo com cores)
+- [x] Header com saudação ao usuário e status do mercado
+- [x] Pull-to-refresh para atualizar dados
+- [x] Estatísticas rápidas: Operações, Win Rate, Retorno Médio
 
-### QT-10: Listagem de Operações
-- [ ] Lista de operações recentes
-- [ ] Filtros por período, ativo, status
-- [ ] Detalhes da operação
+### QT-10: Distribuição do Portfólio por Classe de Ativo
+- [x] Cards para cada classe: Ações, Opções, Cripto
+- [x] Percentual de alocação por classe
+- [x] Funcionalidade de expandir para ver detalhes dos ativos
+- [x] Gráfico de rosca (donut) com distribuição
+- [x] Tela dedicada de Portfólio com detalhamento completo
 
-### QT-11: Gestão de Bots
-- [ ] Lista de bots configurados
-- [ ] Status de cada bot (ativo, pausado, erro)
-- [ ] Configuração de estratégias
+### QT-11: Lista de Operações Recentes
+- [x] Tabela com 10 operações mais recentes
+- [x] Colunas: ativo, tipo, quantidade, preço, data, status
+- [x] Indicadores visuais de compra/venda e lucro/prejuízo
+- [x] Link para ver todas as operações
+- [x] Tela dedicada de Operações com filtros
+- [x] Modal de detalhes da operação
 
-### QT-12: Alertas e Notificações
-- [ ] Central de alertas
-- [ ] Configuração de notificações
-- [ ] Integração com Telegram
+### QT-12: Gráfico de Performance da Carteira
+- [x] Gráfico de linha com evolução patrimonial
+- [x] Seletor de período (1S, 1M, 3M, 1A, MAX)
+- [x] Componente LineChart com react-native-svg
+- [x] Gradiente e ponto destacado no final
 
-## Testes
-- [x] Testes unitários de validação (CPF, e-mail, senha)
-- [x] Testes de geração TOTP
-- [x] Testes de recuperação de senha
-- [x] Testes de segurança (hash de senha)
-- [ ] Testes de fluxo de onboarding
-- [ ] Testes de integração com backend
+### Navegação e Layout
+- [x] Tab bar com ícones: Dashboard, Portfólio, Operações, Menu
+- [x] Header fixo com logo e notificações
+- [x] Pull-to-refresh para atualizar dados
+- [x] Tela de Menu/Perfil do usuário
+- [x] Tela de Notificações
+
+### Testes Sprint 3
+- [x] Testes de dados do portfólio (5 testes)
+- [x] Testes de estatísticas de trading (5 testes)
+- [x] Testes de classes de ativos (4 testes)
+- [x] Testes de ativos individuais (4 testes)
+- [x] Testes de operações recentes (9 testes)
+- [x] Testes de gráfico de performance (10 testes)
+- [x] Testes de integração (3 testes)
+- [x] Total: 42 testes passando
+
+## Sprint 4 - Motor de IA e Bots (PRÓXIMA)
+
+### QT-13: Motor de Decisão IA v1
+- [ ] Implementação em Python
+- [ ] Setups básicos: Cruzamento de Médias, IFR2
+
+### QT-14: Orquestrador de Ordens
+- [ ] Modo DEMO para testes
+- [ ] Salvamento de ordens no banco
+
+### QT-15: Listagem de Bots
+- [ ] Tela com lista de bots
+- [ ] Status: ativo, pausado, erro
+
+### QT-16: Criação de Bots
+- [ ] Formulário de configuração
+- [ ] Seleção de estratégia
+
+## Sprint 5 - Integrações e Alertas (FUTURA)
+
+### QT-17: Integração Cedro OMS
+- [ ] Adapter para Cedro OMS
+- [ ] Conexão com sandbox
+
+### QT-18: Alertas Telegram
+- [ ] Integração com API do Telegram
+- [ ] Serviço de notificação
+
+### QT-19: Alertas de Preço
+- [ ] Cadastro de alertas
+- [ ] Monitoramento de preços
+
+## Testes Totais
+- [x] Testes de autenticação (12 testes)
+- [x] Testes de onboarding (27 testes)
+- [x] Testes de dashboard (42 testes)
+- [x] **Total: 81 testes passando**
 
 ## UI/UX
 - [x] Splash screen com logo
@@ -119,3 +175,11 @@
 - [x] Haptics em ações principais
 - [x] Toast de erros visível no topo
 - [x] Auto-scroll para campos com erro
+- [x] Gráficos interativos (LineChart, DonutChart)
+- [x] Pull-to-refresh em todas as listas
+
+## Débitos Técnicos
+- [ ] Configurar credenciais SMTP para envio de e-mail
+- [ ] Integração com gateway de pagamento (Stripe/PagSeguro)
+- [ ] Integração com APIs de mercado reais (B3, Cripto)
+- [ ] Substituir dados mockados por dados reais do backend

@@ -1,3 +1,8 @@
+/**
+ * Layout de Tabs - Sprint 3
+ * Dashboard, Portfólio, Operações, Menu
+ */
+
 import { Tabs } from "expo-router";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
 import MaterialIcons from "@expo/vector-icons/MaterialIcons";
@@ -39,6 +44,40 @@ export default function TabLayout() {
           tabBarIcon: ({ color }) => (
             <MaterialIcons size={24} name="dashboard" color={color} />
           ),
+        }}
+      />
+      <Tabs.Screen
+        name="portfolio"
+        options={{
+          title: "Portfólio",
+          tabBarIcon: ({ color }) => (
+            <MaterialIcons size={24} name="pie-chart" color={color} />
+          ),
+        }}
+      />
+      <Tabs.Screen
+        name="operations"
+        options={{
+          title: "Operações",
+          tabBarIcon: ({ color }) => (
+            <MaterialIcons size={24} name="swap-horiz" color={color} />
+          ),
+        }}
+      />
+      <Tabs.Screen
+        name="menu"
+        options={{
+          title: "Menu",
+          tabBarIcon: ({ color }) => (
+            <MaterialIcons size={24} name="menu" color={color} />
+          ),
+        }}
+      />
+      {/* Tela de notificações (não aparece na tab bar) */}
+      <Tabs.Screen
+        name="notifications"
+        options={{
+          href: null, // Esconde da tab bar
         }}
       />
     </Tabs>
