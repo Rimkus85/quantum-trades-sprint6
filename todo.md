@@ -119,6 +119,7 @@
 - [x] Pull-to-refresh para atualizar dados
 - [x] Tela de Menu/Perfil do usuário
 - [x] Tela de Notificações
+- [x] Registro da rota (onboarding) no root layout
 
 ### Testes Sprint 3
 - [x] Testes de dados do portfólio (5 testes)
@@ -129,6 +130,10 @@
 - [x] Testes de gráfico de performance (10 testes)
 - [x] Testes de integração (3 testes)
 - [x] Total: 42 testes passando
+
+### Correções
+- [x] Corrigido erro "Failed to download remote update" no Expo Go
+- [x] Adicionada rota (onboarding) no app/_layout.tsx
 
 ## Sprint 4 - Motor de IA e Bots (PRÓXIMA)
 
