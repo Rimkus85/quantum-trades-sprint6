@@ -135,6 +135,18 @@
 - [x] Corrigido erro "Failed to download remote update" no Expo Go
 - [x] Adicionada rota (onboarding) no app/_layout.tsx
 
+## Melhorias de UX/UI (CONCLUÍDA)
+
+### Melhorias Visuais e Interação
+- [x] Opção de expansão rotacional do gráfico no dashboard (modo paisagem)
+- [x] Alterar cores amarelas dos ícones e seleção do menu para branco
+- [x] Implementar efeitos de transição suaves entre telas (fadeSlide animation)
+- [x] Animações de entrada/saída de componentes (AnimatedScreen, AnimatedCard)
+- [x] Transições de navegação fluidas com spring animations
+- [x] Componente ExpandableChart com rotação automática para paisagem
+- [x] Componente SlideTransition para drilldown ao clicar
+- [x] DrilldownCard com zoom e slide
+
 ## Sprint 4 - Motor de IA e Bots (PRÓXIMA)
 
 ### QT-13: Motor de Decisão IA v1
@@ -180,8 +192,10 @@
 - [x] Haptics em ações principais
 - [x] Toast de erros visível no topo
 - [x] Auto-scroll para campos com erro
-- [x] Gráficos interativos (LineChart, DonutChart)
+- [x] Gráficos interativos (LineChart, DonutChart, ExpandableChart)
 - [x] Pull-to-refresh em todas as listas
+- [x] Transições slide com drilldown
+- [x] Animações spring suaves
 
 ## Débitos Técnicos
 - [ ] Configurar credenciais SMTP para envio de e-mail

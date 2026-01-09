@@ -18,10 +18,11 @@ import {
 } from "react-native";
 import { router } from "expo-router";
 import { ScreenContainer } from "@/components/screen-container";
+import { AnimatedScreen } from "@/components/animated-screen";
 import { Logo } from "@/components/ui/logo";
 import { useColors } from "@/hooks/use-colors";
 import { useLocalAuth } from "@/lib/auth-context";
-import { LineChart } from "@/components/charts/line-chart";
+import { ExpandableChart } from "@/components/charts/expandable-chart";
 import { DonutChart } from "@/components/charts/donut-chart";
 import MaterialIcons from "@expo/vector-icons/MaterialIcons";
 import * as Haptics from "expo-haptics";
@@ -100,6 +101,7 @@ export default function DashboardScreen() {
 
   return (
     <ScreenContainer className="p-0">
+      <AnimatedScreen type="fadeSlide" duration={350}>
       <ScrollView
         style={styles.scrollView}
         contentContainerStyle={styles.scrollContent}
@@ -168,11 +170,13 @@ export default function DashboardScreen() {
 
         {/* QT-12: Gráfico de Performance */}
         <View style={[styles.chartCard, { backgroundColor: colors.surface }]}>
-          <LineChart
+          <ExpandableChart
             data={performanceData}
-            height={180}
+            title="Performance da Carteira"
+            subtitle={`Período: ${PERIODS.find(p => p.id === selectedPeriod)?.label}`}
+            height={200}
+            showLabels={false}
             lineColor={colors.primary}
-            gradientColor={colors.primary}
           />
           
           {/* Seletor de período */}
@@ -325,6 +329,7 @@ export default function DashboardScreen() {
           </View>
         </View>
       </ScrollView>
+      </AnimatedScreen>
     </ScreenContainer>
   );
 }

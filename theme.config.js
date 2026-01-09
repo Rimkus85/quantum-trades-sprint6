@@ -1,7 +1,7 @@
 /** @type {const} */
 const themeColors = {
   // Quantum Trades Brand Colors
-  primary: { light: '#FFD700', dark: '#FFD700' }, // Dourado Quantum
+  primary: { light: '#FFFFFF', dark: '#FFFFFF' }, // Branco (ícones e seleção)
   background: { light: '#0A192F', dark: '#0A192F' }, // Azul Noturno
   surface: { light: '#112240', dark: '#112240' }, // Cards/Elevated
   foreground: { light: '#FFFFFF', dark: '#FFFFFF' }, // Texto principal

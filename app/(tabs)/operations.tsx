@@ -14,6 +14,7 @@ import {
   FlatList,
 } from "react-native";
 import { ScreenContainer } from "@/components/screen-container";
+import { AnimatedScreen } from "@/components/animated-screen";
 import { useColors } from "@/hooks/use-colors";
 import { LineChart } from "@/components/charts/line-chart";
 import MaterialIcons from "@expo/vector-icons/MaterialIcons";
@@ -126,6 +127,7 @@ export default function OperationsScreen() {
 
   return (
     <ScreenContainer className="p-0">
+      <AnimatedScreen type="fadeSlide" duration={350}>
       <View style={styles.container}>
         {/* Header */}
         <View style={styles.header}>
@@ -297,6 +299,7 @@ export default function OperationsScreen() {
           />
         )}
       </View>
+      </AnimatedScreen>
     </ScreenContainer>
   );
 }

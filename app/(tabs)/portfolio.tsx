@@ -13,6 +13,7 @@ import {
   RefreshControl,
 } from "react-native";
 import { ScreenContainer } from "@/components/screen-container";
+import { AnimatedScreen } from "@/components/animated-screen";
 import { useColors } from "@/hooks/use-colors";
 import { DonutChart } from "@/components/charts/donut-chart";
 import MaterialIcons from "@expo/vector-icons/MaterialIcons";
@@ -59,6 +60,7 @@ export default function PortfolioScreen() {
 
   return (
     <ScreenContainer className="p-0">
+      <AnimatedScreen type="fadeSlide" duration={350}>
       <ScrollView
         style={styles.scrollView}
         contentContainerStyle={styles.scrollContent}
@@ -246,6 +248,7 @@ export default function PortfolioScreen() {
           </View>
         )}
       </ScrollView>
+      </AnimatedScreen>
     </ScreenContainer>
   );
 }
