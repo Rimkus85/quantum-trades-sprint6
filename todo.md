@@ -208,3 +208,6 @@
 - [x] Corrigir erro de assets do Expo (limpar cache e reinstalar)
 - [x] Documentar bypass de código de verificação (qualquer 6 dígitos funciona)
 - [x] Criar CREDENCIAIS_TESTE.md com instruções completas
+
+## Correção de Validação de E-mail (CONCLUÍDA)
+- [x] Corrigir função verifyEmailCode para aceitar qualquer código de 6 dígitos
