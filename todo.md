@@ -202,3 +202,9 @@
 - [ ] Integração com gateway de pagamento (Stripe/PagSeguro)
 - [ ] Integração com APIs de mercado reais (B3, Cripto)
 - [ ] Substituir dados mockados por dados reais do backend
+
+
+## Correções Urgentes (CONCLUÍDA)
+- [x] Corrigir erro de assets do Expo (limpar cache e reinstalar)
+- [x] Documentar bypass de código de verificação (qualquer 6 dígitos funciona)
+- [x] Criar CREDENCIAIS_TESTE.md com instruções completas
