@@ -87,10 +87,21 @@ export function ExpandableChart({
     setIsExpanded(false);
   };
 
-  const screenDimensions = Dimensions.get("window");
+  const [modalDimensions, setModalDimensions] = useState(Dimensions.get("window"));
+
+  // Atualizar dimensões quando o modal abrir
+  React.useEffect(() => {
+    if (isExpanded) {
+      const subscription = Dimensions.addEventListener("change", ({ window }) => {
+        setModalDimensions(window);
+      });
+      return () => subscription?.remove();
+    }
+  }, [isExpanded]);
+
   const expandedHeight = isLandscape
-    ? screenDimensions.width * 0.7
-    : screenDimensions.height * 0.6;
+    ? modalDimensions.width * 0.6  // Usar 60% da largura em paisagem
+    : modalDimensions.height * 0.5; // Usar 50% da altura em retrato
 
   return (
     <>
@@ -165,9 +176,10 @@ export function ExpandableChart({
           </View>
 
           {/* Gráfico Expandido */}
-          <View style={styles.chartContainer}>
+          <View style={[styles.chartContainer, { width: modalDimensions.width, height: expandedHeight }]}>
             <LineChart
               data={data}
+              width={modalDimensions.width - 20}  // Largura total menos padding
               height={expandedHeight}
               showGrid={true}
               showLabels={true}

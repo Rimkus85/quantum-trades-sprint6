@@ -211,3 +211,20 @@
 
 ## Correção de Validação de E-mail (CONCLUÍDA)
 - [x] Corrigir função verifyEmailCode para aceitar qualquer código de 6 dígitos
+
+## Correção de Erro de Comunicação Expo (CONCLUÍDA)
+- [x] Investigar erro "Failed to download remote update"
+- [x] Reiniciar servidor Metro completamente
+- [x] Verificar conectividade e assets
+
+## Correções de Gráfico e UX (CONCLUÍDA)
+- [x] Rótulos de data já existiam no eixo X do gráfico
+- [x] Corrigir distorção do gráfico em modo horizontal (dimensões dinâmicas)
+- [x] Fazer gráfico expandir para tela cheia no modal (60% largura em paisagem)
+- [x] Documentar campo "variação" nos cards de operações (docs/CAMPO_VARIACAO.md)
+
+## Preparação para Produção (CONCLUÍDA)
+- [x] Documentar arquitetura de integração com APIs reais (docs/INTEGRACAO_PRODUCAO.md)
+- [x] Definir endpoints e autenticação para B3/corretoras (Cedro OMS, Binance)
+- [x] Planejar estrutura de dados real vs mock (DataProvider interface)
+- [x] Criar roadmap de implementação em 6 fases (6-10 semanas)

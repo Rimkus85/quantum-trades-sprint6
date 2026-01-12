@@ -16,6 +16,7 @@ interface DataPoint {
 interface LineChartProps {
   data: DataPoint[];
   height?: number;
+  width?: number;  // Largura customizada
   showGrid?: boolean;
   showLabels?: boolean;
   lineColor?: string;
@@ -25,6 +26,7 @@ interface LineChartProps {
 export function LineChart({
   data,
   height = 200,
+  width,
   showGrid = true,
   showLabels = true,
   lineColor,
@@ -34,8 +36,8 @@ export function LineChart({
   const chartLineColor = lineColor || colors.primary;
   const chartGradientColor = gradientColor || colors.primary;
 
-  const { width } = Dimensions.get("window");
-  const chartWidth = width - 40; // Padding horizontal
+  const screenWidth = Dimensions.get("window").width;
+  const chartWidth = width || (screenWidth - 40); // Usar width customizado ou padrão
   const chartHeight = height;
   const paddingTop = 20;
   const paddingBottom = showLabels ? 30 : 10;
